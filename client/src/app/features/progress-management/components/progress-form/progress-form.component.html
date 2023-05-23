@@ -1,0 +1,104 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzTitle]="(progress ? 'Chỉnh sửa' : 'Thêm mới') + ' tiến độ'"
+          [nzCentered]="true"
+          [nzWidth]="600"
+          (nzOnCancel)="onClose()">
+    <ng-container *nzModalContent>
+        <nz-spin [nzSpinning]="isLoading">
+            <app-form #form [data]="data">
+                <div class="grid grid-cols-2 gap-4">
+                    <app-form-select control="departmentId"
+                                     label="Khoa"
+                                     selectValue="id"
+                                     selectLabel="name"
+                                     [options]="departments || []"
+                                     [validators]="{ required: true }"/>
+                    <app-form-select control="semesterId"
+                                     label="Học kì"
+                                     selectValue="id"
+                                     selectLabel="name"
+                                     [options]="semesters || []"
+                                     [validators]="{ required: true }"/>
+                    <app-form-date control="propose"
+                                   label="Đề xuất đề tài"
+                                   isRange="true"
+                                   [disabledDate]="disabledProposeDate"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="report"
+                                   label="Nôp đề cương"
+                                   isRange="true"
+                                   [disabledDate]="disabledReportDate"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="report1"
+                                   label="Báo cáo tiến độ (lần 1)"
+                                   isRange="true"
+                                   [disabledDate]="disabledReport1Date"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="report2"
+                                   label="Báo cáo tiến độ (lần 2)"
+                                   isRange="true"
+                                   [disabledDate]="disabledReport2Date"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="report3"
+                                   label="Báo cáo tiến độ (lần 3)"
+                                   isRange="true"
+                                   [disabledDate]="disabledReport3Date"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="report4"
+                                   label="Báo cáo tiến độ (lần 4)"
+                                   isRange="true"
+                                   [disabledDate]="disabledReport4Date"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="instrCmt"
+                                   label="GVHD chấm đểm"
+                                   isRange="true"
+                                   [disabledDate]="disabledInstrCmtDate"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="rvrCmt"
+                                   label="GVPB chấm điểm"
+                                   isRange="true"
+                                   [disabledDate]="disabledRvrCmtDate"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="present"
+                                   label="Bảo vệ tốt nghiệp"
+                                   isRange="true"
+                                   [disabledDate]="disabledPresentDate"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                    <app-form-date control="completed"
+                                   label="Hoàn thiện đồ án"
+                                   isRange="true"
+                                   [disabledDate]="disabledCompletedDate"
+                                   [rangePlaceholder]="['Từ', 'Đến']"
+                                   [validators]="{ required: true }"
+                    ></app-form-date>
+                </div>
+            </app-form>
+        </nz-spin>
+    </ng-container>
+    <ng-container *nzModalFooter>
+        <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+            Trở về
+        </button>
+        <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">
+            Lưu
+        </button>
+    </ng-container>
+</nz-modal>

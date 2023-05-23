@@ -1,0 +1,51 @@
+version: '4.19'
+
+networks:
+  default:
+
+services:
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      - MYSQL_DATABASE=project_manager
+      - MYSQL_ROOT_PASSWORD=123456
+    ports:
+      - '3307:3306'
+    networks:
+      - default
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - ./redis-data:/data
+    ports:
+      - '6380:6379'
+    networks:
+      - default
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    ports:
+      - '3000:3000'
+    expose:
+      - 3000
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - default
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    networks:
+      - default

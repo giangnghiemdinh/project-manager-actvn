@@ -1,0 +1,44 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzCentered]="true"
+          [nzWidth]="600"
+          [nzTitle]="report?.type | reportName"
+          [nzBodyStyle]="{ paddingTop: '16px' }"
+          (nzOnCancel)="onClose()">
+    <ng-container *nzModalContent>
+        <app-form #form [data]="report">
+            <div class="grid grid-cols-1 gap-4">
+                <ng-container *ngIf="report?.type != type.REPORT">
+                    <app-form-file control="wordFile"
+                                   label="Quyển đồ án"
+                                   [validators]="{ required: true }"
+                                   [accept]="accept" [maxSize]="maxSize"/>
+                    <app-form-file control="reportFile"
+                                   label="Phiếu báo cáo"
+                                   [validators]="{ required: true }"
+                                   [accept]="accept" [maxSize]="maxSize"/>
+                </ng-container>
+                <app-form-file *ngIf="report && (report.type == type.REPORT || report.type == type.COMPLETED)"
+                               control="otherFile"
+                               [label]="report.type == type.REPORT ? 'Đề cương' : 'Khác'"
+                               [validators]="{ required: true }"
+                               [accept]="accept" [maxSize]="maxSize">
+                    <i label *ngIf="report.type == type.COMPLETED" class='cursor-pointer text-gray-400 bx bx-info-circle' nz-tooltip="File mềm của ĐATN, toàn bộ sản phẩm liên quan (chương trình, công cụ…)"></i>
+                </app-form-file>
+            </div>
+        </app-form>
+
+    </ng-container>
+    <ng-container *nzModalFooter>
+        <div class="flex items-center justify-between">
+            <div></div>
+            <div>
+                <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+                    Trở về
+                </button>
+                <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                    Lưu
+                </button>
+            </div>
+        </div>
+    </ng-container>
+</nz-modal>

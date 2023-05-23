@@ -1,0 +1,101 @@
+
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="title"
+                 [breadcrumbs]="[
+                    { title: 'Trang chủ' },
+                    { title: title }
+                 ]">
+        <div class="flex items-center gap-2" *hasRole="'Administrator'">
+            <button nz-button nzType="dashed" nzSize="large" [routerLink]="['./mass']">
+                Thành lập danh sách
+            </button>
+            <button nz-button nzType="primary" nzSize="large" (click)="onAdd()">
+                Thêm mới
+            </button>
+        </div>
+    </app-toolbar>
+    <div class="bg-white shadow border border-gray-150 rounded-md">
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+            <app-form #filterForm
+                      [data]="queryParams$ | async"
+                      [hidden]="{ page: 1, limit: 10 }">
+                <div class="grid grid-cols-12 gap-4">
+                    <app-form-select class="col-span-2" control="departmentId" placeholder="Khoa"
+                                     selectValue="id" selectLabel="name" allowClear
+                                     [showLabel]="false" [options]="departments$ | async"
+                    ></app-form-select>
+                    <app-form-select class="col-span-2" control="semesterId" placeholder="Học kỳ"
+                                     selectValue="id" selectLabel="name" allowClear
+                                     [showLabel]="false" [options]="semesters$ | async"
+                    ></app-form-select>
+                    <app-form-text class="col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
+                    <button nzSize="large" nz-button nzType="default" (click)="onSearch()">
+                        Tìm kiếm
+                    </button>
+                </div>
+            </app-form>
+        </div>
+        <app-table [showCheckbox]="false"
+                   [expandTemplate]="projectTable"
+                   [data]="reviewerStaffs$ | async"
+                   [isLoading]="isLoading$ | async"
+                   [pagination]="pagination$ | async"
+                   (pageChanges)="onPageChanges($event)">
+            <app-table-column key="department.name" title="Khoa" width="150px"/>
+            <app-table-column key="semester.name" title="Học kì" width="150px"/>
+            <app-table-column key="user.fullName" title="Người phản biện" width="200px">
+                <ng-template table-cell let-row>
+                    <a *ngIf="row.user" [routerLink]="['/user-management', row.user.id]">
+                        {{ row.user.fullName }}
+                    </a>
+                </ng-template>
+            </app-table-column>
+            <app-table-column *hasRole="'Administrator'" key="action" title="" width="70px" [right]="true">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center items-center gap-1">
+                        <div (click)="onEdit(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-edit-alt' ></i>
+                        </div>
+                        <div (click)="onDelete(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-trash-alt' ></i>
+                        </div>
+                    </div>
+                </ng-template>
+            </app-table-column>
+        </app-table>
+        <ng-template #projectTable let-data>
+            <div class="w-full">
+                <app-table [data]="data.projects"
+                           [showPagination]="false">
+                    <app-table-column key="students" title="Sinh viên">
+                        <ng-template table-cell let-row>
+                            <div *ngFor="let student of row.students">
+                                {{ student.code }} - {{ student.fullName }}
+                            </div>
+                        </ng-template>
+                    </app-table-column>
+                    <app-table-column key="name" title="Tên đề tài">
+                        <ng-template table-cell let-row>
+                            <a [routerLink]="['/project-management', row.id]">
+                                {{ row.name }}
+                            </a>
+                        </ng-template>
+                    </app-table-column>
+                    <app-table-column key="instructor.fullName" title="GV hướng dẫn"/>
+                </app-table>
+            </div>
+        </ng-template>
+    </div>
+
+</div>
+
+<app-reviewer-staff-form [isVisible]="isVisible$ | async"
+                         [isLoading]="isLoading$ | async"
+                         [reviewerStaff]="reviewerStaff$ | async"
+                         [departments]="departments$ | async"
+                         [semesters]="semesters$ | async"
+                         [projects]="projects$ | async"
+                         (ok)="onSave($event)"
+                         (cancel)="onClose()"
+                         (loadProject)="onReloadProject($event)"/>
+

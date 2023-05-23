@@ -1,0 +1,21 @@
+<div class="w-full h-full flex flex-col">
+    <app-header [isCollapsed]="isDesktop && isFixedSidebar"
+                (logout)="onLogout()" [profile]="profile$ | async"/>
+    <div class="flex flex-col flex-[1_auto] transition-all duration-300">
+        <app-sidebar [profile]="profile$ | async"
+                     [(isFixedSidebar)]="isFixedSidebar"
+                     [(isCollapsedSidebar)]="isCollapsedSidebar"/>
+        <div class="flex flex-col flex-[1_auto] transition-all duration-300"
+             [style.margin-top.px]="CONFIG.HEADER.HEIGHT"
+             [style.margin-left.px]="isDesktop ? (isFixedSidebar ? CONFIG.SIDEBAR.WIDTH : CONFIG.SIDEBAR.MIN_WIDTH) : 0">
+            <div class="flex flex-col flex-[1_auto] pt-6 px-4 lg:px-8">
+                <router-outlet/>
+            </div>
+        </div>
+        <nz-back-top [nzTemplate]="tpl">
+            <ng-template #tpl>
+                <i class='bx bx-vertical-top'></i>
+            </ng-template>
+        </nz-back-top>
+    </div>
+</div>

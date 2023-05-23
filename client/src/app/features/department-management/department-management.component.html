@@ -1,0 +1,47 @@
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="title"
+                 [breadcrumbs]="[
+                    { title: 'Trang chủ' },
+                    { title: title }
+                 ]">
+        <div class="flex items-center gap-2">
+            <button nz-button nzType="primary" nzSize="large" (click)="onAdd()">
+                Thêm mới
+            </button>
+        </div>
+    </app-toolbar>
+
+    <div class="grid grid-cols-3 gap-6" *ngIf="(departments$ | async) as departments">
+        <div class="bg-white border border-gray-150 shadow rounded-md py-2"
+             *ngFor="let department of departments">
+            <div class="flex justify-between items-center min-h-[70px] px-6 lg:px-8">
+                <div class="font-semibold text-xl">
+                    {{ department.name }}
+                </div>
+            </div>
+            <div class="px-6 lg:px-8">
+                <div class="font-semibold text-gray-500">
+                    Tổng số sinh viên: {{ department.studentCount }}
+                </div>
+                <div class="mt-2 text-gray-400">
+                    {{ department.description }}
+                </div>
+                <div class="my-4 flex items-center gap-4">
+                    <button class="w-1/2" nz-button nzType="primary" nzSize="large" (click)="onEdit(department.id!)">
+                        Chỉnh sửa
+                    </button>
+                    <button class="w-1/2" nz-button nzType="default" nzDanger nzSize="large">
+                        Xoá
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-department-form [isVisible]="isVisible$ | async"
+                     [isLoading]="isLoading$ | async"
+                     [department]="department$ | async"
+                     (ok)="onSave($event)"
+                     (cancel)="onClose()"
+></app-department-form>

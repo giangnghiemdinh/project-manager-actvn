@@ -1,0 +1,78 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzCentered]="true"
+          [nzWidth]="800"
+          [nzBodyStyle]="{ padding: '0' }"
+          (nzOnCancel)="onCancel()"
+          [nzFooter]="null"
+          nzTitle="">
+    <ng-container *nzModalContent>
+        <div class="flex flex-col md:flex-row">
+            <div class="w-full md:w-2/5 border-r border-gray-150 rounded-l-md overflow-hidden flex flex-col">
+                <div class="flex-shrink-0 px-4 py-3 bg-white border-b border-gray-150 font-bold text-base h-[50px] flex items-center">
+                    Tìm kiếm sinh viên
+                </div>
+                <div class="px-4 py-3 flex-1">
+                    <app-form>
+                        <app-form-text control="name" label="Tên sinh viên"/>
+                        <app-form-text control="code" label="Mã sinh viên" itemClass="mt-4"/>
+                    </app-form>
+                </div>
+                <div class="flex-shrink-0 flex items-center justify-between px-4 py-3 border-t border-gray-150">
+                    <button class="w-[100px]" nzSize="large" nz-button nzType="default">
+                        Làm mới
+                    </button>
+                    <button class="w-[100px]" nzSize="large" nz-button nzType="primary">
+                        Tìm kiếm
+                    </button>
+                </div>
+            </div>
+            <div class="w-full bg-[#F5F5F5] md:w-3/5 rounded-r-md overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-150 h-[50px] flex items-center justify-between">
+                    <span class="text-gray-500">Có <strong>{{ pagination.itemCount }}</strong> sinh viên được tìm thấy!</span>
+                </div>
+                <div *ngIf="initialized" class="h-[500px] bg-[#F5F5F5] overflow-x-hidden overflow-y-auto scrollable p-3">
+                    <nz-spin [nzSpinning]="isLoading"></nz-spin>
+                    <ng-container *uiScroll="let student of dataSource; let index = index;">
+                        <div class="bg-white rounded-md shadow"
+                             [class.mt-3]="index > 0">
+                            <div class="px-3 py-2 font-semibold border-b border-gray-150">
+                                {{ index < 10 ? '0' + (index + 1) : (index + 1) }}. {{ student.fullName }}
+                            </div>
+                            <div class="px-3 py-2 flex flex-col gap-2">
+                                <div>
+                                    <strong>Mã sinh viên:</strong>
+                                    {{ student.code }}
+                                </div>
+                                <div>
+                                    <strong>Số điện thoại:</strong>
+                                    {{ student.phone }}
+                                </div>
+                                <div>
+                                    <strong>Email:</strong>
+                                    {{ student.email }}
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex justify-between items-center border-t border-gray-150">
+                                <div></div>
+                                <button nzSize="small" nz-button
+                                        nzType="primary"
+                                        [nzDanger]="isMultiple && isSelected(student.id)"
+                                        (click)="onSelect(student)">
+                                    {{ isMultiple && isSelected(student.id) ? 'Bỏ chọn' : 'Chọn' }}
+                                </button>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+                <div *ngIf="isMultiple" class="flex bg-white items-center justify-between px-4 py-3 border-t border-gray-150">
+                    <div>
+                        Đã chọn: <strong>{{ selectedStudent.length }}</strong>
+                    </div>
+                    <button class="w-[100px]" nzSize="large" nz-button nzType="primary" (click)="onOk()">
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</nz-modal>

@@ -1,0 +1,88 @@
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="title"
+                 [breadcrumbs]="[
+                    { title: 'Trang chủ' },
+                    { title: this.title }
+                 ]">
+    </app-toolbar>
+
+    <div class="bg-white shadow border border-gray-150 rounded-md">
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+            <app-form #filterForm
+                      [data]="queryParams$ | async"
+                      [hidden]="{ page: 1, limit: 10 }">
+                <div class="grid grid-cols-12 gap-4">
+                    <app-form-select class="col-span-2" control="departmentId" placeholder="Khoa"
+                                     selectValue="id" selectLabel="name"
+                                     allowClear
+                                     [showLabel]="false" [options]="departments$ | async"
+                    ></app-form-select>
+                    <app-form-select class="col-span-2" control="status" placeholder="Trạng thái"
+                                     allowClear
+                                     [showLabel]="false" [options]="statuses"
+                    ></app-form-select>
+                    <app-form-text class="col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
+                    <button nzSize="large" nz-button nzType="default" (click)="onSearch()">
+                        Tìm kiếm
+                    </button>
+                </div>
+            </app-form>
+        </div>
+
+        <app-table [showCheckbox]="false"
+                   [scroll]="{ x: '2000px' }"
+                   [data]="projects$ | async"
+                   [pagination]="pagination$ | async"
+                   [isLoading]="isLoading$ | async"
+                   (pageChanges)="onPageChanges($event)">
+            <app-table-column key="name" title="Tên đề tài" width="200px"/>
+            <app-table-column key="status" title="Trạng thái" align="center" width="150px">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center">
+                        <div *ngIf="(row.status | projectStatus) as status"
+                             [ngClass]="status.class"
+                             class="rounded-md px-2 py-1 text-center w-[150px]">
+                            {{ status.label }}
+                        </div>
+                    </div>
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="department.name" title="Khoa" width="120px"/>
+            <app-table-column key="createdAt" title="Thời gian đề xuất" width="150px">
+                <ng-template table-cell let-row>
+                    {{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="instructor.fullName" title="Người hướng dẫn" width="150px">
+            </app-table-column>
+            <app-table-column key="students" title="Sinh viên thực hiện" width="150px">
+                <ng-template table-cell let-row>
+                    <div *ngFor="let student of row.students">
+                        {{ student.code }} - {{ student.fullName }}
+                    </div>
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="reviewedBy.fullName" title="Người duyệt" width="150px">
+            </app-table-column>
+            <app-table-column key="reason" title="Lý do" width="150px"/>
+            <app-table-column key="action" title="" width="50px" [right]="true">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center items-center gap-1">
+                        <div (click)="onApprove(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-check'></i>
+                        </div>
+                    </div>
+                </ng-template>
+            </app-table-column>
+        </app-table>
+    </div>
+</div>
+
+<app-project-approve-form [isVisible]="isVisible$ | async"
+                          [project]="project$ | async"
+                          [isLoading]="isLoading$ | async"
+                          [semesters]="semesters$ | async"
+                          [departments]="departments$ | async"
+                          (ok)="onSave($event)"
+                          (cancel)="onClose()"
+></app-project-approve-form>

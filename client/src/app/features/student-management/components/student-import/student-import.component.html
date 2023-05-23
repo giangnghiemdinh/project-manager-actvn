@@ -1,0 +1,50 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzCentered]="true"
+          [nzFooter]="null"
+          [nzWidth]="500"
+          (nzOnCancel)="onClose()">
+    <ng-container *nzModalContent>
+        <div class="flex items-center gap-1">
+            <div class="text-base font-bold">
+                Nhập sinh viên từ file dữ liệu
+            </div>
+            <div class="">
+                (Tải về file mẫu: <a class="text-blue-500">Excel file</a>)
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="font-bold">
+                Xử lý <span class="italic">trùng</span> mã sinh viên, khác thông tin sinh viên?
+            </div>
+            <div class="mt-1">
+                <nz-radio-group>
+                    <label class="block" nz-radio nzValue="A">Báo lỗi và dừng import</label>
+                    <label class="block" nz-radio nzValue="B">Thay thế bằng thông tin sinh viên mới</label>
+                </nz-radio-group>
+            </div>
+        </div>
+        <div class="mt-6">
+            <nz-upload
+                    class="w-full h-[180px]"
+                    nzType="drag"
+                    [nzMultiple]="false"
+                    [nzFileList]="files"
+                    [nzShowUploadList]="{ showRemoveIcon: true, showDownloadIcon: false }"
+                    [nzAccept]="['.xlsx', '.xls']"
+                    [nzCustomRequest]="customRequest"
+                    (nzChange)="onFileChanges($event)">
+                <p>
+                    <i class='bx bx-archive-out text-5xl'></i>
+                </p>
+                <p class="ant-upload-text">Chọn hoặc kéo thả tệp để tải lên</p>
+                <p class="ant-upload-hint">
+                    Kích thước tệp tối đa 5MB!
+                </p>
+            </nz-upload>
+        </div>
+        <div class="mt-6 flex justify-between gap-2">
+            <button nz-button nzSize="large" nzType="default">Quay lại</button>
+            <button nz-button nzSize="large" nzType="primary">Nhập danh sách</button>
+        </div>
+    </ng-container>
+</nz-modal>

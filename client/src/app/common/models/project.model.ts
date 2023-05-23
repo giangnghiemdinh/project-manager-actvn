@@ -1,0 +1,43 @@
+import { Department } from './department.model';
+import { User } from './user.model';
+import { Student } from './student.model';
+import { ProjectProgress } from './project-progress.model';
+import { ManagerStaff } from './manager-staff.model';
+import { ReviewerStaff } from './reviewer-staff.model';
+import { ExaminerCouncil } from './examiner-council.model';
+import { Semester } from './semester.model';
+import { ProjectStatus } from '../constants/project.constant';
+
+export interface Project {
+  id?:           number;
+  createdAt?:    Date;
+  updatedAt?:    Date;
+  name?:         string;
+  description?:  string;
+  requirement?:  string;
+  status?:       ProjectStatus;
+  semester?:     Semester;
+  semesterId?:   number;
+  departmentId?: number;
+  department?:   Department;
+  instructorId?: number;
+  instructor?:   User;
+  students?:     Student[];
+  instructorName?: string;
+  studentCodes?: string;
+  progresses?:   ProjectProgress[];
+  isManager?:    boolean;
+  isInstructor?: boolean;
+  isReviewer?:   boolean;
+  isCouncilManager?: boolean;
+  managerStaff?:    ManagerStaff;
+  reviewerStaff?:   ReviewerStaff;
+  reviewedById?: number;
+  reviewedBy?: User;
+  examinerCouncil?: ExaminerCouncil;
+  formScore?: number;
+  contentScore?: number;
+  summarizeScore?: number;
+  answerScore?: number;
+  conclusionScore?: number;
+}

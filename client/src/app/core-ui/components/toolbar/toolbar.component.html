@@ -1,0 +1,19 @@
+<div class="flex items-center justify-between mb-6">
+    <div class="mr-3">
+        <div class="text-base text-dark font-bold">{{ pageTitle }}</div>
+        <div class="flex gap-1 items-center text-sm text-gray-400">
+            <ng-container *ngFor="let item of breadcrumbs; let first = first">
+                <span *ngIf="!first">-</span>
+                <ng-container *ngIf="item.url; else noRouterTmpl">
+                    <a class="text-gray-400" [routerLink]="item.url" [queryParams]="item.queryParams">
+                        {{ item.title }}
+                    </a>
+                </ng-container>
+                <ng-template #noRouterTmpl>
+                    <span>{{ item.title }}</span>
+                </ng-template>
+            </ng-container>
+        </div>
+    </div>
+    <ng-content></ng-content>
+</div>

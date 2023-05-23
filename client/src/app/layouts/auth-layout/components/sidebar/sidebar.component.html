@@ -1,0 +1,30 @@
+<div class="border-r-0 lg:fixed z-[105] top-0 bottom-0 left-0 flex flex-col shrink-0 transition-all duration-300 ease-linear"
+     [style.background-color]="CONFIG.SIDEBAR.BACKGROUND"
+     [style.width.px]="isFixedSidebar || !isCollapsedSidebar
+            ? CONFIG.SIDEBAR.WIDTH
+            : CONFIG.SIDEBAR.MIN_WIDTH">
+    <!--Logo-->
+    <div class="border-b border-dashed flex items-center justify-between relative shrink-0 px-4"
+         [style.border-color]="CONFIG.SIDEBAR.BORDER"
+         [style.height.px]="CONFIG.HEADER.HEIGHT">
+        <a class="w-full flex items-center gap-1">
+            <img class="h-[40px] max-w-max" src="assets/images/logos/logo-1.png" alt=""/>
+            <div class="text-base text-white/90 font-bold opacity-0 inline whitespace-nowrap overflow-hidden transition-all duration-300"
+                 [class.opacity-100]="!isCollapsedSidebar">Quản lý đồ án</div>
+        </a>
+        <div (click)="isFixedSidebarChange.emit(!isFixedSidebar)"
+             class="absolute flex items-center justify-center text-base rounded-md top-1/2 left-full cursor-pointer -translate-x-1/2 -translate-y-1/2 h-[30px] w-[30px] border border-gray-150 shadow bg-white text-[#A1A5B7] hover:text-[#009ef7]">
+            <i class='bx bxs-chevrons-left transition-all duration-300' [class.rotate-180]="!isFixedSidebar"></i>
+        </div>
+    </div>
+
+    <!--Menu-->
+    <div class="flex-[1_0_auto] overflow-hidden">
+        <div class="my-5 over-flow-hidden"
+             [style.width.px]="CONFIG.SIDEBAR.WIDTH">
+            <app-menu [isCollapsedSidebar]="isCollapsedSidebar"
+                      [role]="profile?.role"/>
+        </div>
+    </div>
+
+</div>

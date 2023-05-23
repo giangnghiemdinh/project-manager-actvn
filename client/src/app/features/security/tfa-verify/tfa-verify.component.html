@@ -1,0 +1,74 @@
+<div id="app-forgot-password" class="w-full" *ngIf="auth$ | async as auth">
+    <div class="w-full text-center mb-8">
+        <h1 class="text-black font-extrabold mb-1 text-lg md:text-2xl">Xác Thực Tài Khoản</h1>
+        <div class="text-gray-400 font-semibold lg:text-base">
+            <ng-container *ngIf="auth.credentials!.requireOtpToken">
+                Vui lòng thiết lập thiết bị di động để xác thực
+            </ng-container>
+            <ng-container *ngIf="!auth.credentials!.requireOtpToken && auth.credentials!.twoFactorMethod === method.OTP">
+                Nhập mã xác minh trên ứng dụng di động
+            </ng-container>
+            <ng-container *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL">
+                Nhập mã xác minh đã được gửi đến
+            </ng-container>
+        </div>
+        <div *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL" class="mt-2 text-black font-semibold lg:text-base">
+            {{ auth.credentials!.email }}
+        </div>
+    </div>
+    <form (keydown.enter)="onVerify(auth)">
+        <ng-container *ngIf="auth.credentials!.requireOtpToken && auth.otpToken; else normalDescTmpl">
+            <div class="text-gray-500 mb-2">
+                Bước 1: Cài đặt ứng dụng Google Authentication trên điện thoại di động.
+            </div>
+            <div class="text-gray-500 mb-2">
+                Bước 2: Mở ứng dụng và quét mã vạch
+                <div class="w-full flex justify-center mt-2">
+                    <img qrCode [url]="auth.otpToken.url" class="w-[128px] h-[128px]" alt="" src=""/>
+                </div>
+                <div class="w-full flex justify-end mt-2">
+                    <a [class]="countdown > 0 ? 'text-gray-300 pointer-events-none' : 'text-[#009ef7]'"
+                       (click)="onReGetOtpToken(auth.credentials!.email!)">
+                        Không thể quét? <ng-container *ngIf="countdown > 0">({{ countdown }}s)</ng-container>
+                    </a>
+                </div>
+            </div>
+            <div class="text-gray-500 mb-2">
+                Bước 3: Nhập mã xác thực do ứng dụng cung cấp
+            </div>
+            <div class="mb-8">
+                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser" nzSize="large">
+                <app-form-error [formControl]="otp" label="Mã xác thực"/>
+            </div>
+        </ng-container>
+        <ng-template #normalDescTmpl>
+            <div class="lg:text-base mb-2">
+                Nhập mã xác thực gồm 6 chữ số
+            </div>
+            <div class="mb-8">
+                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser" nzSize="large">
+                <app-form-error [formControl]="otp" label="Mã xác thực"/>
+                <div class="w-full flex justify-end mt-2"
+                     *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL">
+                    <a [class]="countdown > 0 ? 'text-gray-300 pointer-events-none' : 'text-[#009ef7]'"
+                       (click)="onResend(auth.credentials!.email || '')">
+                        Không nhận được mã? <ng-container *ngIf="countdown > 0">({{ countdown }}s)</ng-container>
+                    </a>
+                </div>
+                <div class="mt-2">
+                    <label nz-checkbox [formControl]="isTrusted">Lưu thiết bị</label>
+                </div>
+            </div>
+        </ng-template>
+    </form>
+    <div class="flex items-center gap-4">
+        <button class="w-1/2" nz-button nzBlock nzType="primary" nzSize="large" (click)="onVerify(auth)">Xác thực</button>
+        <button class="w-1/2" nz-button nzBlock nzType="default" nzSize="large" [routerLink]="loginUrl">Trở về</button>
+    </div>
+
+    <div class="rounded-md text-red-600 bg-red-200 border border-red-300 mt-4 px-4 py-2"
+         *ngIf="(errors$ | async) as errors">
+        {{ errors.message || defaultError }}
+    </div>
+
+</div>

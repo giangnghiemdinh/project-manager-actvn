@@ -1,0 +1,214 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzCentered]="true"
+          [nzWidth]="800"
+          [nzTitle]="'Hôị đồng chấm điểm'"
+          [nzBodyStyle]="{ padding: '0' }"
+          (nzOnCancel)="onClose()">
+    <ng-container *nzModalContent>
+        <app-form #form [data]="project" [debounceTime]="300">
+            <nz-table [nzData]="[1, 2]" nzSize="middle" [nzScroll]="{y: '500px'}" nzBordered nzShowPagination="false">
+                <thead>
+                <tr>
+                    <th nzWidth="50px" nzAlign="center">TT</th>
+                    <th>Tiêu chí</th>
+                    <th nzWidth="100px" nzAlign="center">Thang điểm</th>
+                    <th nzWidth="100px" nzAlign="center">Cho điểm</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="font-semibold" nzAlign="center">1</td>
+                    <td class="font-semibold">Hình thức đồ án</td>
+                    <td class="font-semibold" nzAlign="center">15</td>
+                    <td>
+                        <app-form-number control="formScore"
+                                         noFormWrapper="true"
+                                         size="default"
+                                         [min]="0" [max]="15"
+                                         [precision]="0"
+                                         [validators]="{ required: true }"
+                                         (blur)="onValueChanges()"
+                        ></app-form-number>
+                    </td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">1.1</td>
+                    <td>Văn phong trong sáng, lập luận chặt chẽ, tham chiếu hình vẽ, bảng biểu và tài liệu tham khảo</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">1.2</td>
+                    <td>Định dạng đồ án đúng quy cách (phông chữ, căn lề, cách dòng, đánh số, viết tắt), chính tả</td>
+                    <td nzAlign="center">5</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="font-semibold" nzAlign="center">2</td>
+                    <td class="font-semibold">Nội dung đồ án</td>
+                    <td class="font-semibold" nzAlign="center">35</td>
+                    <td>
+                        <app-form-number control="contentScore"
+                                         noFormWrapper="true"
+                                         size="default"
+                                         [precision]="0"
+                                         [min]="0" [max]="35"
+                                         [validators]="{ required: true }"
+                                         (blur)="onValueChanges()"
+                        ></app-form-number>
+                    </td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">2.1</td>
+                    <td>Tính thời sự, ý nghĩa thực tiễn của đề tài</td>
+                    <td nzAlign="center">5</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">2.2</td>
+                    <td>Độ khó của đề tài (căn cứ mục tiêu đề tài, kết quả đạt được và mức độ phổ biến của các tài liệu tham khảo):</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td rowspan="4"></td>
+                    <td class="italic">+ Đề tài chỉ nghiên cứu lý thuyết và so sánh số liệu, đưa ra kết luận.</td>
+                    <td nzAlign="center">0</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="italic">+ Đề tài có nghiên cứu lý thuyết và có kết quả dữ liệu thực nghiệm.</td>
+                    <td nzAlign="center">4</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="italic">+ Đề tài có nghiên cứu lý thuyết, có kết quả dữ liệu thực nghiệm và có kết quả mang tính mới.</td>
+                    <td nzAlign="center">6</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="italic">+ Đề tài có nghiên cứu lý thuyết, có kết quả dữ liệu thực nghiệm, có kết quả mang tính mới và có khả năng ứng dụng thực tế ngoài đơn vị/doanh nghiệp.</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">2.3</td>
+                    <td>Sự cân đối dung lượng giữa các chương; nội dung từng chương bám sát mục tiêu của đồ án</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">2.4</td>
+                    <td>Sử dụng công cụ phù hợp để tiến hành thực nghiệm và kết quả đạt được:</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td rowspan="3"></td>
+                    <td class="italic">+ Không có kết quả thực nghiệm.</td>
+                    <td nzAlign="center">0</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="italic">+ Có mô tả phương thức thực nghiệm, không có dữ liệu thực nghiệm.</td>
+                    <td nzAlign="center">5</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="italic">+ Có mô tả phương thức thực nghiệm, có kết quả thực nghiệm.</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="font-semibold" nzAlign="center">3</td>
+                    <td class="font-semibold">Trình bày tóm tắt nội dung đồ án</td>
+                    <td class="font-semibold" nzAlign="center">20</td>
+                    <td>
+                        <app-form-number control="summarizeScore"
+                                         noFormWrapper="true"
+                                         size="default"
+                                         [min]="0" [max]="20"
+                                         [precision]="0"
+                                         [validators]="{ required: true }"
+                                         (blur)="onValueChanges()"
+                        ></app-form-number>
+                    </td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">3.1</td>
+                    <td>Nội dung của tài liệu trình bày (slide) rõ ràng, khoa học</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">3.2</td>
+                    <td>Trình bày lưu loát, chính xác, logic, tuân thủ thời lượng</td>
+                    <td nzAlign="center">10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="font-semibold" nzAlign="center">4</td>
+                    <td class="font-semibold">Trả lời câu hỏi của người phản biện và thành viên hội đồng</td>
+                    <td class="font-semibold" nzAlign="center">30</td>
+                    <td>
+                        <app-form-number control="answerScore"
+                                         noFormWrapper="true"
+                                         size="default"
+                                         [min]="0" [max]="30"
+                                         [precision]="0"
+                                         [validators]="{ required: true }"
+                                         (blur)="onValueChanges()"
+                        ></app-form-number>
+                    </td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">4.1</td>
+                    <td>Hiểu đúng câu hỏi</td>
+                    <td nzAlign="center">5</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td nzAlign="center">4.2</td>
+                    <td>Trả lời đúng và đủ ý cho các câu hỏi</td>
+                    <td nzAlign="center">25</td>
+                    <td></td>
+                </tr>
+                <tr class="font-semibold">
+                    <td colspan="2" nzAlign="center">TỔNG</td>
+                    <td nzAlign="center">100</td>
+                    <td nzAlign="center">{{ totalScore }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="font-bold text-center">
+                            ĐIỂM KẾT LUẬN
+                            <div class="font-normal italic">(Qui về điểm 10, làm tròn đến một chữ số thập phân)</div>
+                        </div>
+                        <p class="italic mt-2">
+                            <span class="font-bold">Ghi chú</span>: Sinh viên có kết quả bảo vệ đồ án nhỏ hơn 100 điểm nhưng có bài báo, đề tài nghiên cứu khoa học liên quan trực tiếp đến nội dung đề tài (có minh chứng kèm theo) được cộng thêm điểm thưởng. Điểm thưởng được tính tối đa là 10 theo thang điểm 100.
+                        </p>
+                    </td>
+                    <td></td>
+                    <td>
+                        <app-form-number control="conclusionScore"
+                                         noFormWrapper="true"
+                                         size="default"
+                                         [min]="0" [max]="10"
+                                         [precision]="1"
+                                         [validators]="{ required: true }"
+                        ></app-form-number>
+                    </td>
+                </tr>
+                </tbody>
+            </nz-table>
+        </app-form>
+    </ng-container>
+    <ng-container *nzModalFooter>
+        <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+            Trở về
+        </button>
+        <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+            Lưu
+        </button>
+    </ng-container>
+</nz-modal>

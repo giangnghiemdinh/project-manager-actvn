@@ -1,0 +1,210 @@
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="title"
+                 [breadcrumbs]="[
+                    { title: 'Trang chủ' },
+                    { title: this.title }
+                 ]">
+        <div class="flex items-center gap-2">
+            <ng-template [hasRole]="'Administrator'">
+                <button nzSize="large" nz-button nzType="dashed" (click)="onImport()">
+                    Nhập từ Excel
+                </button>
+                <button nzSize="large" nz-button nzType="primary" (click)="onAdd()">
+                    Thêm mới
+                </button>
+            </ng-template>
+            <button nzSize="large" nz-button nzType="primary" (click)="onPropose()">
+                Đề xuất
+            </button>
+        </div>
+    </app-toolbar>
+
+    <div class="bg-white shadow border border-gray-150 rounded-md">
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+            <app-form #filterForm
+                      [data]="queryParams$ | async"
+                      [hidden]="{ page: 1, limit: 10 }">
+                <div class="grid grid-cols-12 gap-4">
+                    <app-form-select class="col-span-2" control="state" placeholder="Loại"
+                                     [showLabel]="false" [options]="states" allowClear
+                    ></app-form-select>
+                    <app-form-select class="col-span-2" control="departmentId" placeholder="Khoa"
+                                     selectValue="id" selectLabel="name"
+                                     allowClear
+                                     [showLabel]="false" [options]="departments$ | async"
+                    ></app-form-select>
+                    <app-form-select class="col-span-2" control="semesterId" placeholder="Học kỳ"
+                                     selectValue="id" selectLabel="name"
+                                     allowClear
+                                     [showLabel]="false" [options]="semesters$ | async"
+                    ></app-form-select>
+                    <app-form-select class="col-span-2" control="status" placeholder="Trạng thái"
+                                     [showLabel]="false" [options]="statuses" allowClear
+                    ></app-form-select>
+                    <app-form-text class="col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
+                    <button nzSize="large" nz-button nzType="default" (click)="onSearch()">
+                        Tìm kiếm
+                    </button>
+                </div>
+            </app-form>
+        </div>
+
+        <app-table [showCheckbox]="false"
+                   [data]="projects$ | async"
+                   [pagination]="pagination$ | async"
+                   [isLoading]="isLoading$ | async"
+                   [scroll]="{ x: '1600px' }"
+                   (pageChanges)="onPageChanges($event)">
+            <app-table-column key="name" title="Tên đề tài" width="200px">
+                <ng-template table-cell let-row>
+                    <a [routerLink]="['./', row.id]">{{ row.name }}</a>
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="status" title="Trạng thái" align="center" width="150px">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center">
+                        <div *ngIf="(row.status | projectStatus) as status"
+                             [ngClass]="status.class"
+                             class="rounded-md px-2 py-1 text-center w-[150px]">
+                            {{ status.label }}
+                        </div>
+                    </div>
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="semester.name" title="Học kì" width="120px"/>
+            <app-table-column key="department.name" title="Khoa" width="80px"/>
+            <app-table-column key="instructor.fullName" title="Người hướng dẫn" width="120px">
+            </app-table-column>
+            <app-table-column key="students" title="Sinh viên thực hiện" width="150px">
+                <ng-template table-cell let-row>
+                    <div *ngFor="let student of row.students">
+                        {{ student.code }} - {{ student.fullName }}
+                    </div>
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="action" title="" width="80px" [right]="true">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center items-center gap-1">
+                        <ng-template [hasRole]="'Administrator'">
+                            <div (click)="onEdit(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                                <i class='bx bx-edit-alt' ></i>
+                            </div>
+                            <div [class.disabled]="row.status !== 'PENDING'" (click)="onDelete(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                                <i class='bx bx-trash-alt' ></i>
+                            </div>
+                        </ng-template>
+
+                        <div nz-dropdown [nzDropdownMenu]="menu" class="w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-dots-vertical-rounded' ></i>
+                        </div>
+                        <nz-dropdown-menu #menu="nzDropdownMenu">
+                            <div class="w-[250px] h-auto p-2 rounded-md bg-white shadow border border-gray-150">
+                                <div class="flex flex-col gap-1">
+                                    <ng-container *ngIf="row.isManager">
+                                        <div (click)="onReport(row.id!, progressType.REPORT)"
+                                             class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bxs-report text-black text-xl' ></i>
+                                            <span class="text-gray-500">Đề cương chi tiết</span>
+                                        </div>
+                                        <div (click)="onReport(row.id!, progressType.REPORT_1)"
+                                             class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bxs-report text-black text-xl' ></i>
+                                            <span class="text-gray-500">Báo cáo tiến độ (lần 1)</span>
+                                        </div>
+                                        <div (click)="onReport(row.id!, progressType.REPORT_2)"
+                                             class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bxs-report text-black text-xl' ></i>
+                                            <span class="text-gray-500">Báo cáo tiến độ (lần 2)</span>
+                                        </div>
+                                        <div (click)="onReport(row.id!, progressType.REPORT_3)"
+                                             class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bxs-report text-black text-xl' ></i>
+                                            <span class="text-gray-500">Báo cáo tiến độ (lần 3)</span>
+                                        </div>
+                                        <div (click)="onReport(row.id!, progressType.REPORT_4)"
+                                             class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bxs-report text-black text-xl' ></i>
+                                            <span class="text-gray-500">Báo cáo tiến độ (lần 4)</span>
+                                        </div>
+                                    </ng-container>
+                                    <div *ngIf="row.isInstructor" (click)="onReport(row.id!, progressType.INSTRUCTOR_REVIEW)"
+                                         class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                        <i class='bx bxs-report text-black text-xl' ></i>
+                                        <span class="text-gray-500">Nhận xét của CBHD</span>
+                                    </div>
+                                    <div *ngIf="row.isReviewer" (click)="onReport(row.id!, progressType.REVIEWER_REVIEW)"
+                                         class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                        <i class='bx bxs-user-detail text-black text-xl' ></i>
+                                        <span class="text-gray-500">Nhận xét của CBPB</span>
+                                    </div>
+                                    <ng-container *ngIf="row.isCouncilManager">
+                                        <div (click)="onCouncilReview(row.id!)" class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bx-group text-black text-xl' ></i>
+                                            <span class="text-gray-500">Hội đồng chấm điểm</span>
+                                        </div>
+                                        <div (click)="onReport(row.id!, progressType.COMPLETED)"
+                                             class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                            <i class='bx bxs-report text-black text-xl' ></i>
+                                            <span class="text-gray-500">Hoàn thiện đề tài</span>
+                                        </div>
+                                    </ng-container>
+
+                                    <div [routerLink]="['./', row.id]" class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                        <i class='bx bx-show text-black text-xl' ></i>
+                                        <span class="text-gray-500">Xem chi tiết</span>
+                                    </div>
+
+                                    <ng-template [hasRole]="'Administrator'">
+                                        <div class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base" (click)="onEdit(row.id!)">
+                                            <i class='bx bx-edit-alt text-black text-xl' ></i>
+                                            <span class="text-gray-500">Chỉnh sửa thông tin</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base" (click)="onDelete(row.id!)">
+                                            <i class='bx bx-trash-alt text-red-600 text-xl' ></i>
+                                            <span class="text-gray-500">Xoá</span>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </div>
+                        </nz-dropdown-menu>
+                    </div>
+                </ng-template>
+            </app-table-column>
+        </app-table>
+    </div>
+</div>
+
+<app-project-form [isVisible]="isVisible$ | async"
+                  [project]="project$ | async"
+                  [isLoading]="isLoading$ | async"
+                  [semesters]="semesters$ | async"
+                  [departments]="departments$ | async"
+                  [isPropose]="isPropose"
+                  (ok)="onSave($event)"
+                  (cancel)="onClose('form')"
+></app-project-form>
+
+<app-project-import [isVisible]="isVisibleImport$ | async"
+                    [isLoading]="isLoading$ | async"
+                    [semesters]="semesters$ | async"
+                    [departments]="departments$ | async"
+                    (ok)="onSaveImport($event)"
+                    (cancel)="onClose('import')"/>
+
+<app-progress-report [isVisible]="isVisibleReport$ | async"
+                     [isLoading]="isLoading$ | async"
+                     [report]="report$ | async"
+                     (ok)="onSaveReport($event)"
+                     (cancel)="onClose('report')"/>
+
+<app-project-review [isVisible]="isVisibleReview$ | async"
+                    [isLoading]="isLoading$ | async"
+                    [report]="report$ | async"
+                    (ok)="onSaveReview($event)"
+                    (cancel)="onClose('review')"/>
+
+<app-council-review [isVisible]="isVisibleCouncilReview$ | async"
+                    [isLoading]="isLoading$ | async"
+                    [project]="project$ | async"
+                    (ok)="onSaveCouncilReview($event)"
+                    (cancel)="onClose('council')"/>

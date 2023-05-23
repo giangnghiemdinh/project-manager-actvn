@@ -1,0 +1,106 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzTitle]="(examinerCouncil ? 'Chỉnh sửa' : 'Thêm mới') + ' hội đồng'"
+          [nzCentered]="true"
+          [nzWidth]="800"
+          [nzBodyStyle]="{ padding: '0' }"
+          (nzOnCancel)="onClose()">
+    <ng-container *nzModalContent>
+        <nz-spin [nzSpinning]="isLoading">
+            <app-form #form [data]="data" [emitChangesPatching]="false">
+                <div class="grid grid-cols-2 gap-4 max-h-[500px] px-6 py-4 overflow-y-auto scrollable">
+                    <app-form-select control="departmentId" label="Khoa"
+                                     selectValue="id" selectLabel="name"
+                                     [options]="departments"
+                                     [allowClear]="false"
+                                     [validators]="{ required: true }"
+                                     (valueChange)="onDepartmentOrSemesterChanges($event)"/>
+                    <app-form-select control="semesterId" label="Học kì"
+                                     selectValue="id" selectLabel="name"
+                                     [options]="semesters"
+                                     [allowClear]="false"
+                                     [validators]="{ required: true }"
+                                     (valueChange)="onDepartmentOrSemesterChanges($event)"/>
+                    <app-form-text control="location" label="Địa điểm"
+                                   class="col-span-2"
+                                   [validators]="{ required: true }"/>
+                    <app-form-wrapper class="col-span-2">
+                        <ng-container label>Danh sách thành viên</ng-container>
+                        <ng-container control>
+                            <app-table [scroll]="{ x: '500px' }" [data]="selectedUsers" size="small">
+                                <app-table-column key="user.fullName" title="Họ và tên" width="250px"/>
+                                <app-table-column key="position" title="Chức vụ" width="150px">
+                                    <ng-template table-cell let-row>
+                                        <div class="editable-cell" [hidden]="editId === row.userId" (click)="editId = row.userId">
+                                            {{ row?.position | councilPosition }}
+                                        </div>
+                                        <nz-select class="w-full" [(ngModel)]="row.position" [hidden]="editId !== row.userId" (ngModelChange)="editId = null">
+                                            <nz-option *ngFor="let position of positions"
+                                                       [nzValue]="position.value" [nzLabel]="position.label"
+                                            ></nz-option>
+                                        </nz-select>
+                                    </ng-template>
+                                </app-table-column>
+                                <app-table-column key="action" title="Hành động" align="center" width="100px">
+                                    <ng-template table-cell let-row>
+                                        <i (click)="onRemoveUser(row.userId!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
+                                    </ng-template>
+                                </app-table-column>
+                            </app-table>
+                            <div class="w-full flex justify-end mt-2">
+                                <button [disabled]="selectedUsers.length >= 5" nzSize="default" nz-button nzType="primary" (click)="onSearchUser()">
+                                    Thêm thành viên
+                                </button>
+                            </div>
+                        </ng-container>
+                    </app-form-wrapper>
+                    <app-form-wrapper class="col-span-2">
+                        <ng-container label>Danh sách đề tài bảo vệ</ng-container>
+                        <ng-container control>
+                            <app-table [data]="selectedProjects" [scroll]="{ x: '800px' }" size="small">
+                                <app-table-column key="students" title="Sinh viên thực hiện" width="250px">
+                                    <ng-template table-cell let-row>
+                                        <div *ngFor="let student of row.students">
+                                            {{ student.code }} - {{ student.fullName }}
+                                        </div>
+                                    </ng-template>
+                                </app-table-column>
+                                <app-table-column key="name" title="Tên đề tài" width="250px"/>
+                                <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px"/>
+                                <app-table-column key="reviewerStaff.user.fullName" title="GV phản biện" width="200px"/>
+                                <app-table-column key="action" title="" align="center" width="50px" [right]="true">
+                                    <ng-template table-cell let-row>
+                                        <i (click)="onRemoveProject(row.id!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
+                                    </ng-template>
+                                </app-table-column>
+                            </app-table>
+                            <div class="w-full flex justify-end mt-2">
+                                <button nzSize="default" nz-button nzType="primary" (click)="onSearchProject()">
+                                    Thêm đề tài
+                                </button>
+                            </div>
+                        </ng-container>
+                    </app-form-wrapper>
+                </div>
+            </app-form>
+        </nz-spin>
+    </ng-container>
+    <ng-container *nzModalFooter>
+        <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+            Trở về
+        </button>
+        <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">
+            Lưu
+        </button>
+    </ng-container>
+</nz-modal>
+
+<app-search-user [(isVisible)]="isVisibleSearchUser"
+                 [isMultiple]="true"
+                 (select)="onSelectUser($event)"/>
+
+<app-search-project [(isVisible)]="isVisibleSearchProject"
+                    [isMultiple]="true"
+                    [projects]="projects"
+                    [hiddenIds]="hiddenIds"
+                    (select)="onSelectProject($event)"/>
+

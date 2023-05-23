@@ -1,0 +1,20 @@
+export enum USER_DUPLICATE_EMAIL {
+  STOP,
+  REPLACE,
+}
+
+export enum PROJECT_DUPLICATE_NAME {
+  STOP,
+  REPLACE,
+  MERGE,
+}
+
+export enum PROJECT_STUDENT_NOT_EXIST {
+  STOP,
+  INSERT,
+}
+
+export enum PROJECT_INSTR_NOT_EXIST {
+  STOP,
+  INSERT,
+}

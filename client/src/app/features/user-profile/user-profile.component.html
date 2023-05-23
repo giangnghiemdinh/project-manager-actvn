@@ -1,0 +1,95 @@
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="!id ? 'Trang cá nhân' : 'Thông tin người dùng'"
+                 [breadcrumbs]="!id ? [
+                    { title: 'Trang chủ' },
+                    { title: 'Trang cá nhân' }
+                 ] : [
+                    { title: 'Trang chủ' },
+                    { title: 'Danh sách người dùng', url: '/user-management' },
+                    { title: (user$ | async)?.fullName || '' }
+                 ]">
+        <div class="flex items-center gap-2">
+            <ng-container *ngIf="id">
+                <button routerLink="/user-management" nz-button nzType="default" class="ml-2">Quay lại</button>
+                <button nz-button nzType="primary">Hành động</button>
+            </ng-container>
+        </div>
+    </app-toolbar>
+    <nz-spin [nzSpinning]="isLoading$ | async">
+        <div class="flex gap-8">
+            <div class="w-1/4">
+                <div class="bg-white shadow border border-gray-150 rounded-md min-h-[400px]">
+                    <ng-container *ngIf="(user$ | async) as user">
+                        <div class="p-4 flex flex-col items-center justify-center border-b border-gray-150">
+                            <div class="w-[100px] h-[100px] rounded-full">
+                                <img class="w-full h-full object-cover rounded-full"
+                                     [src]="user.avatar ? (user.avatar | driverUrl: 'image') : 'assets/images/avatars/default-avatar.jpg'" alt="">
+                            </div>
+                            <div class="mt-4 font-bold text-gray-600 text-base">{{ user.fullName }}</div>
+                            <div class="mt-1.5 w-fit text-xs px-1 bg-yellow-500 rounded-md text-white">{{ user.role | role }}</div>
+                        </div>
+                        <div class="p-4 py-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-base font-bold">Thông tin</div>
+                                <button nz-button nzSize="small" nzType="primary" (click)="onEdit()">Chỉnh sửa</button>
+                            </div>
+                            <div class="mt-2 flex flex-col gap-2">
+                                <div>
+                                    <div class="font-semibold text-gray-600">Email</div>
+                                    <div class="text-gray-400" [class.invisible]="!user.email">
+                                        {{ user.email || 'Email' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-600">Số điện thoại</div>
+                                    <div class="text-gray-400" [class.invisible]="!user.phone">
+                                        {{ user.phone || 'Phone' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-600">Ngày sinh</div>
+                                    <div class="text-gray-400" [class.invisible]="!user.birthday">
+                                        {{ user.birthday ? (user.birthday | date: 'dd/MM/yyyy') : 'Birthday' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-600">Đơn vị</div>
+                                    <div class="text-gray-400" [class.invisible]="!user.workPlace">
+                                        {{ user.workPlace || 'WorkPlace' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-600">Địa chỉ</div>
+                                    <div class="text-gray-400" [class.invisible]="!user.address">
+                                        {{ user.address || 'Address' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-600">Đăng nhập lần cuối</div>
+                                    <div class="text-gray-400" [class.invisible]="!user.lastLogin">
+                                        {{ user.lastLogin ? (user.lastLogin | date: 'dd/MM/yyyy HH:mm') : 'Last Login' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+            <div class="w-3/4">
+                <div class="flex flex-col gap-6">
+                    <app-user-security [id]="id" [user]="user$ | async"/>
+                    <app-user-sessions [sessions]="sessions$ | async" [pagination]="sessionPagination$ | async"/>
+                    <app-user-events [events]="events$ | async" [pagination]="eventsPagination$ | async" (pageChange)="onEventPageChange($event)"/>
+                </div>
+            </div>
+        </div>
+    </nz-spin>
+</div>
+
+<app-user-form [isVisible]="isVisible$ | async"
+               [isLoading]="isLoading$ | async"
+               [user]="user$ | async"
+               [departments]="departments$ | async"
+               [isSelf]="true"
+               (ok)="onSave($event)"
+               (cancel)="onClose()"/>

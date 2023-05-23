@@ -1,0 +1,76 @@
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="title"
+                 [breadcrumbs]="[
+                    { title: 'Trang chủ' },
+                    { title: title }
+                 ]">
+        <div class="flex items-center gap-2">
+            <button nzSize="large" nz-button nzType="dashed" (click)="onImport()">
+                Nhập từ Excel
+            </button>
+            <button nzSize="large" nz-button nzType="primary" (click)="onAdd()">
+                Thêm mới
+            </button>
+        </div>
+    </app-toolbar>
+    <div class="bg-white shadow border border-gray-150 rounded-md">
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+            <app-form #filterForm
+                      [data]="queryParams$ | async"
+                      [hidden]="{ page: 1, limit: 10 }">
+                <div class="grid grid-cols-12 gap-4">
+                    <app-form-select class="col-span-2" control="departmentId" placeholder="Khoa"
+                                     selectValue="id" selectLabel="name"
+                                     [showLabel]="false" [options]="departments$ | async"
+                    ></app-form-select>
+                    <app-form-text class="col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
+                    <button nzSize="large" nz-button nzType="default" (click)="onSearch()">
+                        Tìm kiếm
+                    </button>
+                </div>
+            </app-form>
+        </div>
+        <app-table [showCheckbox]="false"
+                   [data]="students$ | async"
+                   [isLoading]="isLoading$ | async"
+                   [pagination]="pagination$ | async"
+                   (pageChanges)="onPageChanges($event)">
+            <app-table-column key="fullName" title="Họ và tên" width="100px">
+            </app-table-column>
+            <app-table-column key="gender" title="Giới tính" width="100px">
+                <ng-template table-cell let-row>
+                    {{ row.gender | gender }}
+                </ng-template>
+            </app-table-column>
+            <app-table-column key="code" title="Mã sinh viên" width="100px"/>
+            <app-table-column key="department.name" title="Khoa" width="100px"/>
+            <app-table-column key="email" title="Email" width="100px"/>
+            <app-table-column key="action" title="" width="50px">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center items-center gap-1">
+                        <div (click)="onEdit(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-edit-alt' ></i>
+                        </div>
+                        <div (click)="onDelete(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-trash-alt' ></i>
+                        </div>
+                    </div>
+                </ng-template>
+            </app-table-column>
+        </app-table>
+    </div>
+
+</div>
+
+<app-student-form [isVisible]="isVisible$ | async"
+                  [isLoading]="isLoading$ | async"
+                  [student]="student$ | async"
+                  [departments]="departments$ | async"
+                  (ok)="onSave($event)"
+                  (cancel)="onClose()"
+></app-student-form>
+
+<app-student-import [isVisible]="isVisibleImport$ | async"
+                    [isLoading]="isLoading$ | async"
+                    (ok)="onSaveImport($event)"
+                    (cancel)="onCloseImport()"/>

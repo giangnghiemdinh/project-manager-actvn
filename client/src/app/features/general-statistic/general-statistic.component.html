@@ -1,0 +1,116 @@
+<div class="container mx-auto">
+    <app-toolbar [pageTitle]="title"
+                 [breadcrumbs]="[
+                    { title: 'Trang chủ' },
+                    { title: title }
+                 ]">
+        <div class="flex gap-2 items-center">
+            <button nz-button nz-dropdown [nzDropdownMenu]="menu1" class="flex items-center justify-center gap-1">
+                {{ department ? department.name : 'Tất cả khoa' }}
+                <i class='bx bx-chevron-down' ></i>
+            </button>
+            <nz-dropdown-menu #menu1="nzDropdownMenu">
+                <ul nz-menu *ngLet="department$ | async as departments">
+                    <li nz-menu-item (click)="onSelectDepartment()">
+                        Tất cả khoa
+                    </li>
+                    <li nz-menu-item *ngFor="let department of departments" (click)="onSelectDepartment(department)">
+                        {{ department.name }}
+                    </li>
+                </ul>
+            </nz-dropdown-menu>
+
+            <button nz-button nz-dropdown [nzDropdownMenu]="menu2" class="flex items-center justify-center gap-1">
+                {{ semester ? semester.name : 'Tất cả học kỳ' }}
+                <i class='bx bx-chevron-down' ></i>
+            </button>
+            <nz-dropdown-menu #menu2="nzDropdownMenu">
+                <ul nz-menu *ngLet="semesters$ | async as semesters">
+                    <li nz-menu-item (click)="onSelectSemester()">
+                        Tất cả học kỳ
+                    </li>
+                    <li nz-menu-item *ngFor="let semester of semesters" (click)="onSelectSemester(semester)">
+                        {{ semester.name }}
+                    </li>
+                </ul>
+            </nz-dropdown-menu>
+        </div>
+    </app-toolbar>
+
+    <div class="flex gap-6">
+        <div class="w-2/5 grid grid-cols-2 gap-6">
+            <div class="bg-white shadow border border-gray-150 rounded-md px-6 py-4">
+                <div class="flex justify-between">
+                    <div class="text-lg font-bold">Tổng số đề tài</div>
+                    <div class="w-[40px] h-[40px] rounded-full flex items-center justify-center bg-[#D3E2F7] text-base text-[#3b7ddd]">
+                        <i class='bx bx-food-menu' ></i>
+                    </div>
+                </div>
+                <div class="mt-1 text-3xl font-semibold">
+                    2.382
+                </div>
+            </div>
+            <div class="bg-white shadow border border-gray-150 rounded-md px-6 py-4">
+                <div class="flex justify-between">
+                    <div class="text-lg font-bold">Tổng số từ chối</div>
+                    <div class="w-[40px] h-[40px] rounded-full flex items-center justify-center bg-[#D3E2F7] text-base text-[#3b7ddd]">
+                        <i class='bx bx-task-x'></i>
+                    </div>
+                </div>
+                <div class="mt-1 text-3xl font-semibold">
+                    382
+                </div>
+            </div>
+            <div class="bg-white shadow border border-gray-150 rounded-md px-6 py-4">
+                <div class="flex justify-between">
+                    <div class="text-lg font-bold">Tỷ lệ bảo vệ</div>
+                    <div class="w-[40px] h-[40px] rounded-full flex items-center justify-center bg-[#D3E2F7] text-base text-[#3b7ddd]">
+                        <i class='bx bx-pie-chart-alt-2'></i>
+                    </div>
+                </div>
+                <div class="mt-1 text-3xl font-semibold">
+                    80%
+                </div>
+            </div>
+            <div class="bg-white shadow border border-gray-150 rounded-md px-6 py-4">
+                <div class="flex justify-between">
+                    <div class="text-lg font-bold">Điểm trung bình</div>
+                    <div class="w-[40px] h-[40px] rounded-full flex items-center justify-center bg-[#D3E2F7] text-base text-[#3b7ddd]">
+                        <i class='bx bx-code-curly' ></i>
+                    </div>
+                </div>
+                <div class="mt-1 text-3xl font-semibold">
+                    6.7
+                </div>
+            </div>
+        </div>
+        <div class="w-3/5 bg-white shadow border border-gray-150 rounded-md">
+            <div class="px-6 py-4 border-b border-gray-150">
+                <div class="font-bold text-lg text-[#262626] leading-none">Phổ điểm</div>
+            </div>
+            <div class="">
+                <div id="chart1" class="h-[300px] w-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-12">
+        <div class="col-span-4 bg-white shadow border border-gray-150 rounded-md">
+            <div class="px-6 py-4 border-b border-gray-150">
+                <div class="font-bold text-lg text-[#262626] leading-none">Điểm hệ số 4</div>
+            </div>
+            <div class="">
+                <div id="chart2" class="h-[300px] w-full"></div>
+            </div>
+        </div>
+<!--        <div class="col-span-8 bg-white shadow border border-gray-150 rounded-md">-->
+<!--            <div class="px-6 py-4 border-b border-gray-150">-->
+<!--                <div class="font-bold text-lg text-[#262626] leading-none">Tỷ lệ hoàn thành</div>-->
+<!--            </div>-->
+<!--            <div class="">-->
+<!--                <div id="chart3" class="h-[300px] w-full"></div>-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
+
+</div>
