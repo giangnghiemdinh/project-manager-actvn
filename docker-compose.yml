@@ -11,7 +11,7 @@ services:
       - MYSQL_DATABASE=project_manager
       - MYSQL_ROOT_PASSWORD=123456
     ports:
-      - '3307:3306'
+      - '3306:3306'
     networks:
       - default
   redis:
@@ -20,7 +20,7 @@ services:
     volumes:
       - ./redis-data:/data
     ports:
-      - '6380:6379'
+      - '6379:6379'
     networks:
       - default
   server:
@@ -46,6 +46,6 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - '8080:80'
+      - '80:80'
     networks:
       - default
