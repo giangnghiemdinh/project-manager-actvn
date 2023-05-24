@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Department, User } from '../../../common/models';
-import { Genders, Roles } from '../../../common/constants/user.constant';
+import { Genders, Roles } from '../../../common/constants';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,8 +11,6 @@ import {
     FormTextareaComponent,
     FormTextComponent
 } from '../form';
-
-;
 
 @Component({
     selector: 'app-user-form',
@@ -48,7 +46,9 @@ export class UserFormComponent {
     }
 
     onSave() {
-        if (!this.formComponent.isValid) { return; }
-        this.ok.emit({...this.formComponent.rawValue, id: this.user?.id});
+        if (!this.formComponent.isValid) {
+            return;
+        }
+        this.ok.emit({ ...this.formComponent.rawValue, id: this.user?.id });
     }
 }

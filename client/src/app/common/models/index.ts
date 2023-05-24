@@ -1,7 +1,6 @@
 export * from './router.model';
 export * from './user-login.model';
 export * from './user.model';
-export * from './user-settings.model';
 export * from './department.model';
 export * from './student.model';
 export * from './pagination.model';
@@ -17,3 +16,5 @@ export * from './user-event.model';
 export * from './project-import.model';
 export * from './user-import.model';
 export * from './reviewer-staff.model';
+export * from './user-verify.model';
+export * from './project-progress.model';

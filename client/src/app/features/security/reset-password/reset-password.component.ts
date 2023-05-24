@@ -13,7 +13,6 @@ import { FormErrorComponent } from '../../../core-ui/components';
 import { Params } from '@angular/router';
 import { AuthActions, AuthState, selectAuthErrors } from '../../../common/stores';
 import { LetDirective } from '../../../core-ui/directives';
-import { DEFAULT_ERROR_MESSAGE } from '../../../common/constants/common.constant';
 
 @Component({
     selector: 'app-reset-password',
@@ -29,10 +28,9 @@ export class ResetPasswordComponent {
     queryParams$ = this.routerStore.select(selectQueryParams);
     errors$ = this.store.select(selectAuthErrors);
     form = new FormGroup({
-        password: new FormControl('', [Validators.required, NoWhitespaceValidator]),
-        confirmPassword: new FormControl('', [Validators.required, NoWhitespaceValidator])
+        password: new FormControl('', [ Validators.required, NoWhitespaceValidator ]),
+        confirmPassword: new FormControl('', [ Validators.required, NoWhitespaceValidator ])
     }, [ ConfirmPasswordMatched ]);
-    defaultError = DEFAULT_ERROR_MESSAGE;
 
     constructor() {
         setTitle('Đổi mật khẩu');

@@ -5,11 +5,14 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotAcceptableException,
   Param,
   ParseIntPipe,
   Post,
   Put,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiAcceptedResponse,
@@ -37,6 +40,7 @@ import { UserChangePasswordRequestDto } from './dtos/user-change-password.dto';
 import { UserSessionPageRequestDto } from './dtos/user-session-page.dto';
 import { UserEventPageRequestDto } from './dtos/user-event-page.dto';
 import { SkipThrottle } from '@nestjs/throttler';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 @ApiTags('Người dùng')
@@ -124,10 +128,25 @@ export class UserController {
     description: 'Cập nhật thông tin',
   })
   @Auth()
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'avatarFile', maxCount: 1 }], {
+      fileFilter: (req, file, cb) => {
+        if (file.originalname.match(/^.*\.(jpg|png|jpeg)$/)) cb(null, true);
+        else {
+          cb(new NotAcceptableException('Vui lòng đính kèm hình ảnh!'), false);
+        }
+      },
+      limits: { fileSize: 5242880 },
+    }),
+  ) // Max 5MB
   async updateProfile(
+    @UploadedFiles() files: { avatarFile },
     @Body() request: UserRequestDto,
     @AuthUser() currentUser: UserEntity,
   ): Promise<UserDto> {
+    files?.avatarFile &&
+      files.avatarFile.length &&
+      (request.avatarFile = files.avatarFile[0]);
     return this.userService.updateUser(currentUser.id, request, currentUser);
   }
 
@@ -197,10 +216,25 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Auth(Role.ADMINISTRATOR)
   @ApiOkResponse({ type: UserDto, description: 'Thêm mới người dùng' })
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'avatarFile', maxCount: 1 }], {
+      fileFilter: (req, file, cb) => {
+        if (file.originalname.match(/^.*\.(jpg|png|jpeg)$/)) cb(null, true);
+        else {
+          cb(new NotAcceptableException('Vui lòng đính kèm hình ảnh!'), false);
+        }
+      },
+      limits: { fileSize: 5242880 },
+    }),
+  ) // Max 5MB
   async createUser(
+    @UploadedFiles() files: { avatarFile },
     @Body() request: UserRequestDto,
     @AuthUser() currentUser: UserEntity,
   ): Promise<UserDto> {
+    files?.avatarFile &&
+      files.avatarFile.length &&
+      (request.avatarFile = files.avatarFile[0]);
     return this.userService.createUser(request, currentUser);
   }
 
@@ -219,11 +253,26 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Auth(Role.ADMINISTRATOR)
   @ApiOkResponse({ type: UserDto, description: 'Cập nhật người dùng' })
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'avatarFile', maxCount: 1 }], {
+      fileFilter: (req, file, cb) => {
+        if (file.originalname.match(/^.*\.(jpg|png|jpeg)$/)) cb(null, true);
+        else {
+          cb(new NotAcceptableException('Vui lòng đính kèm hình ảnh!'), false);
+        }
+      },
+      limits: { fileSize: 5242880 },
+    }),
+  ) // Max 5MB
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
+    @UploadedFiles() files: { avatarFile },
     @Body() request: UserRequestDto,
     @AuthUser() currentUser: UserEntity,
   ): Promise<UserDto> {
+    files?.avatarFile &&
+      files.avatarFile.length &&
+      (request.avatarFile = files.avatarFile[0]);
     return this.userService.updateUser(id, request, currentUser);
   }
 

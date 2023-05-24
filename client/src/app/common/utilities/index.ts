@@ -5,5 +5,4 @@ export * from './parser';
 export * from './cookie';
 export * from './auth';
 export * from './media';
-export * from './text';
 export * from './pure';

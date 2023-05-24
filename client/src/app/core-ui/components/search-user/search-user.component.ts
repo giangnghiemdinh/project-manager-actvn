@@ -13,7 +13,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { Datasource, UiScrollModule } from 'ngx-ui-scroll';
 import { UserService } from '../../../common/services';
 import { lastValueFrom, map } from 'rxjs';
-import { Role } from '../../../common/constants/user.constant';
+import { Role } from '../../../common/constants';
 
 @Component({
     selector: 'app-search-user',
@@ -52,7 +52,8 @@ export class SearchUserComponent implements OnChanges {
     selectedUser: User[] = [];
 
     dataSource = new Datasource<any>({
-        get: (index, count, success) => { }
+        get: (index, count, success) => {
+        }
     });
 
     async ngOnChanges(changes: SimpleChanges) {
@@ -120,7 +121,7 @@ export class SearchUserComponent implements OnChanges {
 
                 this.isLoading = true;
                 return Promise.all(pagesRequest).then(pagesResult => {
-                    pagesResult = pagesResult.reduce((acc, result) => [...acc, ...result], []);
+                    pagesResult = pagesResult.reduce((acc, result) => [ ...acc, ...result ], []);
                     this.isLoading = false;
                     const start = startIndex - startPage * this.pagination.limit!;
                     const end = start + endIndex - startIndex + 1;
@@ -138,8 +139,8 @@ export class SearchUserComponent implements OnChanges {
     }
 
     private getData(page: number) {
-        if (!!this.cacheData[`${page}`]) {
-            return Promise.resolve(this.cacheData[`${page}`]);
+        if (!!this.cacheData[`${ page }`]) {
+            return Promise.resolve(this.cacheData[`${ page }`]);
         }
         return lastValueFrom(this.userService.getUsers({
             page,
@@ -148,7 +149,7 @@ export class SearchUserComponent implements OnChanges {
         }).pipe(
             map(res => {
                 this.pagination = res.meta;
-                this.cacheData[`${page}`] = res.data || [];
+                this.cacheData[`${ page }`] = res.data || [];
                 return res.data;
             })
         ));

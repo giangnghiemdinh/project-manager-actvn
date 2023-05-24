@@ -1,25 +1,24 @@
 import { Injectable } from '@angular/core';
 import { AbstractService } from '../abstracts';
 import { Department } from '../models';
-import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class DepartmentService extends AbstractService {
-  getDepartments(): Observable<Department[]> {
-    return this.get('department');
-  }
+    getDepartments() {
+        return this.get<Department[]>('department');
+    }
 
-  getDepartment(id: number): Observable<Department> {
-    return this.get(`department/${id}`);
-  }
+    getDepartment(id: number) {
+        return this.get<Department>(`department/${ id }`);
+    }
 
-  createDepartment(payload: Department): Observable<Department> {
-    return this.post('department', payload);
-  }
+    createDepartment(payload: Department) {
+        return this.post<Department>('department', { payload });
+    }
 
-  updateDepartment(payload: Department): Observable<Department> {
-    return this.put(`department/${payload.id}`, payload);
-  }
+    updateDepartment(payload: Department) {
+        return this.put<Department>(`department/${ payload.id }`, { payload });
+    }
 }

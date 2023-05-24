@@ -11,7 +11,6 @@ import { RO_FORGOT_PASS_FULL } from '../../../common/constants';
 import { RecaptchaComponent, RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { NoWhitespaceValidator } from '../../../common/validators';
-import { DEFAULT_ERROR_MESSAGE } from '../../../common/constants/common.constant';
 
 @Component({
     selector: 'app-login',
@@ -24,13 +23,12 @@ export class LoginComponent {
     @ViewChild('recaptcha') recaptcha!: RecaptchaComponent;
     private readonly store = inject(Store<AuthState>);
     form = new FormGroup({
-        email: new FormControl('', [Validators.required, Validators.email]),
-        password: new FormControl('', [Validators.required, NoWhitespaceValidator]),
-        // recaptcha: new FormControl(null, Validators.required)
+        email: new FormControl('', [ Validators.required, Validators.email ]),
+        password: new FormControl('', [ Validators.required, NoWhitespaceValidator ]),
+        recaptcha: new FormControl(null, Validators.required)
     });
     passwordVisible = false;
     forgotPassUrl = RO_FORGOT_PASS_FULL;
-    defaultError = DEFAULT_ERROR_MESSAGE;
     errors$ = this.store.select(selectAuthErrors);
 
     constructor() {
@@ -45,10 +43,12 @@ export class LoginComponent {
             return;
         }
         this.recaptcha?.reset();
-        this.store.dispatch(AuthActions.login({ payload: {
-            email: value.email || '',
-            password: value.password || '',
-            deviceId: getDeviceId()
-        }}));
+        this.store.dispatch(AuthActions.login({
+            payload: {
+                email: value.email || '',
+                password: value.password || '',
+                deviceId: getDeviceId()
+            }
+        }));
     }
 }

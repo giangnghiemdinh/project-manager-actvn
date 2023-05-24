@@ -11,7 +11,6 @@ import { FormErrorComponent } from '../../../core-ui/components';
 import { Store } from '@ngrx/store';
 import { AuthActions, AuthState, selectAuthErrors } from '../../../common/stores';
 import { AsyncPipe, NgIf } from '@angular/common';
-import { DEFAULT_ERROR_MESSAGE } from '../../../common/constants/common.constant';
 
 @Component({
     selector: 'app-forgot-password',
@@ -24,10 +23,9 @@ export class ForgotPasswordComponent {
     private readonly store = inject(Store<AuthState>);
     loginUrl = RO_LOGIN_FULL;
     errors$ = this.store.select(selectAuthErrors);
-    defaultError = DEFAULT_ERROR_MESSAGE;
 
     form = new FormGroup({
-        email: new FormControl<string>('', [Validators.email, Validators.required]),
+        email: new FormControl<string>('', [ Validators.email, Validators.required ]),
         recaptcha: new FormControl<string | null>(null, Validators.required)
     });
 
@@ -42,8 +40,10 @@ export class ForgotPasswordComponent {
             this.form.markAsTouched();
             return;
         }
-        this.store.dispatch(AuthActions.forgotPassword({ payload: {
-            email: value.email || ''
-        }}));
+        this.store.dispatch(AuthActions.forgotPassword({
+            payload: {
+                email: value.email || ''
+            }
+        }));
     }
 }

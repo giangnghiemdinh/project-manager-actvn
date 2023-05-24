@@ -1,48 +1,46 @@
 import { Injectable } from '@angular/core';
 import { AbstractService } from '../abstracts';
-import { Observable } from 'rxjs';
-import { PaginationPayload, PaginationResponse, User, UserEvent, UserSession } from '../models';
-import { UserImportPayload } from '../models/user-import.model';
-import { UserStatus } from '../constants/user.constant';
+import { PaginationPayload, PaginationResponse, User, UserEvent, UserImportPayload, UserSession } from '../models';
+import { UserStatus } from '../constants';
 
 @Injectable({
     providedIn: 'root'
 })
-export class UserService extends AbstractService  {
+export class UserService extends AbstractService {
 
-    getProfile(): Observable<User> {
-        return this.get('user/profile');
+    getProfile() {
+        return this.get<User>('user/profile');
     }
 
-    getUsers(payload: PaginationPayload): Observable<PaginationResponse<User>> {
-        return this.get('user', {...payload});
+    getUsers(payload: PaginationPayload) {
+        return this.get<PaginationResponse<User>>('user', { payload });
     }
 
-    getUser(id: number): Observable<User> {
-        return this.get(`user/${id}`);
+    getUser(id: number) {
+        return this.get<User>(`user/${ id }`);
     }
 
-    createUser(payload: User): Observable<User> {
-        return this.post('user', payload);
+    createUser(payload: User) {
+        return this.post<User>('user', { payload });
     }
 
-    importUser(payload: UserImportPayload): Observable<User> {
-        return this.post('user/import', payload);
+    importUser(payload: UserImportPayload) {
+        return this.post<User>('user/import', { payload });
     }
 
-    updateUser(payload: User): Observable<User> {
-        return this.put(`user/${payload.id}`, payload);
+    updateUser(payload: User) {
+        return this.put<User>(`user/${ payload.id }`, { payload });
     }
 
-    changeStatus(id: number, status: UserStatus): Observable<void> {
-        return this.post(`user/change-status`, { id, status });
+    changeStatus(id: number, status: UserStatus) {
+        return this.post<void>(`user/change-status`, { payload: { id, status } });
     }
 
-    getEvents(payload: PaginationPayload): Observable<PaginationResponse<UserEvent>> {
-        return this.get('user/events', payload)
+    getEvents(payload: PaginationPayload) {
+        return this.get<PaginationResponse<UserEvent>>('user/events', { payload })
     }
 
-    getSessions(payload: PaginationPayload): Observable<PaginationResponse<UserSession>> {
-        return this.get('user/sessions', payload)
+    getSessions(payload: PaginationPayload) {
+        return this.get<PaginationResponse<UserSession>>('user/sessions', { payload })
     }
 }

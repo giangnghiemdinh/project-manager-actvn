@@ -5,14 +5,16 @@
             <ng-container *ngIf="auth.credentials!.requireOtpToken">
                 Vui lòng thiết lập thiết bị di động để xác thực
             </ng-container>
-            <ng-container *ngIf="!auth.credentials!.requireOtpToken && auth.credentials!.twoFactorMethod === method.OTP">
+            <ng-container
+                    *ngIf="!auth.credentials!.requireOtpToken && auth.credentials!.twoFactorMethod === method.OTP">
                 Nhập mã xác minh trên ứng dụng di động
             </ng-container>
             <ng-container *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL">
                 Nhập mã xác minh đã được gửi đến
             </ng-container>
         </div>
-        <div *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL" class="mt-2 text-black font-semibold lg:text-base">
+        <div *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL"
+             class="mt-2 text-black font-semibold lg:text-base">
             {{ auth.credentials!.email }}
         </div>
     </div>
@@ -29,7 +31,8 @@
                 <div class="w-full flex justify-end mt-2">
                     <a [class]="countdown > 0 ? 'text-gray-300 pointer-events-none' : 'text-[#009ef7]'"
                        (click)="onReGetOtpToken(auth.credentials!.email!)">
-                        Không thể quét? <ng-container *ngIf="countdown > 0">({{ countdown }}s)</ng-container>
+                        Không thể quét?
+                        <ng-container *ngIf="countdown > 0">({{ countdown }}s)</ng-container>
                     </a>
                 </div>
             </div>
@@ -37,7 +40,8 @@
                 Bước 3: Nhập mã xác thực do ứng dụng cung cấp
             </div>
             <div class="mb-8">
-                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser" nzSize="large">
+                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser"
+                       nzSize="large">
                 <app-form-error [formControl]="otp" label="Mã xác thực"/>
             </div>
         </ng-container>
@@ -46,13 +50,15 @@
                 Nhập mã xác thực gồm 6 chữ số
             </div>
             <div class="mb-8">
-                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser" nzSize="large">
+                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser"
+                       nzSize="large">
                 <app-form-error [formControl]="otp" label="Mã xác thực"/>
                 <div class="w-full flex justify-end mt-2"
                      *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL">
                     <a [class]="countdown > 0 ? 'text-gray-300 pointer-events-none' : 'text-[#009ef7]'"
                        (click)="onResend(auth.credentials!.email || '')">
-                        Không nhận được mã? <ng-container *ngIf="countdown > 0">({{ countdown }}s)</ng-container>
+                        Không nhận được mã?
+                        <ng-container *ngIf="countdown > 0">({{ countdown }}s)</ng-container>
                     </a>
                 </div>
                 <div class="mt-2">
@@ -62,13 +68,14 @@
         </ng-template>
     </form>
     <div class="flex items-center gap-4">
-        <button class="w-1/2" nz-button nzBlock nzType="primary" nzSize="large" (click)="onVerify(auth)">Xác thực</button>
+        <button class="w-1/2" nz-button nzBlock nzType="primary" nzSize="large" (click)="onVerify(auth)">Xác thực
+        </button>
         <button class="w-1/2" nz-button nzBlock nzType="default" nzSize="large" [routerLink]="loginUrl">Trở về</button>
     </div>
 
     <div class="rounded-md text-red-600 bg-red-200 border border-red-300 mt-4 px-4 py-2"
          *ngIf="(errors$ | async) as errors">
-        {{ errors.message || defaultError }}
+        {{ errors.message }}
     </div>
 
 </div>

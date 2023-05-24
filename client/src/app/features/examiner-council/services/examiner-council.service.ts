@@ -1,33 +1,32 @@
 import { Injectable } from '@angular/core';
 import { AbstractService } from '../../../common/abstracts';
 import { ExaminerCouncil, PaginationPayload, PaginationResponse } from '../../../common/models';
-import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ExaminerCouncilService extends AbstractService {
-  getExaminerCouncils(payload: PaginationPayload): Observable<PaginationResponse<ExaminerCouncil>> {
-    return this.get('examiner-council', {...payload});
-  }
+    getExaminerCouncils(payload: PaginationPayload) {
+        return this.get<PaginationResponse<ExaminerCouncil>>('examiner-council', { payload });
+    }
 
-  getExaminerCouncil(id: number): Observable<ExaminerCouncil> {
-    return this.get(`examiner-council/${id}`);
-  }
+    getExaminerCouncil(id: number) {
+        return this.get<ExaminerCouncil>(`examiner-council/${ id }`);
+    }
 
-  createExaminerCouncil(payload: ExaminerCouncil): Observable<ExaminerCouncil> {
-    return this.post('examiner-council', payload);
-  }
+    createExaminerCouncil(payload: ExaminerCouncil) {
+        return this.post<ExaminerCouncil>('examiner-council', { payload });
+    }
 
-  createMultipleExaminerCouncil(payload: ExaminerCouncil[]): Observable<ExaminerCouncil> {
-    return this.post('examiner-council/multiple', payload);
-  }
+    createMultipleExaminerCouncil(payload: ExaminerCouncil[]) {
+        return this.post<ExaminerCouncil>('examiner-council/multiple', { payload });
+    }
 
-  updateExaminerCouncil(payload: ExaminerCouncil): Observable<ExaminerCouncil> {
-    return this.put(`examiner-council/${payload.id}`, payload);
-  }
+    updateExaminerCouncil(payload: ExaminerCouncil) {
+        return this.put<ExaminerCouncil>(`examiner-council/${ payload.id }`, { payload });
+    }
 
-  deleteExaminerCouncil(id: number): Observable<void> {
-    return this.delete(`examiner-council/${id}`);
-  }
+    deleteExaminerCouncil(id: number) {
+        return this.delete<void>(`examiner-council/${ id }`);
+    }
 }

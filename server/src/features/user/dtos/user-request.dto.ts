@@ -1,8 +1,4 @@
-import {
-  DateProperty,
-  EnumProperty,
-  StringProperty,
-} from '../../../common/decorators';
+import { DateProperty, EnumProperty, StringProperty, } from '../../../common/decorators';
 import { Gender, Role } from '../../../common/constants';
 
 export class UserRequestDto {
@@ -20,6 +16,9 @@ export class UserRequestDto {
   @StringProperty('Số điện thoại')
   readonly phone?: string;
 
+  @StringProperty('Ảnh đại diện')
+  avatar?: string;
+
   @StringProperty('Địa chỉ')
   readonly address?: string;
 
@@ -36,4 +35,6 @@ export class UserRequestDto {
   readonly workPlace?: string;
 
   password?: string;
+
+  avatarFile?: any;
 }

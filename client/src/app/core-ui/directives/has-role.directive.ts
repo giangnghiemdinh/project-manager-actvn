@@ -2,7 +2,7 @@ import { Directive, inject, Input, SimpleChanges, TemplateRef, ViewContainerRef 
 import { Store } from '@ngrx/store';
 import { AuthState, selectProfile } from '../../common/stores';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Role } from '../../common/constants/user.constant';
+import { Role } from '../../common/constants';
 
 type RoleType = 'Administrator' | 'Censor' | 'Lecturer';
 
@@ -25,11 +25,13 @@ export class HasRoleDirective {
 
     ngOnChanges(changes: SimpleChanges): void {
         const { hasRole } = changes;
-        if (hasRole) { this.validateRole(); }
+        if (hasRole) {
+            this.validateRole();
+        }
     }
 
     private validateRole() {
-        const roles: any[] = this.hasRole ? (Array.isArray(this.hasRole) ? this.hasRole : [ this.hasRole ]) : [];
+        const roles: any[] = this.hasRole ? ( Array.isArray(this.hasRole) ? this.hasRole : [ this.hasRole ] ) : [];
         if (!roles.length || roles.includes(this.role)) {
             this.showTemplateBlockInView();
         } else {

@@ -31,8 +31,8 @@ import { createMultipleExaminerCouncil, loadAllProjects } from '../../store/exam
 import { filter, take, withLatestFrom } from 'rxjs';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { CommonService, NotificationService } from '../../../../common/services';
-import { selectDepartments, selectSemesters } from '../../../../common/stores';
+import { NotificationService } from '../../../../common/services';
+import { CommonState, selectDepartments, selectSemesters } from '../../../../common/stores';
 import { setTitle } from '../../../../common/utilities';
 import { chunk, cloneDeep, shuffle, uniqBy } from 'lodash';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -80,7 +80,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 export class ExaminerCouncilSetupComponent {
 
     private readonly store = inject(Store<ExaminerCouncilState>);
-    private readonly commonStore = inject(Store<CommonService>);
+    private readonly commonStore = inject(Store<CommonState>);
     private readonly notification = inject(NotificationService);
     private readonly modal = inject(NzModalService);
 
@@ -109,54 +109,56 @@ export class ExaminerCouncilSetupComponent {
     editLocationId: number | null = null;
     positions = ExaminerCouncilPositions;
 
-    constructor() { setTitle(this.title); }
+    constructor() {
+        setTitle(this.title);
+    }
 
     onSave() {
         const payload: ExaminerCouncil[] = [];
         for (let i = 0; i < this.groups.length; i++) {
             const group = this.groups[i];
             if (!group.users.length) {
-                this.notification.error(`Vui lòng chọn thành viên cho hội đồng ${i + 1}`);
+                this.notification.error(`Vui lòng chọn thành viên cho hội đồng ${ i + 1 }`);
                 return;
             }
             if (!group.projects.length) {
-                this.notification.error(`Vui lòng chọn đề tài cho hội đồng ${i + 1}`);
+                this.notification.error(`Vui lòng chọn đề tài cho hội đồng ${ i + 1 }`);
                 return;
             }
             if (!group.location) {
-                this.notification.error(`Vui lòn nhập địa điểm cho hội đồng ${i + 1}`);
+                this.notification.error(`Vui lòn nhập địa điểm cho hội đồng ${ i + 1 }`);
                 return;
             }
             const chairPersonLength = group.users
                 .filter(u => u.position === ExaminerCouncilPosition.CHAIRPERSON).length;
             if (chairPersonLength > 1) {
-                this.notification.error(`Hội đồng ${i + 1} có tối đa 01 chủ tịch!`);
+                this.notification.error(`Hội đồng ${ i + 1 } có tối đa 01 chủ tịch!`);
                 return;
             }
             if (!chairPersonLength) {
-                this.notification.error(`Vui lòng chọn chủ tịch cho hội đồng ${i + 1}`);
+                this.notification.error(`Vui lòng chọn chủ tịch cho hội đồng ${ i + 1 }`);
                 return;
             }
 
             const adSecretaryLength = group.users
                 .filter(u => u.position === ExaminerCouncilPosition.ADMINISTRATIVE_SECRETARY).length;
             if (adSecretaryLength > 1) {
-                this.notification.error(`Hội đồng ${i + 1} có tối đa 01 thư ký hành chính!`);
+                this.notification.error(`Hội đồng ${ i + 1 } có tối đa 01 thư ký hành chính!`);
                 return;
             }
             if (!adSecretaryLength) {
-                this.notification.error(`Vui lòng chọn thư ký hành chính cho hội đồng ${i + 1}`);
+                this.notification.error(`Vui lòng chọn thư ký hành chính cho hội đồng ${ i + 1 }`);
                 return;
             }
 
             const secretaryLength = group.users
                 .filter(u => u.position === ExaminerCouncilPosition.SECRETARY).length;
             if (secretaryLength > 1) {
-                this.notification.error(`Hội đồng ${i + 1} có tối đa 01 thư ký!`);
+                this.notification.error(`Hội đồng ${ i + 1 } có tối đa 01 thư ký!`);
                 return;
             }
             if (!secretaryLength) {
-                this.notification.error(`Vui lòng chọn thư ký cho hội đồng ${i + 1}`);
+                this.notification.error(`Vui lòng chọn thư ký cho hội đồng ${ i + 1 }`);
                 return;
             }
 
@@ -172,29 +174,33 @@ export class ExaminerCouncilSetupComponent {
     }
 
     onSearchUser(groupIndex: number) {
-        if (this.groups[groupIndex].users.length >= 5) { return; }
+        if (this.groups[groupIndex].users.length >= 5) {
+            return;
+        }
         this.currentGroupIndex = groupIndex;
         this.isVisibleSearchUser = true;
     }
 
     onSelectUser(users: User[]) {
-        if (!users.length) { return; }
+        if (!users.length) {
+            return;
+        }
         const newUsers = users
-            .map(u => ({ user: u, userId: u.id, position: ExaminerCouncilPosition.MEMBER}));
-        this.groups[this.currentGroupIndex].users = (uniqBy([...this.groups[this.currentGroupIndex].users, ...newUsers], 'userId')).slice(0, 5);
+            .map(u => ( { user: u, userId: u.id, position: ExaminerCouncilPosition.MEMBER } ));
+        this.groups[this.currentGroupIndex].users = ( uniqBy([ ...this.groups[this.currentGroupIndex].users, ...newUsers ], 'userId') ).slice(0, 5);
     }
 
     onSearchProject(groupIndex: number) {
         this.currentGroupIndex = groupIndex;
         this.groups.forEach(g => {
-            this.hiddenIds = [...this.hiddenIds, ...g.projects.map(p => p.id!)];
+            this.hiddenIds = [ ...this.hiddenIds, ...g.projects.map(p => p.id!) ];
         });
         this.isVisibleSearchProject = true;
     }
 
     onSelectProject(projects: Project[]) {
         const currentGroup = this.groups[this.currentGroupIndex];
-        currentGroup.projects = [...currentGroup.projects, ...projects];
+        currentGroup.projects = [ ...currentGroup.projects, ...projects ];
     }
 
     onAddGroup() {
@@ -225,8 +231,8 @@ export class ExaminerCouncilSetupComponent {
         const { departmentId, semesterId } = form.controls;
         if (this.groups.some(g => g.projects.length) && this.currentDepartment && this.currentSemester
             && departmentId.value && semesterId.value
-            && (this.currentDepartment !== departmentId.value
-                || this.currentSemester !== semesterId.value)) {
+            && ( this.currentDepartment !== departmentId.value
+                || this.currentSemester !== semesterId.value )) {
             this.modal.confirm({
                 nzTitle: '',
                 nzContent: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn thiết lập lại danh sách?',
@@ -257,18 +263,20 @@ export class ExaminerCouncilSetupComponent {
     }
 
     private getAllProjects() {
-        this.store.dispatch(loadAllProjects({ payload: {
+        this.store.dispatch(loadAllProjects({
+            payload: {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
                 state: 'cne',
                 status: ProjectStatus.IN_REVIEW
-            }}));
+            }
+        }));
         this.store.select(selectIsLoaded)
             .pipe(
                 filter<boolean>(isLoaded => isLoaded),
                 take(1),
                 withLatestFrom(this.store.select(selectProjects))
-            ).subscribe(([_, projects]) => {
+            ).subscribe(([ _, projects ]) => {
             if (!projects.length) {
                 this.notification.warning('Không còn đề tài nào chưa có hội đồng.');
                 return;

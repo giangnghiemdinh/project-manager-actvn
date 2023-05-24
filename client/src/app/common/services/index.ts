@@ -6,3 +6,4 @@ export * from './notification.service';
 export * from './common.service';
 export * from './project.service';
 export * from './semester.service';
+export * from './excel.service';

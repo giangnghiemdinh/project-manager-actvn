@@ -1,33 +1,32 @@
 import { Injectable } from '@angular/core';
 import { AbstractService } from '../../../common/abstracts';
 import { PaginationPayload, PaginationResponse, ReviewerStaff } from '../../../common/models';
-import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReviewerStaffService extends AbstractService {
-    getReviewerStaffs(payload: PaginationPayload): Observable<PaginationResponse<ReviewerStaff>> {
-        return this.get('reviewer-staff', {...payload});
+    getReviewerStaffs(payload: PaginationPayload) {
+        return this.get<PaginationResponse<ReviewerStaff>>('reviewer-staff', { payload });
     }
 
-    getReviewerStaff(id: number): Observable<ReviewerStaff> {
-        return this.get(`reviewer-staff/${id}`);
+    getReviewerStaff(id: number) {
+        return this.get<ReviewerStaff>(`reviewer-staff/${ id }`);
     }
 
-    createReviewerStaff(payload: ReviewerStaff): Observable<ReviewerStaff> {
-        return this.post('reviewer-staff', payload);
+    createReviewerStaff(payload: ReviewerStaff) {
+        return this.post<ReviewerStaff>('reviewer-staff', { payload });
     }
 
-    createMultipleReviewerStaff(payload: ReviewerStaff[]): Observable<ReviewerStaff> {
-        return this.post('reviewer-staff/multiple', payload);
+    createMultipleReviewerStaff(payload: ReviewerStaff[]) {
+        return this.post<ReviewerStaff>('reviewer-staff/multiple', { payload });
     }
 
-    updateReviewerStaff(payload: ReviewerStaff): Observable<ReviewerStaff> {
-        return this.put(`reviewer-staff/${payload.id}`, payload);
+    updateReviewerStaff(payload: ReviewerStaff) {
+        return this.put<ReviewerStaff>(`reviewer-staff/${ payload.id }`, { payload });
     }
 
-    deleteReviewerStaff(id: number): Observable<void> {
-        return this.delete(`reviewer-staff/${id}`);
+    deleteReviewerStaff(id: number) {
+        return this.delete<void>(`reviewer-staff/${ id }`);
     }
 }

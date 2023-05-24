@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Role, Roles } from '../../common/constants/user.constant';
+import { Role, Roles } from '../../common/constants';
 
 @Pipe({
     name: 'role',
@@ -10,7 +10,7 @@ export class RolePipe implements PipeTransform {
     roles = Roles;
 
     transform(value?: Role): string {
-        return (!!value && this.roles.find(r => r.value === value)?.label) || '';
+        return ( !!value && this.roles.find(r => r.value === value)?.label ) || '';
     }
 
 }

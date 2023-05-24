@@ -15,7 +15,7 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { appReducers, metaReducers } from './app/app.reducer';
 import { provideEffects } from '@ngrx/effects';
 import { appEffects } from './app/app.effects';
-import { apiErrorsInterceptor, apiPrefixInterceptor, authInterceptor } from './app/common/intercepters';
+import { apiPrefixInterceptor, authInterceptor } from './app/common/intercepters';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { vi as viVn } from 'date-fns/locale';
 import { CustomSerializer } from './app/common/models';
@@ -31,7 +31,7 @@ void bootstrapApplication(AppComponent, {
     providers: [
         provideAnimations(),
         provideHttpClient(
-            withInterceptors([ apiPrefixInterceptor, authInterceptor, apiErrorsInterceptor ])
+            withInterceptors([ apiPrefixInterceptor, authInterceptor ])
         ),
         provideRouter(
             appRoutes,

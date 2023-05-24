@@ -1,7 +1,7 @@
 import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { CommonService, NotificationService } from '../../../../common/services';
+import { NotificationService } from '../../../../common/services';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import {
     FormComponent,
@@ -13,7 +13,7 @@ import {
     TableComponent,
     ToolbarComponent
 } from '../../../../core-ui/components';
-import { selectDepartments, selectSemesters } from '../../../../common/stores';
+import { CommonState, selectDepartments, selectSemesters } from '../../../../common/stores';
 import { RO_REVIEWER_STAFF } from '../../../../common/constants';
 import { Project, ReviewerStaff, User } from '../../../../common/models';
 import { setTitle } from '../../../../common/utilities';
@@ -69,7 +69,7 @@ import { RouterLink } from '@angular/router';
 })
 export class ReviewerStaffMassComponent {
     private readonly store = inject(Store<ReviewerStaffState>);
-    private readonly commonStore = inject(Store<CommonService>);
+    private readonly commonStore = inject(Store<CommonState>);
     private readonly notification = inject(NotificationService);
     private readonly modal = inject(NzModalService);
 
@@ -111,10 +111,10 @@ export class ReviewerStaffMassComponent {
         for (let i = 0; i < this.groups.length; i++) {
             const group = this.groups[i];
             payload.push({
-              semesterId: this.currentSemester,
-              departmentId: this.currentDepartment,
-              projects: group.projects,
-              userId: group.user?.id
+                semesterId: this.currentSemester,
+                departmentId: this.currentDepartment,
+                projects: group.projects,
+                userId: group.user?.id
             });
         }
         this.store.dispatch(ReviewerStaffActions.createMultipleReviewerStaff({ payload }));
@@ -126,7 +126,9 @@ export class ReviewerStaffMassComponent {
     }
 
     onSelectUser(users: User[]) {
-        if (!users.length) { return; }
+        if (!users.length) {
+            return;
+        }
         const [ user ] = users;
         this.groups[this.currentGroupIndex].user = user;
     }
@@ -134,15 +136,17 @@ export class ReviewerStaffMassComponent {
     onSearchProject(groupIndex: number) {
         this.currentGroupIndex = groupIndex;
         this.groups.forEach(g => {
-            this.hiddenIds = [...this.hiddenIds, ...g.projects.map(p => p.id!)];
+            this.hiddenIds = [ ...this.hiddenIds, ...g.projects.map(p => p.id!) ];
         });
         this.isVisibleSearchProject = true;
     }
 
     onSelectProject(projects: Project[]) {
-        if (!projects.length) { return; }
+        if (!projects.length) {
+            return;
+        }
         const currentGroup = this.groups[this.currentGroupIndex];
-        currentGroup.projects = [...currentGroup.projects, ...projects];
+        currentGroup.projects = [ ...currentGroup.projects, ...projects ];
     }
 
     onAddGroup() {
@@ -165,8 +169,8 @@ export class ReviewerStaffMassComponent {
         const { departmentId, semesterId } = form.controls;
         if (this.groups.some(g => g.projects.length) && this.currentDepartment && this.currentSemester
             && departmentId.value && semesterId.value
-            && (this.currentDepartment !== departmentId.value
-                || this.currentSemester !== semesterId.value)) {
+            && ( this.currentDepartment !== departmentId.value
+                || this.currentSemester !== semesterId.value )) {
             this.modal.confirm({
                 nzTitle: '',
                 nzContent: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn thiết lập lại danh sách?',
@@ -197,17 +201,19 @@ export class ReviewerStaffMassComponent {
     }
 
     private getAllProjects() {
-        this.store.dispatch(ReviewerStaffActions.loadAllProjects({ payload: {
+        this.store.dispatch(ReviewerStaffActions.loadAllProjects({
+            payload: {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
                 state: 'rne'
-            }}));
+            }
+        }));
         this.store.select(selectIsLoaded)
             .pipe(
                 filter<boolean>(isLoaded => isLoaded),
                 take(1),
                 withLatestFrom(this.store.select(selectProjects))
-            ).subscribe(([_, projects]) => {
+            ).subscribe(([ _, projects ]) => {
             if (!projects.length) {
                 this.notification.warning('Không còn đề tài nào chưa có nhóm.');
                 return;

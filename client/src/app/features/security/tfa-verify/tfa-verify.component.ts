@@ -13,7 +13,6 @@ import { UserVerifyPayload } from '../../../common/models/user-verify.model';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
-import { DEFAULT_ERROR_MESSAGE } from '../../../common/constants/common.constant';
 
 @Component({
     selector: 'app-tfa-verify',
@@ -39,7 +38,7 @@ export class TfaVerifyComponent {
         this.store.select(selectCredentials),
         this.store.select(selectOtpToken)
     ]).pipe(
-        map(([credentials, otpToken]) => ({credentials, otpToken}))
+        map(([ credentials, otpToken ]) => ( { credentials, otpToken } ))
     );
     errors$ = this.store.select(selectAuthErrors);
 
@@ -53,7 +52,6 @@ export class TfaVerifyComponent {
     isTrusted = new FormControl(false);
     loginUrl = RO_LOGIN_FULL;
     countdown = 0;
-    defaultError = DEFAULT_ERROR_MESSAGE;
 
     constructor() {
         setTitle('Xác thực tài khoản');
@@ -77,18 +75,24 @@ export class TfaVerifyComponent {
     }
 
     onReGetOtpToken(email: string) {
-        if (this.countdown > 0) { return; }
+        if (this.countdown > 0) {
+            return;
+        }
         this.startCountdown();
         this.store.dispatch(AuthActions.loadOTPToken({ payload: { email } }));
     }
 
     onResend(email: string) {
-        if (this.countdown > 0) { return; }
+        if (this.countdown > 0) {
+            return;
+        }
         this.startCountdown();
-        this.store.dispatch(AuthActions.resendEmail({ payload: {
-            email,
-            deviceId: getDeviceId()
-        }}));
+        this.store.dispatch(AuthActions.resendEmail({
+            payload: {
+                email,
+                deviceId: getDeviceId()
+            }
+        }));
     }
 
     private startCountdown() {
