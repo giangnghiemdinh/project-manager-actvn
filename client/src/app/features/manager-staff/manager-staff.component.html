@@ -56,10 +56,10 @@
             <ng-template [hasRole]="'Administrator'">
                 <app-table-column [responsive]="{ md: true }" key="action" title="" width="70px" [right]="true">
                     <ng-template table-cell let-row>
-                        <div (click)="onDelete(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
-                            <i class='bx bx-trash-alt' ></i>
-                        </div>
                         <div class="flex justify-center items-center gap-1">
+                            <div (click)="onDelete(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                                <i class='bx bx-trash-alt' ></i>
+                            </div>
                             <div (click)="onEdit(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
                                 <i class='bx bx-edit-alt' ></i>
                             </div>
