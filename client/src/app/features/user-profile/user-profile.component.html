@@ -9,7 +9,7 @@
                     { title: (user$ | async)?.fullName || '' }
                  ]">
         <div class="flex justify-end items-center gap-2">
-            <button routerLink="/user-management" nz-button nzType="default" class="ml-2">Quay lại</button>
+            <button routerLink="/user-management" nz-button nzType="default" class="ml-2">Trở về</button>
             <button *ngIf="id"  nz-button nzType="primary">Hành động</button>
         </div>
     </app-toolbar>

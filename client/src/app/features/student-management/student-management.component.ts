@@ -1,5 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     FormTextComponent,
@@ -43,6 +44,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { selectQueryParams } from '../../common/stores/router';
 import { RO_STUDENT_MANAGER } from '../../common/constants';
 import { StudentImportComponent } from './components/student-import/student-import.component';
+import { first } from 'rxjs';
 
 @Component({
     selector: 'app-student-management',
@@ -117,17 +119,23 @@ export class StudentManagementComponent {
     }
 
     onDelete(id: number) {
-        this.modal.confirm({
-            nzTitle: 'Bạn có chắc chắn muốn xoá sinh viên?',
+        const ref = this.modal.create({
+            nzWidth: 400,
+            nzContent: ConfirmComponent,
             nzClosable: false,
             nzCentered: true,
-            nzOkText: 'Xoá',
-            nzOkType: 'primary',
-            nzOkDanger: true,
-            nzOnOk: () => this.store.dispatch(deleteStudent({ payload: { id } })),
-            nzCancelText: 'Trở lại',
-            nzOnCancel: () => {}
+            nzAutofocus: null,
+            nzData: {
+                title: `Bạn có chắc chắn muốn xoá sinh viên?`,
+                okText: 'Xoá',
+                okDanger: true
+            },
+            nzFooter: null
         });
+        ref.afterClose
+            .pipe(first())
+            .subscribe(confirm => confirm
+                && this.store.dispatch(deleteStudent({ payload: { id } })));
     }
 
     onSave(value: Student) {

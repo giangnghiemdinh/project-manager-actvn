@@ -1,5 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     FormTextComponent,
@@ -32,6 +33,7 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { ReviewerStaffFormComponent } from './components/reviewer-staff-form/reviewer-staff-form.component';
 import { HasRoleDirective } from '../../core-ui/directives';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { first } from 'rxjs';
 
 @Component({
     selector: 'app-reviewer-staff',
@@ -105,17 +107,23 @@ export class ReviewerStaffComponent {
     }
 
     onDelete(id: number) {
-        this.modal.confirm({
-            nzTitle: 'Bạn có chắc chắn muốn xoá nhóm quản lý?',
+        const ref = this.modal.create({
+            nzWidth: 400,
+            nzContent: ConfirmComponent,
             nzClosable: false,
             nzCentered: true,
-            nzOkText: 'Xoá',
-            nzOkType: 'primary',
-            nzOkDanger: true,
-            nzOnOk: () => this.store.dispatch(ReviewerStaffActions.deleteReviewerStaff({ payload: { id } })),
-            nzCancelText: 'Trở lại',
-            nzOnCancel: () => {}
+            nzAutofocus: null,
+            nzData: {
+                title: `Bạn có chắc chắn muốn xoá nhóm phản biện?`,
+                okText: 'Xoá',
+                okDanger: true
+            },
+            nzFooter: null
         });
+        ref.afterClose
+            .pipe(first())
+            .subscribe(confirm => confirm
+                && this.store.dispatch(ReviewerStaffActions.deleteReviewerStaff({ payload: { id } })));
     }
 
     onSave(value: Student) {

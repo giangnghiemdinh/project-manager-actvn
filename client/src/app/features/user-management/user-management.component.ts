@@ -5,6 +5,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { AsyncPipe, DatePipe, NgForOf } from '@angular/common';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import {
+    ConfirmComponent,
     FormComponent,
     FormFileComponent,
     FormSelectComponent,
@@ -39,6 +40,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { UserImportComponent } from './components/user-import/user-import.component';
 import { Roles, UserStatus } from '../../common/constants/user.constant';
 import { UserImportPayload } from '../../common/models/user-import.model';
+import { first } from 'rxjs';
 
 @Component({
     selector: 'app-user-management',
@@ -124,17 +126,23 @@ export class UserManagementComponent {
 
     onChangeStatus(user: User) {
         const status = user.isActive ? UserStatus.DE_ACTIVE : UserStatus.ACTIVE;
-        this.modal.confirm({
-            nzTitle: `Bạn có chắc chắn muốn ${user.isActive ? 'huỷ kích hoạt' : 'kích hoạt'} người dùng?`,
+        const ref = this.modal.create({
+            nzWidth: 400,
+            nzContent: ConfirmComponent,
             nzClosable: false,
             nzCentered: true,
-            nzOkText: 'Đồng ý',
-            nzOkType: 'primary',
-            nzOkDanger: user.isActive,
-            nzOnOk: () => this.store.dispatch(UserActions.changeStatusUser({ payload: { id: user.id!, status } })),
-            nzCancelText: 'Trở lại',
-            nzOnCancel: () => {}
+            nzAutofocus: null,
+            nzData: {
+                title: `Bạn có chắc chắn muốn ${user.isActive ? 'huỷ kích hoạt' : 'kích hoạt'} người dùng?`,
+                okText: 'Đồng ý',
+                okDanger: user.isActive
+            },
+            nzFooter: null
         });
+        ref.afterClose
+            .pipe(first())
+            .subscribe(confirm => confirm
+                && this.store.dispatch(UserActions.changeStatusUser({ payload: { id: user.id!, status } })));
     }
 
     onSave(value: User) {

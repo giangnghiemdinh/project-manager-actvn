@@ -8,9 +8,10 @@ import { SemesterActions } from './store/semester.actions';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { AsyncPipe, DatePipe, NgForOf, NgIf } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ToolbarComponent } from '../../core-ui/components';
+import { ConfirmComponent, ToolbarComponent } from '../../core-ui/components';
 import { SemesterFormComponent } from './components/semester-form/semester-form.component';
 import { DepartmentFormComponent } from '../department-management/components/department-form/department-form.component';
+import { first } from 'rxjs';
 
 @Component({
     selector: 'app-semester-management',
@@ -59,17 +60,23 @@ export class SemesterManagementComponent {
     }
 
     onDelete(id: number) {
-        this.modal.confirm({
-            nzTitle: `Bạn có chắc chắn muốn xoá học kỳ?`,
+        const ref = this.modal.create({
+            nzWidth: 400,
+            nzContent: ConfirmComponent,
             nzClosable: false,
             nzCentered: true,
-            nzOkText: 'Đồng ý',
-            nzOkType: 'primary',
-            nzOkDanger: true,
-            nzOnOk: () => this.store.dispatch(SemesterActions.deleteSemester({ id })),
-            nzCancelText: 'Trở lại',
-            nzOnCancel: () => {}
+            nzAutofocus: null,
+            nzData: {
+                title: `Bạn có chắc chắn muốn xoá học kỳ?`,
+                okText: 'Xoá',
+                okDanger: true
+            },
+            nzFooter: null
         });
+        ref.afterClose
+            .pipe(first())
+            .subscribe(confirm => confirm
+                && this.store.dispatch(SemesterActions.deleteSemester({ id })));
     }
 
     onClose() {

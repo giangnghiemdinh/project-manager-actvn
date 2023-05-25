@@ -1,6 +1,7 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { setTitle } from '../../common/utilities';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     FormTextComponent,
@@ -41,6 +42,7 @@ import { ExaminerCouncilFormComponent } from './components/examiner-council-form
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { CouncilPositionPipe } from './council-position.pipe';
 import { HasRoleDirective } from '../../core-ui/directives';
+import { first } from 'rxjs';
 
 @Component({
     selector: 'app-manager-council',
@@ -115,17 +117,23 @@ export class ExaminerCouncilComponent {
     }
 
     onDelete(id: number) {
-        this.modal.confirm({
-            nzTitle: 'Bạn có chắc chắn muốn xoá hội đồng?',
+        const ref = this.modal.create({
+            nzWidth: 400,
+            nzContent: ConfirmComponent,
             nzClosable: false,
             nzCentered: true,
-            nzOkText: 'Xoá',
-            nzOkType: 'primary',
-            nzOkDanger: true,
-            nzOnOk: () => this.store.dispatch(deleteExaminerCouncil({ payload: { id } })),
-            nzCancelText: 'Trở lại',
-            nzOnCancel: () => {}
+            nzAutofocus: null,
+            nzData: {
+                title: `Bạn có chắc chắn muốn xoá hội đồng?`,
+                okText: 'Xoá',
+                okDanger: true
+            },
+            nzFooter: null
         });
+        ref.afterClose
+            .pipe(first())
+            .subscribe(confirm => confirm
+                && this.store.dispatch(deleteExaminerCouncil({ payload: { id } })));
     }
 
     onSave(value: Student) {

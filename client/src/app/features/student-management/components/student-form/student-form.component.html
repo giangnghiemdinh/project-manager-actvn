@@ -30,11 +30,13 @@
         </nz-spin>
     </ng-container>
     <ng-container *nzModalFooter>
-        <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
-            Trở về
-        </button>
-        <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">
-            Lưu
-        </button>
+        <div class="flex items-center justify-between">
+            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+                Trở về
+            </button>
+            <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                Lưu
+            </button>
+        </div>
     </ng-container>
 </nz-modal>

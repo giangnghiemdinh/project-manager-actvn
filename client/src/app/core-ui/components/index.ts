@@ -4,6 +4,7 @@ export * from './search-user/search-user.component';
 export * from './search-student/search-student.component';
 export * from './search-project/search-project.component';
 export * from './user-form/user-form.component';
+export * from './confirm/confirm.component';
 
 // Form
 export * from './form';

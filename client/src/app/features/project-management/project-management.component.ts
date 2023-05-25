@@ -1,5 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     FormTextComponent,
@@ -46,6 +47,7 @@ import { ProjectReviewComponent } from './components/project-review/project-revi
 import { ProjectImportComponent } from './components/project-import/project-import.component';
 import { CouncilReviewComponent } from './components/council-review/council-review.component';
 import { ProjectProgressType, ProjectStatuses, RO_PROJECT_MANAGER } from '../../common/constants';
+import { first } from 'rxjs';
 
 @Component({
     selector: 'app-project-management',
@@ -129,17 +131,23 @@ export class ProjectManagementComponent {
     }
 
     onDelete(id: number) {
-        this.modal.confirm({
-            nzTitle: 'Bạn có chắc chắn muốn xoá đề tài?',
+        const ref = this.modal.create({
+            nzWidth: 400,
+            nzContent: ConfirmComponent,
             nzClosable: false,
             nzCentered: true,
-            nzOkText: 'Xoá',
-            nzOkType: 'primary',
-            nzOkDanger: true,
-            nzOnOk: () => this.store.dispatch(ProjectActions.deleteProject({ payload: { id } })),
-            nzCancelText: 'Trở lại',
-            nzOnCancel: () => {}
+            nzAutofocus: null,
+            nzData: {
+                title: `Bạn có chắc chắn muốn xoá đề tài?`,
+                okText: 'Xoá',
+                okDanger: true
+            },
+            nzFooter: null
         });
+        ref.afterClose
+            .pipe(first())
+            .subscribe(confirm => confirm
+                && this.store.dispatch(ProjectActions.deleteProject({ payload: { id } })));
     }
 
     onSave(payload: Project) {

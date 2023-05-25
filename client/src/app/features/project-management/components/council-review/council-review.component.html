@@ -2,7 +2,7 @@
           [nzCentered]="true"
           [nzWidth]="800"
           [nzTitle]="'Hôị đồng chấm điểm'"
-          [nzBodyStyle]="{ padding: '0' }"
+          [nzBodyStyle]="{ padding: '0', maxHeight: 'unset' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
         <app-form #form [data]="project" [debounceTime]="300">
