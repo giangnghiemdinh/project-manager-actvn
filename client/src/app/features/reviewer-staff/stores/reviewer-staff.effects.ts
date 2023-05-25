@@ -24,7 +24,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.loadAllProjects),
             map(action => action.payload),
             switchMap((payload: PaginationPayload) =>
-                this.projectService.getProjects(payload).pipe(
+                this.projectService.getProjects({ ...payload, extra: 'd' }).pipe(
                     map(response => {
                         return response.meta.hasNextPage
                             ? ReviewerStaffActions.loadAllProjects({

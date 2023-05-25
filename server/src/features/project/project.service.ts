@@ -110,6 +110,10 @@ export class ProjectService {
         'examinerCouncilUsers.position',
       ]);
 
+    if (pageOptionsDto.extra?.includes('d')) {
+      queryBuilder.addSelect(['project.description', 'project.requirement']);
+    }
+
     if (pageOptionsDto.q) {
       queryBuilder.where('UCASE(project.name) LIKE :q', {
         q: `${pageOptionsDto.q.toUpperCase()}`,

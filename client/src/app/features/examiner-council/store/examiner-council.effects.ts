@@ -24,7 +24,7 @@ export class ExaminerCouncilEffects extends AbstractEffects {
       ofType(examinerCouncilActions.loadAllProjects),
       map(action => action.payload),
       switchMap((payload: PaginationPayload) =>
-        this.projectService.getProjects(payload).pipe(
+        this.projectService.getProjects({ ...payload, extra: 'd' }).pipe(
           map(response => {
             return response.meta.hasNextPage
               ? examinerCouncilActions.loadAllProjects({

@@ -24,7 +24,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.loadAllProjects),
             map(action => action.payload),
             switchMap((payload: PaginationPayload) =>
-                this.projectService.getProjects(payload).pipe(
+                this.projectService.getProjects({ ...payload, extra: 'd' }).pipe(
                     map(response => {
                         return response.meta.hasNextPage
                             ? ManagerStaffActions.loadAllProjects({

@@ -31,4 +31,9 @@ export class ProjectPagePayloadDto extends PaginationOptionsDto {
   @IsString()
   @IsOptional()
   readonly status?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  readonly extra?: string;
 }
