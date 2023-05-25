@@ -1,74 +1,71 @@
 <nz-modal [(nzVisible)]="isVisible"
           [nzTitle]="'Phê duyệt đề tài'"
           [nzCentered]="true"
-          [nzBodyStyle]="{ padding: '0' }"
           [nzWidth]="600"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
-        <div class="w-full max-h-[400px] sm:max-h-[500px] scrollable px-4 sm:px-6 py-3 sm:py-4">
-            <nz-spin [nzSpinning]="isLoading">
-                <ng-container *ngIf="project">
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
-                        <div class="col-span-4">
-                            Tên đề tài
-                        </div>
-                        <div class="col-span-8">
-                            {{ project.name }}
+        <nz-spin [nzSpinning]="isLoading">
+            <ng-container *ngIf="project">
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Tên đề tài
+                    </div>
+                    <div class="col-span-8">
+                        {{ project.name }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Thời gian đề xuất
+                    </div>
+                    <div class="col-span-8">
+                        {{ project.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Khoa
+                    </div>
+                    <div class="col-span-8">
+                        {{ project.department?.name }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Người hướng dẫn
+                    </div>
+                    <div class="col-span-8">
+                        {{ project.instructor?.fullName }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Sinh viên thực hiện
+                    </div>
+                    <div class="col-span-8">
+                        <div *ngFor="let student of project.students">
+                            {{ student.code }} - {{ student.fullName }}
                         </div>
                     </div>
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
-                        <div class="col-span-4">
-                            Thời gian đề xuất
-                        </div>
-                        <div class="col-span-8">
-                            {{ project.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-                        </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Mô tả
                     </div>
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
-                        <div class="col-span-4">
-                            Khoa
-                        </div>
-                        <div class="col-span-8">
-                            {{ project.department?.name }}
-                        </div>
+                    <div class="col-span-8">
+                        {{ project.description }}
                     </div>
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
-                        <div class="col-span-4">
-                            Người hướng dẫn
-                        </div>
-                        <div class="col-span-8">
-                            {{ project.instructor?.fullName }}
-                        </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2">
+                    <div class="col-span-4">
+                        Yêu cầu
                     </div>
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
-                        <div class="col-span-4">
-                            Sinh viên thực hiện
-                        </div>
-                        <div class="col-span-8">
-                            <div *ngFor="let student of project.students">
-                                {{ student.code }} - {{ student.fullName }}
-                            </div>
-                        </div>
+                    <div class="col-span-8">
+                        {{ project.requirement }}
                     </div>
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
-                        <div class="col-span-4">
-                            Mô tả
-                        </div>
-                        <div class="col-span-8">
-                            {{ project.description }}
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-12 gap-2 px-4 py-2">
-                        <div class="col-span-4">
-                            Yêu cầu
-                        </div>
-                        <div class="col-span-8">
-                            {{ project.requirement }}
-                        </div>
-                    </div>
-                </ng-container>
-            </nz-spin>
-        </div>
+                </div>
+            </ng-container>
+        </nz-spin>
     </ng-container>
     <ng-container *nzModalFooter>
         <button class="w-[100px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">

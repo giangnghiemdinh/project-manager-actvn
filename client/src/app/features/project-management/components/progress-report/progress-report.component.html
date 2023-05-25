@@ -2,7 +2,6 @@
           [nzCentered]="true"
           [nzWidth]="600"
           [nzTitle]="report?.type | reportName"
-          [nzBodyStyle]="{ paddingTop: '16px' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
         <app-form #form [data]="report">

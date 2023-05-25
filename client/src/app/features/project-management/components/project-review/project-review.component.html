@@ -2,59 +2,56 @@
           [nzCentered]="true"
           [nzWidth]="600"
           [nzTitle]="report?.type === type.INSTRUCTOR_REVIEW ? 'Nhận xét của GVHD' : 'Nhận xét của GVPB'"
-          [nzBodyStyle]="{ padding: '0' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
-        <div class="w-full max-h-[400px] sm:max-h-[500px] scrollable px-4 sm:px-6 py-3 sm:py-4">
-            <app-form #form [data]="report">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <app-form-textarea control="comment1"
-                                       class="sm:col-span-2"
-                                       [label]="report?.type === type.INSTRUCTOR_REVIEW
+        <app-form #form [data]="report">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <app-form-textarea control="comment1"
+                                   class="sm:col-span-2"
+                                   [label]="report?.type === type.INSTRUCTOR_REVIEW
                                    ? 'Nội dung đã thực hiện'
                                    : 'Ý nghĩa thực tiễn của đề tài, phạm vi và độ khó của đồ án'"
-                                       [validators]="{ required: true }"
-                                       [autoSize]="{ minRows: 3, maxRows: 3 }" />
-                    <app-form-textarea control="comment2"
-                                       class="sm:col-span-2"
-                                       [label]="report?.type === type.INSTRUCTOR_REVIEW
+                                   [validators]="{ required: true }"
+                                   [autoSize]="{ minRows: 3, maxRows: 3 }" />
+                <app-form-textarea control="comment2"
+                                   class="sm:col-span-2"
+                                   [label]="report?.type === type.INSTRUCTOR_REVIEW
                                    ? 'Chất lượng và mức độ hoàn thành so với yêu cầu'
                                    : 'Nội dung và chất lượng đã đạt được'"
-                                       [validators]="{ required: true }"
-                                       [autoSize]="{ minRows: 3, maxRows: 3 }" />
-                    <app-form-textarea control="comment3"
-                                       class="sm:col-span-2"
-                                       [label]="report?.type === type.INSTRUCTOR_REVIEW
+                                   [validators]="{ required: true }"
+                                   [autoSize]="{ minRows: 3, maxRows: 3 }" />
+                <app-form-textarea control="comment3"
+                                   class="sm:col-span-2"
+                                   [label]="report?.type === type.INSTRUCTOR_REVIEW
                                    ? 'Tinh thần và thái độ làm việc'
                                    : 'Ưu, nhược điểm của đồ án'"
+                                   [validators]="{ required: true }"
+                                   [autoSize]="{ minRows: 3, maxRows: 3 }" />
+                <ng-container *ngIf="report?.type === type.REVIEWER_REVIEW">
+                    <app-form-textarea control="comment4"
+                                       class="sm:col-span-2"
+                                       label="Kết luận chung"
                                        [validators]="{ required: true }"
                                        [autoSize]="{ minRows: 3, maxRows: 3 }" />
-                    <ng-container *ngIf="report?.type === type.REVIEWER_REVIEW">
-                        <app-form-textarea control="comment4"
-                                           class="sm:col-span-2"
-                                           label="Kết luận chung"
-                                           [validators]="{ required: true }"
-                                           [autoSize]="{ minRows: 3, maxRows: 3 }" />
-                        <app-form-textarea control="comment5"
-                                           class="sm:col-span-2"
-                                           label="Câu hỏi"
-                                           [autoSize]="{ minRows: 3, maxRows: 3 }" />
-                    </ng-container>
-                    <app-form-number control="score"
-                                     label="Điểm (Hệ số 10)"
-                                     [precision]="1"
-                                     [min]="0" [max]="10"
-                                     [validators]="{ required: true }"
-                    ></app-form-number>
-                    <app-form-checkbox control="isApproval"
-                                       label="Kết luận"
-                                       className="checkbox-block"
-                                       [validators]="{ required: true }">
-                        Cho bảo vệ
-                    </app-form-checkbox>
-                </div>
-            </app-form>
-        </div>
+                    <app-form-textarea control="comment5"
+                                       class="sm:col-span-2"
+                                       label="Câu hỏi"
+                                       [autoSize]="{ minRows: 3, maxRows: 3 }" />
+                </ng-container>
+                <app-form-number control="score"
+                                 label="Điểm (Hệ số 10)"
+                                 [precision]="1"
+                                 [min]="0" [max]="10"
+                                 [validators]="{ required: true }"
+                ></app-form-number>
+                <app-form-checkbox control="isApproval"
+                                   label="Kết luận"
+                                   className="checkbox-block"
+                                   [validators]="{ required: true }">
+                    Cho bảo vệ
+                </app-form-checkbox>
+            </div>
+        </app-form>
     </ng-container>
     <ng-container *nzModalFooter>
         <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">

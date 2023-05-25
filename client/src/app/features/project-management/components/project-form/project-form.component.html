@@ -2,45 +2,42 @@
           [nzTitle]="(isPropose ? 'Đề xuất' : (project ? 'Chỉnh sửa' : 'Thêm mới')) + ' đề tài'"
           [nzCentered]="true"
           [nzWidth]="600"
-          [nzBodyStyle]="{ padding: '0' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
-        <div class="w-full max-h-[400px] sm:max-h-[500px] scrollable px-4 sm:px-6 py-3 sm:py-4">
-            <nz-spin [nzSpinning]="isLoading">
-                <app-form #form [data]="project">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <app-form-text control="name" label="Tên đồ án"
-                                       class="sm:col-span-2"
-                                       [validators]="{ required: true }"/>
-                        <app-form-select control="departmentId" label="Khoa"
-                                         selectValue="id" selectLabel="name"
-                                         [class.sm:col-span-2]="isPropose"
-                                         [options]="departments || []"
-                                         [validators]="{ required: true }"/>
-                        <app-form-select *ngIf="!isPropose"
-                                         control="semesterId" label="Học kì"
-                                         selectValue="id" selectLabel="name"
-                                         [clearOnDestroy]="true"
-                                         [validators]="{ required: true }"
-                                         [options]="semesters || []"/>
-                        <app-form-text control="instructorName" label="Người hướng dẫn"
-                                       [validators]="{ required: true }"
-                                       [readonly]="true" [allowClear]="true"
-                                       (valueChange)="onInstructorChange($event)"
-                                       (click)="onSearchUser()"/>
-                        <app-form-text control="studentCodes" label="Sinh viên thực hiện"
-                                       [readonly]="true" [allowClear]="true"
-                                       (click)="onSearchStudent()"/>
-                        <app-form-textarea class="sm:col-span-2"
-                                           control="description" label="Mô tả"
-                                           [autoSize]="{ minRows: 2, maxRows: 4 }"/>
-                        <app-form-textarea class="sm:col-span-2"
-                                           control="requirement" label="Yêu cầu"
-                                           [autoSize]="{ minRows: 2, maxRows: 4 }"/>
-                    </div>
-                </app-form>
-            </nz-spin>
-        </div>
+        <nz-spin [nzSpinning]="isLoading">
+            <app-form #form [data]="project">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <app-form-text control="name" label="Tên đồ án"
+                                   class="sm:col-span-2"
+                                   [validators]="{ required: true }"/>
+                    <app-form-select control="departmentId" label="Khoa"
+                                     selectValue="id" selectLabel="name"
+                                     [class.sm:col-span-2]="isPropose"
+                                     [options]="departments || []"
+                                     [validators]="{ required: true }"/>
+                    <app-form-select *ngIf="!isPropose"
+                                     control="semesterId" label="Học kì"
+                                     selectValue="id" selectLabel="name"
+                                     [clearOnDestroy]="true"
+                                     [validators]="{ required: true }"
+                                     [options]="semesters || []"/>
+                    <app-form-text control="instructorName" label="Người hướng dẫn"
+                                   [validators]="{ required: true }"
+                                   [readonly]="true" [allowClear]="true"
+                                   (valueChange)="onInstructorChange($event)"
+                                   (click)="onSearchUser()"/>
+                    <app-form-text control="studentCodes" label="Sinh viên thực hiện"
+                                   [readonly]="true" [allowClear]="true"
+                                   (click)="onSearchStudent()"/>
+                    <app-form-textarea class="sm:col-span-2"
+                                       control="description" label="Mô tả"
+                                       [autoSize]="{ minRows: 2, maxRows: 4 }"/>
+                    <app-form-textarea class="sm:col-span-2"
+                                       control="requirement" label="Yêu cầu"
+                                       [autoSize]="{ minRows: 2, maxRows: 4 }"/>
+                </div>
+            </app-form>
+        </nz-spin>
     </ng-container>
     <ng-container *nzModalFooter>
         <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">

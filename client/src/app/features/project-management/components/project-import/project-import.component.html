@@ -2,92 +2,89 @@
           [nzCentered]="true"
           [nzFooter]="null"
           [nzWidth]="500"
-          [nzBodyStyle]="{ padding: '0px' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
-        <div class="w-full max-h-[400px] sm:max-h-[500px] scrollable px-4 sm:px-6 py-3 sm:py-4">
-            <div class="flex flex-wrap items-center gap-x-1">
-                <div class="text-base font-bold">
-                    Nhập đồ án từ file dữ liệu
+        <div class="flex flex-wrap items-center gap-x-1">
+            <div class="text-base font-bold">
+                Nhập đồ án từ file dữ liệu
+            </div>
+            <div class="">
+                (Tải về file mẫu: <a class="text-blue-500" (click)="onDownloadSample()">Excel file</a>)
+            </div>
+        </div>
+        <app-form #form>
+            <div class="mt-4">
+                <div class="font-bold">
+                    Xử lý <span class="italic">trùng</span> tên đề tài, khác thông tin?
                 </div>
-                <div class="">
-                    (Tải về file mẫu: <a class="text-blue-500" (click)="onDownloadSample()">Excel file</a>)
+                <div class="mt-1">
+                    <app-form-radio control="duplicateName" [initialValue]="0" noFormWrapper>
+                        <ng-template [radio]="0" className="block">
+                            Báo lỗi và dừng import
+                        </ng-template>
+                        <ng-template [radio]="1" className="block">
+                            Thay thế bằng thông tin mới
+                        </ng-template>
+                        <ng-template [radio]="2" className="block">
+                            Gộp thông tin
+                        </ng-template>
+                    </app-form-radio>
                 </div>
             </div>
-            <app-form #form>
-                <div class="mt-4">
-                    <div class="font-bold">
-                        Xử lý <span class="italic">trùng</span> tên đề tài, khác thông tin?
-                    </div>
-                    <div class="mt-1">
-                        <app-form-radio control="duplicateName" [initialValue]="0" noFormWrapper>
-                            <ng-template [radio]="0" className="block">
-                                Báo lỗi và dừng import
-                            </ng-template>
-                            <ng-template [radio]="1" className="block">
-                                Thay thế bằng thông tin mới
-                            </ng-template>
-                            <ng-template [radio]="2" className="block">
-                                Gộp thông tin
-                            </ng-template>
-                        </app-form-radio>
-                    </div>
+            <div class="mt-4 border-t border-gray-150 pt-4">
+                <div class="font-bold">
+                    Xử lý <span class="italic">sinh viên</span> không tồn tại?
                 </div>
-                <div class="mt-4 border-t border-gray-150 pt-4">
-                    <div class="font-bold">
-                        Xử lý <span class="italic">sinh viên</span> không tồn tại?
-                    </div>
-                    <div class="mt-1">
-                        <app-form-radio control="studentNotExist" [initialValue]="0" noFormWrapper>
-                            <ng-template [radio]="0" className="block">
-                                Báo lỗi và dừng import
-                            </ng-template>
-                            <ng-template [radio]="1" className="block">
-                                Thêm mới sinh viên
-                            </ng-template>
-                        </app-form-radio>
-                    </div>
+                <div class="mt-1">
+                    <app-form-radio control="studentNotExist" [initialValue]="0" noFormWrapper>
+                        <ng-template [radio]="0" className="block">
+                            Báo lỗi và dừng import
+                        </ng-template>
+                        <ng-template [radio]="1" className="block">
+                            Thêm mới sinh viên
+                        </ng-template>
+                    </app-form-radio>
                 </div>
-                <div class="mt-4 border-t border-gray-150 pt-4">
-                    <div class="font-bold">
-                        Xử lý <span class="italic">người hướng dẫn</span> không tồn tại?
-                    </div>
-                    <div class="mt-1">
-                        <app-form-radio control="instrNotExist" [initialValue]="0" noFormWrapper>
-                            <ng-template [radio]="0" className="block">
-                                Báo lỗi và dừng import
-                            </ng-template>
-                            <ng-template [radio]="1" className="block">
-                                Thêm mới người hướng dẫn
-                            </ng-template>
-                        </app-form-radio>
-                    </div>
-                </div>
-            </app-form>
-            <div class="mt-6">
-                <nz-upload
-                        class="w-full h-[180px]"
-                        nzType="drag"
-                        [nzMultiple]="false"
-                        [nzFileList]="files"
-                        [nzShowUploadList]="{ showRemoveIcon: true, showDownloadIcon: false }"
-                        [nzAccept]="['.xlsx', '.xls']"
-                        [nzCustomRequest]="customRequest"
-                        [nzRemove]="customRemove"
-                        (nzChange)="onFileChanges($event)">
-                    <p>
-                        <i class='bx bx-archive-out text-5xl'></i>
-                    </p>
-                    <p class="ant-upload-text">Chọn hoặc kéo thả tệp để tải lên</p>
-                    <p class="ant-upload-hint">
-                        Kích thước tệp tối đa 5MB!
-                    </p>
-                </nz-upload>
             </div>
-            <div class="mt-6 flex justify-between gap-2">
-                <button nz-button nzSize="large" nzType="default" (click)="onClose()">Quay lại</button>
-                <button nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onPreImport()">Nhập danh sách</button>
+            <div class="mt-4 border-t border-gray-150 pt-4">
+                <div class="font-bold">
+                    Xử lý <span class="italic">người hướng dẫn</span> không tồn tại?
+                </div>
+                <div class="mt-1">
+                    <app-form-radio control="instrNotExist" [initialValue]="0" noFormWrapper>
+                        <ng-template [radio]="0" className="block">
+                            Báo lỗi và dừng import
+                        </ng-template>
+                        <ng-template [radio]="1" className="block">
+                            Thêm mới người hướng dẫn
+                        </ng-template>
+                    </app-form-radio>
+                </div>
             </div>
+        </app-form>
+        <div class="mt-6">
+            <nz-upload
+                    class="w-full h-[180px]"
+                    nzType="drag"
+                    [nzMultiple]="false"
+                    [nzFileList]="files"
+                    [nzShowUploadList]="{ showRemoveIcon: true, showDownloadIcon: false }"
+                    [nzAccept]="['.xlsx', '.xls']"
+                    [nzCustomRequest]="customRequest"
+                    [nzRemove]="customRemove"
+                    (nzChange)="onFileChanges($event)">
+                <p>
+                    <i class='bx bx-archive-out text-5xl'></i>
+                </p>
+                <p class="ant-upload-text">Chọn hoặc kéo thả tệp để tải lên</p>
+                <p class="ant-upload-hint">
+                    Kích thước tệp tối đa 5MB!
+                </p>
+            </nz-upload>
+        </div>
+        <div class="mt-6 flex justify-between gap-2">
+            <button nz-button nzSize="large" nzType="default" (click)="onClose()">Quay lại</button>
+            <button nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onPreImport()">Nhập danh sách</button>
         </div>
     </ng-container>
 </nz-modal>
