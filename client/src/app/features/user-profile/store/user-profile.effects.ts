@@ -6,7 +6,7 @@ import { UserProfileActions } from './user-profile.actions';
 import { AbstractEffects } from '../../../common/abstracts';
 import { UserService } from '../../../common/services';
 import { User } from '../../../common/models';
-import { AuthActions, AuthState } from '../../../common/stores';
+import { AuthActions, AuthState, selectProfile } from '../../../common/stores';
 import { Store } from '@ngrx/store';
 import { selectRouteParams } from '../../../common/stores/router';
 
@@ -50,11 +50,38 @@ export class UserProfileEffects extends AbstractEffects {
     updateUserSuccess$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UserProfileActions.updateUserSuccess),
-            tap(({ response }) => {
-                this.authStore.dispatch(AuthActions.updateProfile({ profile: response }));
+            concatLatestFrom(_ => this.authStore.select(selectProfile)),
+            tap(([res, profile]) => {
                 this.raiseSuccess('Cập nhật người dùng thành công.');
-            }),
+                if (profile && res.response && res.response.id === profile.id) {
+                    this.authStore.dispatch(AuthActions.updateProfile({ profile: res.response }));
+                }
+            })
         ),
+        { dispatch: false }
+    );
+
+    updateProfile$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(UserProfileActions.updateProfile),
+            map(action => action.payload),
+            mergeMap(payload =>
+                this.userService.updateProfile(payload).pipe(
+                    map(response => UserProfileActions.updateProfileSuccess({ response })),
+                    catchError(errors => of(UserProfileActions.updateProfileFailure({ errors })))
+                )
+            )
+        )
+    );
+
+    updateProfileSuccess$ = createEffect(() =>
+            this.actions$.pipe(
+                ofType(UserProfileActions.updateProfileSuccess),
+                tap(({ response }) => {
+                    this.authStore.dispatch(AuthActions.updateProfile({ profile: response }));
+                    this.raiseSuccess('Cập nhật thông tin thành công.');
+                }),
+            ),
         { dispatch: false }
     );
 

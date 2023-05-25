@@ -4,14 +4,13 @@
                     { title: 'Trang chủ' },
                     { title: title }
                  ]">
-        <div class="flex items-center gap-2">
-            <button nzSize="large" nz-button nzType="dashed" (click)="onImport()">
-                <div class="flex items-center gap-2">
-                    <i class='bx bx-cloud-download text-lg' ></i>
-                    Nhận dữ liệu từ file Excel
-                </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-x-4 gap-y-2">
+            <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="dashed" (click)="onImport()">
+                <i class='bx bx-cloud-download text-lg' ></i>
+                Nhận dữ liệu từ file Excel
             </button>
-            <button nzSize="large" nz-button nzType="primary" (click)="onAdd()">
+            <button class="w-full sm:w-1/2 md:w-fit" nzSize="large" nz-button nzType="primary" (click)="onAdd()">
                 Thêm mới
             </button>
         </div>
@@ -19,18 +18,20 @@
     <div class="bg-white shadow border border-gray-150 rounded-md">
         <div class="flex justify-between items-center p-4 border-b border-gray-200">
             <app-form #filterForm
+                      class="w-full"
+                      [debounceTime]="300"
                       [data]="queryParams$ | async"
-                      [hidden]="{ page: 1, limit: 10 }">
-                <div class="grid grid-cols-12 gap-4">
-                    <app-form-select class="col-span-2"
+                      [hidden]="{ page: 1, limit: 10 }"
+                      (valueChanges)="onSearch($event)">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4">
+                    <app-form-select class="col-span-1 lg:col-span-2"
                                      control="roleId" placeholder="Vai trò"
                                      noFormWrapper allowClear
                                      [options]="roles"
                     ></app-form-select>
-                    <app-form-text class="col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
-                    <button nzSize="large" nz-button nzType="primary" (click)="onSearch()">
-                        Tìm kiếm
-                    </button>
+                    <app-form-text class="col-span-1 lg:col-span-2" control="q"
+                                   placeholder="Nhập để tìm kiếm"
+                                   noFormWrapper allowClear/>
                 </div>
             </app-form>
         </div>
@@ -38,12 +39,14 @@
                    [data]="users$ | async"
                    [isLoading]="isLoading$ | async"
                    [pagination]="pagination$ | async"
+                   [scroll]="{ x: '1024px' }"
                    (pageChanges)="onPageChanges($event)">
             <app-table-column key="fullName" title="Người dùng" width="200px">
                 <ng-template table-cell let-row>
                     <div class="flex gap-2 items-center">
                         <nz-avatar
-                                [nzSrc]="row.avatar | driverUrl: 'image'"
+                                class="flex-shrink-0"
+                                [nzSrc]="row.avatar | driverUrl"
                                 [nzText]="row.fullName"
                                 nzSize="large"
                                 style="vertical-align: middle;"
@@ -60,7 +63,7 @@
                     {{ row.role | role }}
                 </ng-template>
             </app-table-column>
-            <app-table-column key="workPlace" title="Đơn vị công tác" width="150px"/>
+            <app-table-column key="workPlace" title="Đơn vị công tác" width="200px"/>
             <app-table-column key="createdAt" title="Ngày tạo" width="120px">
                 <ng-template table-cell let-row>
                     {{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}
@@ -71,34 +74,42 @@
                     {{ row.lastLogin ? (row.lastLogin | date: 'dd/MM/yyyy HH:mm') : '' }}
                 </ng-template>
             </app-table-column>
-            <app-table-column key="action" title="" width="70px">
+            <app-table-column [responsive]="{ md: true }" [right]="true"  key="action" title="" width="80px">
                 <ng-template table-cell let-row>
                     <div class="flex justify-center items-center gap-1">
-                        <div (click)="onEdit(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
-                            <i class='bx bx-edit-alt' ></i>
-                        </div>
-                        <div (click)="onChangeStatus(row)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                        <div (click)="onChangeStatus(row)" class="flex action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full hover:bg-gray-300 transition-all duration-300 items-center justify-center">
                             <i class='bx'
                                [class.bx-lock-alt]="row.isActive"
                                [class.bx-lock-open-alt]="!row.isActive"></i>
                         </div>
-<!--                        <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" class="w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">-->
-<!--                            <i class='bx bx-dots-vertical-rounded' ></i>-->
-<!--                        </div>-->
-<!--                        <nz-dropdown-menu #menu="nzDropdownMenu">-->
-<!--                            <div class="w-[200px] h-auto p-2 rounded-md bg-white shadow border border-gray-150">-->
-<!--                                <div class="flex flex-col gap-1">-->
-<!--                                    <div class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">-->
-<!--                                        <i class='bx bx-edit-alt text-black text-xl' ></i>-->
-<!--                                        <span class="text-gray-500">Chỉnh sửa</span>-->
-<!--                                    </div>-->
-<!--                                    <div class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">-->
-<!--                                        <i class='bx bx-trash-alt text-black text-xl' ></i>-->
-<!--                                        <span class="text-gray-500">Xoá</span>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </nz-dropdown-menu>-->
+                        <div (click)="onEdit(row.id!)" class="flex action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 items-center justify-center">
+                            <i class='bx bx-edit-alt' ></i>
+                        </div>
+                    </div>
+                </ng-template>
+            </app-table-column>
+            <app-table-column [responsive]="{ xs: true, md: false }" [right]="true" key="action" title="" width="40px">
+                <ng-template table-cell let-row>
+                    <div class="flex justify-center items-center gap-1">
+                        <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" class="w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <i class='bx bx-dots-vertical-rounded' ></i>
+                        </div>
+                        <nz-dropdown-menu #menu="nzDropdownMenu">
+                            <div class="w-[150px] h-auto p-2 rounded-md bg-white shadow border border-gray-150">
+                                <div class="flex flex-col gap-1">
+                                    <div (click)="onEdit(row.id!)" class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                        <i class='bx bx-edit-alt text-black text-xl' ></i>
+                                        <span class="text-gray-500">Chỉnh sửa</span>
+                                    </div>
+                                    <div (click)="onChangeStatus(row)" class="flex items-center gap-2 px-2 cursor-pointer py-1 hover:bg-gray-200 transition-all duration-300 rounded-md text-base">
+                                        <i class='bx'
+                                            [class.bx-lock-alt]="row.isActive"
+                                            [class.bx-lock-open-alt]="!row.isActive"></i>
+                                        <span class="text-gray-500">{{ row.isActive ? 'Huỷ kích hoạt' : 'Kích hoạt' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </nz-dropdown-menu>
                     </div>
                 </ng-template>
             </app-table-column>

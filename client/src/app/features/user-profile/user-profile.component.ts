@@ -77,7 +77,10 @@ export class UserProfileComponent implements OnDestroy {
     }
 
     onSave(value: User) {
-        this.profileStore.dispatch(UserProfileActions.updateUser({ payload: value }));
+        this.profileStore.dispatch(this.id
+            ? UserProfileActions.updateUser({ payload: value })
+            : UserProfileActions.updateProfile({ payload: value })
+        );
     }
 
     onClose() {

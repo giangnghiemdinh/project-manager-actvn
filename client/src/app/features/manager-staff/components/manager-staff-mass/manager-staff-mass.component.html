@@ -48,7 +48,7 @@
                                 nzBlock nz-button nzType="primary"
                                 [disabled]="!form.form.valid"
                                 (click)="onLoadingProjects(form.form)">
-                            Kiểm tra danh sách đồ án
+                            Kiểm tra danh sách đề tài
                         </button>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                             <nz-avatar *ngIf="group.user"
                                        nz-tooltip [nzTooltipTitle]="tooltopTemplate"
                                        [nzText]="(group.user.fullName || '').charAt(0)"
-                                       [nzSrc]="(group.user.avatar || '') | driverUrl: 'image'">
+                                       [nzSrc]="group.user.avatar | driverUrl">
                                 <ng-template #tooltopTemplate>
                                     <div class="text-center">
                                         <div>{{ group.user.fullName }}</div>

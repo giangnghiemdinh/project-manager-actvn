@@ -92,8 +92,7 @@ export class StudentManagementComponent {
         this.onLoad();
     }
 
-    onSearch() {
-        const value: any = this.filterForm.value;
+    onSearch(value: any) {
         value.page = 1;
         this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }

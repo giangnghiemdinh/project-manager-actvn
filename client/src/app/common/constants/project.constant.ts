@@ -45,5 +45,5 @@ export const ProjectProgress = {
   rp4: 'Báo cáo tiến độ (lần 4)',
   instr: 'Nhận xét của CBHD',
   rvr: 'Nhận xét của CBPB',
-  cpt: 'Đồ án hoàn thiện',
+  cpt: 'Hoàn thiện đồ án',
 };

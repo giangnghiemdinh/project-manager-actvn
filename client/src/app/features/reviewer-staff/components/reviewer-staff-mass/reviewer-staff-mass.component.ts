@@ -104,7 +104,7 @@ export class ReviewerStaffMassComponent {
             return;
         }
         if (this.groups.some(g => !g.projects.length)) {
-            this.notification.error('Có nhóm chưa chọn đồ án. Vui lòng kiểm tra lại!');
+            this.notification.error('Có nhóm chưa chọn đề tài. Vui lòng kiểm tra lại!');
             return;
         }
         const payload: ReviewerStaff[] = [];

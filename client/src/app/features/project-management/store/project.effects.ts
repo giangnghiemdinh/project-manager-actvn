@@ -149,24 +149,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.report),
             map(action => action.payload),
             switchMap((payload: ProjectProgress) => {
-                const formData: FormData = new FormData();
-
-                formData.append('type', payload.type || '');
-
-                if (payload.wordFile?.originObject) {
-                    const { originObject, name } = payload.wordFile;
-                    formData.append('wordFile', originObject, name);
-                }
-                if (payload.reportFile?.originObject) {
-                    const { originObject, name } = payload.reportFile;
-                    formData.append('reportFile', originObject, name);
-                }
-                if (payload.otherFile?.originObject) {
-                    const { originObject, name } = payload.otherFile;
-                    formData.append('otherFile', originObject, name);
-                }
-
-                return this.projectService.report(payload.id!, formData).pipe(
+                return this.projectService.report(payload.id!, payload).pipe(
                     map(response => ProjectActions.reportSuccess({ response })),
                     catchError(errors => of(ProjectActions.reportFailure({ errors })))
                 );

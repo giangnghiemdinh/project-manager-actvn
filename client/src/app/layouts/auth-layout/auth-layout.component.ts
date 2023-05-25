@@ -5,8 +5,10 @@ import { RouterOutlet } from '@angular/router';
 import { LAYOUT_CONFIG } from '../../common/constants';
 import { Store } from '@ngrx/store';
 import { AuthActions, AuthState, CommonActions, CommonState, selectProfile } from '../../common/stores';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
 import { NzBackTopModule } from 'ng-zorro-antd/back-top';
+import { media } from '../../common/utilities';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-auth-layout',
@@ -17,7 +19,8 @@ import { NzBackTopModule } from 'ng-zorro-antd/back-top';
         SidebarComponent,
         RouterOutlet,
         AsyncPipe,
-        NzBackTopModule
+        NzBackTopModule,
+        NgIf
     ]
 })
 export class AuthLayoutComponent {
@@ -32,9 +35,16 @@ export class AuthLayoutComponent {
     constructor() {
         this.commonStore.dispatch(CommonActions.loadDepartments());
         this.commonStore.dispatch(CommonActions.loadSemesters());
+        this.mediaListener();
     }
 
     onLogout() {
         this.store.dispatch(AuthActions.logout());
+    }
+
+    private mediaListener() {
+        media(`(min-width: 1024px)`)
+            .pipe(takeUntilDestroyed())
+            .subscribe(isDesktop => this.isDesktop = isDesktop);
     }
 }

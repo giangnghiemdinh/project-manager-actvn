@@ -3,7 +3,7 @@ import { StringProperty } from '../../../common/decorators';
 export class UserVerifyEmailRequestDto {
   @StringProperty('Email', {
     required: true,
-    isEmail: true,
+    email: true,
     toLowerCase: true,
     trim: true,
   })

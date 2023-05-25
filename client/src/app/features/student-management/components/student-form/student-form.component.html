@@ -2,32 +2,35 @@
           [nzTitle]="(student ? 'Chỉnh sửa' : 'Thêm mới') + ' sinh viên'"
           [nzCentered]="true"
           [nzWidth]="600"
+          [nzBodyStyle]="{ padding: '0' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
-        <nz-spin [nzSpinning]="isLoading">
-            <app-form #form [data]="student">
-                <div class="grid grid-cols-2 gap-4">
-                    <app-form-text control="fullName" label="Họ và tên"
-                                   class="col-span-2"
-                                   [validators]="{ required: true }"/>
-                    <app-form-date control="birthday" label="Ngày sinh"
-                                   [allowClear]="false"/>
-                    <app-form-text control="code" label="Mã sinh viên"
-                                   [validators]="{ required: true }"/>
-                    <app-form-select control="gender" label="Giới tính"
-                                     [options]="genders"
-                                     [validators]="{ required: true }"/>
-                    <app-form-select control="departmentId" label="Khoa"
-                                     selectValue="id" selectLabel="name"
-                                     [options]="departments || []"
-                                     [validators]="{ required: true }"/>
-                    <app-form-text control="phone" label="Số điện thoại"
-                                   [validators]="{ required: true }"/>
-                    <app-form-text control="email" label="Email"
-                                   [validators]="{ required: true }"/>
-                </div>
-            </app-form>
-        </nz-spin>
+        <div class="w-full max-h-[400px] sm:max-h-[500px] scrollable px-4 sm:px-6 py-3 sm:py-4">
+            <nz-spin [nzSpinning]="isLoading">
+                <app-form #form [data]="student">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <app-form-text control="fullName" label="Họ và tên"
+                                       class="sm:col-span-2"
+                                       [validators]="{ required: true }"/>
+                        <app-form-date control="birthday" label="Ngày sinh"
+                                       [allowClear]="false"/>
+                        <app-form-text control="code" label="Mã sinh viên"
+                                       [validators]="{ required: true }"/>
+                        <app-form-select control="gender" label="Giới tính"
+                                         [options]="genders"
+                                         [validators]="{ required: true }"/>
+                        <app-form-select control="departmentId" label="Khoa"
+                                         selectValue="id" selectLabel="name"
+                                         [options]="departments || []"
+                                         [validators]="{ required: true }"/>
+                        <app-form-text control="phone" label="Số điện thoại"
+                                       [validators]="{ required: true }"/>
+                        <app-form-text control="email" label="Email"
+                                       [validators]="{ required: true }"/>
+                    </div>
+                </app-form>
+            </nz-spin>
+        </div>
     </ng-container>
     <ng-container *nzModalFooter>
         <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">

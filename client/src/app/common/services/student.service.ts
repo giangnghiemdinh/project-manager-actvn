@@ -6,8 +6,8 @@ import { PaginationPayload, PaginationResponse, Student } from '../models';
     providedIn: 'root'
 })
 export class StudentService extends AbstractService {
-    getStudents(payload: PaginationPayload) {
-        return this.get<PaginationResponse<Student>>('student', { payload });
+    getStudents(params: PaginationPayload) {
+        return this.get<PaginationResponse<Student>>('student', { params });
     }
 
     getStudent(id: number) {

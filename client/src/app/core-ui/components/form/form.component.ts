@@ -85,7 +85,7 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
         timer(0).subscribe(_ => {
             this.initialized = true;
             this.log(`Initialized | ${JSON.stringify(this.initialData)}`);
-            this.data
+            !isEmpty(this.data)
                 ? this.patchValue(this.data)
                 : this.valueChangesListener();
         });
@@ -238,6 +238,7 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
             (control as AbstractControl).setValue(value[controlName], { emitViewToModelChange: false });
         }
         this.log(`End patch | ${JSON.stringify(data)}`);
+        this.valueChangesListener();
     }
 
     markAsDirty() {

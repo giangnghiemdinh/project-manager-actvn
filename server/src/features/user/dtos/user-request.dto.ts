@@ -1,4 +1,8 @@
-import { DateProperty, EnumProperty, StringProperty, } from '../../../common/decorators';
+import {
+  DateProperty,
+  EnumProperty,
+  StringProperty,
+} from '../../../common/decorators';
 import { Gender, Role } from '../../../common/constants';
 
 export class UserRequestDto {
@@ -9,7 +13,7 @@ export class UserRequestDto {
 
   @StringProperty('Email', {
     required: true,
-    isEmail: true,
+    email: true,
   })
   readonly email: string;
 
@@ -22,7 +26,7 @@ export class UserRequestDto {
   @StringProperty('Địa chỉ')
   readonly address?: string;
 
-  @EnumProperty('Giới tính', Gender)
+  @EnumProperty('Giới tính', Gender, { number: true })
   readonly gender?: Gender;
 
   @DateProperty('Ngày sinh')

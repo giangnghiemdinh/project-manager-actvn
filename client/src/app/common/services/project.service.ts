@@ -36,16 +36,33 @@ export class ProjectService extends AbstractService {
         return this.post<void>(`project/import`, { payload });
     }
 
-    report(id: number, payload: any) {
-        return this.post<ProjectProgress>(`project/${ id }/report`, payload);
+    report(id: number, payload: ProjectProgress) {
+        const formData: FormData = new FormData();
+
+        formData.append('type', payload.type || '');
+
+        if (payload.wordFile?.originObject) {
+            const { originObject, name } = payload.wordFile;
+            formData.append('wordFile', originObject, name);
+        }
+        if (payload.reportFile?.originObject) {
+            const { originObject, name } = payload.reportFile;
+            formData.append('reportFile', originObject, name);
+        }
+        if (payload.otherFile?.originObject) {
+            const { originObject, name } = payload.otherFile;
+            formData.append('otherFile', originObject, name);
+        }
+
+        return this.post<ProjectProgress>(`project/${ id }/report`, { payload: formData });
     }
 
-    review(payload: any) {
-        return this.post<ProjectProgress>(`project/${ payload.id }/review`, payload);
+    review(payload: ProjectProgress) {
+        return this.post<ProjectProgress>(`project/${ payload.id }/review`, { payload });
     }
 
-    councilReview(payload: any) {
-        return this.post<ProjectProgress>(`project/${ payload.id }/council-review`, payload);
+    councilReview(payload: ProjectProgress) {
+        return this.post<ProjectProgress>(`project/${ payload.id }/council-review`, { payload });
     }
 
     getReport(payload: { id: number, type: ProjectProgressType }) {

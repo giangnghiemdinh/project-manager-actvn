@@ -7,7 +7,7 @@ import {
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsEmail,
   IsEnum,
   IsInt,
@@ -41,7 +41,7 @@ interface INumberPropertyOptions extends IPropertyOptions {
   min?: number;
   max?: number;
   int?: boolean;
-  isPositive?: boolean;
+  positive?: boolean;
 }
 
 interface IStringPropertyOptions extends IPropertyOptions {
@@ -49,9 +49,13 @@ interface IStringPropertyOptions extends IPropertyOptions {
   maxLength?: number;
   toLowerCase?: boolean;
   toUpperCase?: boolean;
-  isEmail?: boolean;
-  isPassword?: boolean;
+  email?: boolean;
+  password?: boolean;
   trim?: boolean;
+}
+
+interface IEnumPropertyOptions extends IPropertyOptions {
+  number?: boolean;
 }
 
 export function NumberProperty(
@@ -118,7 +122,7 @@ export function NumberProperty(
     );
   }
 
-  if (options.isPositive) {
+  if (options.positive) {
     decorators.push(
       IsPositive({
         each: options.each,
@@ -176,11 +180,11 @@ export function StringProperty(
     );
   }
 
-  if (options.isEmail) {
+  if (options.email) {
     decorators.push(IsEmail({}, { message: `${propertyName} không hợp lệ!` }));
   }
 
-  if (options.isPassword) {
+  if (options.password) {
     decorators.push(IsPassword({ message: `${propertyName} không hợp lệ!` }));
   }
 
@@ -231,7 +235,7 @@ export function BooleanProperty(
 export function EnumProperty(
   propertyName: string,
   entity: object,
-  options: Omit<ApiPropertyOptions, 'type'> & IPropertyOptions = {},
+  options: Omit<ApiPropertyOptions, 'type'> & IEnumPropertyOptions = {},
 ): PropertyDecorator {
   const decorators = [];
 
@@ -250,6 +254,10 @@ export function EnumProperty(
     if (options.swagger !== false) {
       decorators.push(ApiPropertyOptional({ ...options }));
     }
+  }
+
+  if (options.number) {
+    decorators.push(Type(() => Number));
   }
 
   decorators.push(
@@ -287,7 +295,7 @@ export function DateProperty(
   decorators.push(Type(() => Date));
 
   decorators.push(
-    IsDateString(undefined, {
+    IsDate({
       message: `${propertyName} không hợp lệ!`,
     }),
   );

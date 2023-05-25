@@ -121,7 +121,7 @@ export class UserController {
     await this.userService.changeStatus(request);
   }
 
-  @Post('profile')
+  @Put('profile')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     type: UserDto,

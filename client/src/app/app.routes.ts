@@ -26,11 +26,11 @@ import {
     RO_SEMESTER_MANAGER,
     RO_STUDENT_MANAGER,
     RO_TWO_FACTOR,
-    RO_USER_MANAGER
+    RO_USER_MANAGER,
+    Role
 } from './common/constants';
 import { userFeature } from './features/user-management/store/user.reducer';
 import { UserEffects } from './features/user-management/store/user.effects';
-import { Role } from './common/constants/user.constant';
 import { departmentFeature } from './features/department-management/store/department.reducer';
 import { DepartmentEffects } from './features/department-management/store/department.effects';
 import { projectApproveFeature } from './features/project-approve-management/store/project-approve.reducer';
@@ -157,15 +157,6 @@ export const appRoutes: Routes = [
                 ],
                 loadComponent: () => import('./features/project-approve-management/project-approve-management.component').then(c => c.ProjectApproveManagementComponent)
             },
-            // {
-            //     path: RO_PROGRESS_MANAGER,
-            //     data: { role: Role.ADMINISTRATOR },
-            //     providers: [
-            //         provideState(progressFeature),
-            //         provideEffects(ProgressEffects)
-            //     ],
-            //     loadComponent: () => import('./features/progress-management/progress-management.component').then(c => c.ProgressManagementComponent)
-            // },
             {
                 path: RO_STUDENT_MANAGER,
                 data: { role: Role.ADMINISTRATOR },

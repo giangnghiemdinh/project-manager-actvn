@@ -60,7 +60,7 @@ export class ProjectApproveEffects extends AbstractEffects {
     this.actions$.pipe(
       ofType(projectApproveActions.approveProjectSuccess),
       map(_ => {
-        this.raiseSuccess('Phê duyệt đồ án thành công.');
+        this.raiseSuccess('Phê duyệt đề tài thành công.');
         return projectApproveActions.loadProjects()
       }),
     )

@@ -3,7 +3,7 @@ import { StringProperty } from '../../../common/decorators';
 export class UserForgotDto {
   @StringProperty('Email', {
     required: true,
-    isEmail: true,
+    email: true,
   })
   readonly email: string;
 

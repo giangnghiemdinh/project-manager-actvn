@@ -4,14 +4,14 @@
                     { title: 'Trang chủ' },
                     { title: title }
                  ]">
-        <div class="flex items-center gap-2">
-            <button nz-button nzType="primary" nzSize="large" (click)="onAdd()">
+        <div class="flex justify-end items-center gap-2">
+            <button class="w-full sm:w-fit" nz-button nzType="primary" nzSize="large" (click)="onAdd()">
                 Thêm mới
             </button>
         </div>
     </app-toolbar>
 
-    <div class="grid grid-cols-3 gap-6" *ngIf="(semesters$ | async) as semesters">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6" *ngIf="(semesters$ | async) as semesters">
         <div class="bg-white border border-gray-150 shadow rounded-md py-2"
              *ngFor="let semester of semesters">
             <div class="flex justify-between items-center min-h-[70px] px-6 lg:px-8">
@@ -20,17 +20,17 @@
                 </div>
             </div>
             <div class="px-6 lg:px-8">
-                <div class="font-semibold text-gray-500">
-                    Thời gian bắt đầu: {{ semester.start | date: 'dd/MM/yyyy' }}
+                <div class="text-gray-500">
+                    <span class="font-semibold">Bắt đầu:</span> {{ semester.start | date: 'dd/MM/yyyy' }}
                 </div>
-                <div class="mt-2 font-semibold text-gray-500">
-                    Thời gian kết thúc: {{ semester.end | date: 'dd/MM/yyyy' }}
+                <div class="mt-2 text-gray-500">
+                    <span class="font-semibold">Kết thúc:</span> {{ semester.end | date: 'dd/MM/yyyy' }}
                 </div>
-                <div class="my-4 flex items-center gap-4">
-                    <button class="w-1/2" nz-button nzType="primary" nzSize="large" (click)="onEdit(semester.id!)">
+                <div class="my-4 grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
+                    <button nz-button nzType="primary" nzSize="large" (click)="onEdit(semester.id!)">
                         Chỉnh sửa
                     </button>
-                    <button (click)="onDelete(semester.id!)" class="w-1/2" nz-button nzType="default" nzDanger nzSize="large">
+                    <button nz-button nzType="default" nzDanger nzSize="large">
                         Xoá
                     </button>
                 </div>

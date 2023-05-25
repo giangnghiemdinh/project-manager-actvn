@@ -4,7 +4,7 @@ export interface User {
     id?: number;
     fullName?: string;
     email?: string;
-    avatar?: null;
+    avatar?: string;
     phone?: string;
     isActive?: boolean;
     gender?: Gender;
@@ -13,4 +13,5 @@ export interface User {
     workPlace?: string;
     lastLogin?: Date;
     role?: Role;
+    avatarFile?: any;
 }

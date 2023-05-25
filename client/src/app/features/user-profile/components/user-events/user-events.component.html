@@ -8,14 +8,22 @@
                [showHeader]="false"
                [pagination]="pagination"
                (pageChanges)="pageChange.emit($event)">
-        <app-table-column key="message" width="400px">
+        <app-table-column [responsive]="{ md: true }" key="message" width="400px">
             <ng-template table-cell let-row>
                 <span [innerHTML]="(row.message | parseMessage: row.params) | nzSanitizer: 'html'"></span>
             </ng-template>
         </app-table-column>
-        <app-table-column key="createdAt" width="100px" align="right">
+        <app-table-column [responsive]="{ md: true }" key="createdAt" width="100px" align="right">
             <ng-template table-cell let-row>
                 <span class="text-gray-400">{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </ng-template>
+        </app-table-column>
+        <app-table-column [responsive]="{ xs: true, md: false }" key="">
+            <ng-template table-cell let-row>
+                <span [innerHTML]="(row.message | parseMessage: row.params) | nzSanitizer: 'html'"></span>
+                <div class="w-full flex justify-end mt-1">
+                    <span class="text-gray-400">{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                </div>
             </ng-template>
         </app-table-column>
     </app-table>

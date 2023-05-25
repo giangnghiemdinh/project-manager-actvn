@@ -14,7 +14,7 @@ import { Store } from '@ngrx/store';
 import { CommonState, selectDepartments, selectSemesters } from '../../common/stores';
 import { Router } from '@angular/router';
 import { selectQueryParams } from '../../common/stores/router';
-import { RO_PROJECT_APPROVE } from '../../common/constants';
+import { ProjectApproveStatuses, ProjectStatus, RO_PROJECT_APPROVE } from '../../common/constants';
 import { setTitle } from '../../common/utilities';
 import { ProjectStatusPipe } from '../../core-ui/pipes/project-status.pipe';
 import {
@@ -28,7 +28,6 @@ import {
 import { approveProject, loadProject, loadProjects, updateVisible } from './store/project-approve.actions';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { ProjectApproveFormComponent } from './components/project-approve-form/project-approve-form.component';
-import { ProjectApproveStatuses, ProjectStatus } from '../../common/constants/project.constant';
 
 @Component({
     selector: 'app-project-approve-management',
@@ -49,7 +48,7 @@ export class ProjectApproveManagementComponent {
     project$ = this.store.select(selectProject);
     departments$ = this.commonStore.select(selectDepartments);
     semesters$ = this.commonStore.select(selectSemesters);
-    title = 'Quản lý đề xuất đồ án';
+    title = 'Quản lý đề xuất đề tài';
     url = RO_PROJECT_APPROVE;
     status = ProjectStatus;
     statuses = ProjectApproveStatuses;
@@ -59,8 +58,7 @@ export class ProjectApproveManagementComponent {
         this.onLoad();
     }
 
-    onSearch() {
-        const value: any = this.filterForm.value;
+    onSearch(value: any) {
         value.page = 1;
         this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }

@@ -6,8 +6,8 @@ import { ManagerStaff, PaginationPayload, PaginationResponse } from '../../../co
     providedIn: 'root'
 })
 export class ManagerStaffService extends AbstractService {
-    getManagerStaffs(payload: PaginationPayload) {
-        return this.get<PaginationResponse<ManagerStaff>>('manager-staff', { payload });
+    getManagerStaffs(params: PaginationPayload) {
+        return this.get<PaginationResponse<ManagerStaff>>('manager-staff', { params });
     }
 
     getManagerStaff(id: number) {

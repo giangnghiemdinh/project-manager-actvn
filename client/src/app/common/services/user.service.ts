@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { AbstractService } from '../abstracts';
 import { PaginationPayload, PaginationResponse, User, UserEvent, UserImportPayload, UserSession } from '../models';
 import { UserStatus } from '../constants';
+import { toNonAccentVietnamese } from '../utilities';
+import { isNotNil } from 'ng-zorro-antd/core/util';
 
 @Injectable({
     providedIn: 'root'
@@ -12,8 +14,8 @@ export class UserService extends AbstractService {
         return this.get<User>('user/profile');
     }
 
-    getUsers(payload: PaginationPayload) {
-        return this.get<PaginationResponse<User>>('user', { payload });
+    getUsers(params: PaginationPayload) {
+        return this.get<PaginationResponse<User>>('user', { params });
     }
 
     getUser(id: number) {
@@ -21,7 +23,7 @@ export class UserService extends AbstractService {
     }
 
     createUser(payload: User) {
-        return this.post<User>('user', { payload });
+        return this.post<User>('user', { payload: this.parsePayload(payload) });
     }
 
     importUser(payload: UserImportPayload) {
@@ -29,7 +31,11 @@ export class UserService extends AbstractService {
     }
 
     updateUser(payload: User) {
-        return this.put<User>(`user/${ payload.id }`, { payload });
+        return this.put<User>(`user/${ payload.id }`, { payload: this.parsePayload(payload) });
+    }
+
+    updateProfile(payload: User) {
+        return this.put<User>(`profile`, { payload: this.parsePayload(payload) });
     }
 
     changeStatus(id: number, status: UserStatus) {
@@ -42,5 +48,27 @@ export class UserService extends AbstractService {
 
     getSessions(payload: PaginationPayload) {
         return this.get<PaginationResponse<UserSession>>('user/sessions', { payload })
+    }
+
+    private parsePayload(user: User) {
+        const formData: FormData = new FormData();
+
+        for (let [key, value] of Object.entries(user)) {
+            switch (key) {
+                case 'avatarFile':
+                    if (value) {
+                        const extension = '.' + value.name.split('.').pop().toLowerCase();
+                        formData.append('avatarFile', value, toNonAccentVietnamese(user.fullName || '') + extension);
+                    }
+                    break;
+                case 'birthday':
+                    value && formData.append(key, value);
+                    break;
+                default:
+                    formData.append(key, isNotNil(value) ? value : '');
+            }
+        }
+
+        return formData;
     }
 }

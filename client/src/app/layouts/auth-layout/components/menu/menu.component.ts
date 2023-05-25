@@ -1,9 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { collapseMotion, fadeL2rMotion } from '../../../../common/animations';
-import { Role } from '../../../../common/constants/user.constant';
-import { Menu } from './menu.model';
 import {
     RO_DEPARTMENT_MANAGER,
     RO_EXAMINER_COUNCIL,
@@ -13,8 +11,10 @@ import {
     RO_REVIEWER_STAFF,
     RO_SEMESTER_MANAGER,
     RO_STUDENT_MANAGER,
-    RO_USER_MANAGER
+    RO_USER_MANAGER,
+    Role
 } from '../../../../common/constants';
+import { Menu } from './menu.model';
 import { MenuLinkActiveDirective } from '../../../../core-ui/directives';
 
 @Component({
@@ -28,15 +28,19 @@ export class MenuComponent {
 
     @Input()
     set role(role: Role | undefined) {
-        if (!role) { return; }
+        if (!role) {
+            return;
+        }
         this.buildMenus(role);
     }
+
     @Input() isCollapsedSidebar = false;
+    @Output() itemClick = new EventEmitter();
     activeMenuId = -1;
     menus: Menu[] = [];
 
     onToggleMenu(id: number) {
-        this.activeMenuId = (this.activeMenuId === id && -1) || id;
+        this.activeMenuId = ( this.activeMenuId === id && -1 ) || id;
     }
 
     private buildMenus(role: Role) {
@@ -81,7 +85,7 @@ export class MenuComponent {
             icon: 'bx-book-alt',
             active: false
         });
-        if ([Role.CENSOR, Role.ADMINISTRATOR].includes(role)) {
+        if ([ Role.CENSOR, Role.ADMINISTRATOR ].includes(role)) {
             managementMenus.push({
                 title: 'Danh sách đề xuất đề tài',
                 routerLink: RO_PROJECT_APPROVE,
@@ -115,7 +119,7 @@ export class MenuComponent {
             icon: 'bx-rocket',
             active: false
         });
-        managementMenus.length && (menus = [...menus, { separator: 'Quản lý' }, ...managementMenus]);
+        managementMenus.length && ( menus = [ ...menus, { separator: 'Quản lý' }, ...managementMenus ] );
 
         // const statisticalMenus: Menu[] = [];
         // if (role === Role.ADMINISTRATOR) {
@@ -128,6 +132,6 @@ export class MenuComponent {
         // }
         // statisticalMenus.length && (menus = [...menus, { separator: 'Thống kê' }, ...statisticalMenus]);
 
-        this.menus = [...menus];
+        this.menus = [ ...menus ];
     }
 }

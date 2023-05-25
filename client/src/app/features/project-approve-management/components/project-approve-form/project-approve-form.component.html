@@ -5,12 +5,12 @@
           [nzWidth]="600"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
-        <div class="w-full max-h-[500px] overflow-y-auto scrollable">
+        <div class="w-full max-h-[400px] sm:max-h-[500px] scrollable px-4 sm:px-6 py-3 sm:py-4">
             <nz-spin [nzSpinning]="isLoading">
                 <ng-container *ngIf="project">
                     <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
                         <div class="col-span-4">
-                            Tên đồ án
+                            Tên đề tài
                         </div>
                         <div class="col-span-8">
                             {{ project.name }}

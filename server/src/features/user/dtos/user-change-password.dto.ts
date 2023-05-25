@@ -3,13 +3,13 @@ import { StringProperty } from '../../../common/decorators';
 export class UserChangePasswordRequestDto {
   @StringProperty('Mật khẩu cũ', {
     required: true,
-    isPassword: true,
+    password: true,
   })
   readonly oldPassword: string;
 
   @StringProperty('Mật khẩu mới', {
     required: true,
-    isPassword: true,
+    password: true,
   })
   readonly newPassword: string;
 }

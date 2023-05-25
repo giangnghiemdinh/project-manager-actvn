@@ -9,22 +9,22 @@
     <div class="bg-white shadow border border-gray-150 rounded-md">
         <div class="flex justify-between items-center p-4 border-b border-gray-200">
             <app-form #filterForm
+                      class="w-full"
+                      [debounceTime]="300"
                       [data]="queryParams$ | async"
-                      [hidden]="{ page: 1, limit: 10 }">
-                <div class="grid grid-cols-12 gap-4">
-                    <app-form-select class="col-span-2" control="departmentId" placeholder="Khoa"
+                      [hidden]="{ page: 1, limit: 10 }"
+                      (valueChanges)="onSearch($event)">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4">
+                    <app-form-select class="col-span-1 lg:col-span-2" control="departmentId" placeholder="Khoa"
                                      selectValue="id" selectLabel="name"
                                      allowClear
                                      [showLabel]="false" [options]="departments$ | async"
                     ></app-form-select>
-                    <app-form-select class="col-span-2" control="status" placeholder="Trạng thái"
+                    <app-form-select class="col-span-1 lg:col-span-2" control="status" placeholder="Trạng thái"
                                      allowClear
                                      [showLabel]="false" [options]="statuses"
                     ></app-form-select>
-                    <app-form-text class="col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
-                    <button nzSize="large" nz-button nzType="default" (click)="onSearch()">
-                        Tìm kiếm
-                    </button>
+                    <app-form-text class="col-span-1 lg:col-span-2" control="q" placeholder="Nhập để tìm kiếm" [showLabel]="false"/>
                 </div>
             </app-form>
         </div>

@@ -1,7 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { PaginationResponse, User } from '../../../common/models';
-import { UserImportPayload } from '../../../common/models/user-import.model';
-import { UserStatus } from '../../../common/constants/user.constant';
+import { PaginationResponse, User, UserImportPayload } from '../../../common/models';
+import { UserStatus } from '../../../common/constants';
 
 export const UserActions = createActionGroup({
     source: 'User',

@@ -1,14 +1,17 @@
 <div class="w-full z-50 fixed top-0 right-0 transition-all duration-300 shadow border-b border-gray-100"
      [style.background-color]="CONFIG.HEADER.BACKGROUND"
      [style.height.px]="CONFIG.HEADER.HEIGHT"
-     [style.margin-left.px]="isCollapsed
+     [style.margin-left.px]="isDesktop ? (isFixedSidebar
             ? CONFIG.SIDEBAR.MIN_WIDTH
-            : CONFIG.SIDEBAR.WIDTH">
+            : CONFIG.SIDEBAR.WIDTH) : 0">
     <div class="h-full flex items-stretch justify-between lg:px-8 px-4">
 
         <!--Sidebar menu-->
         <div class="lg:hidden flex items-stretch gap-1 lg:gap-2">
-
+            <div class="h-full cursor-pointer transition-all flex items-center justify-center duration-300"
+                 (click)="drawer.open()">
+                <i class='bx bx-menu text-2xl'></i>
+            </div>
         </div>
 
         <!--Menu-->
@@ -16,7 +19,7 @@
 
         <!--Navbar-->
         <div class="flex items-center shrink-0 gap-1">
-            <div class="flex gap-2 items-center px-1 h-[50px]">
+            <div class="flex gap-2 items-center px-1 h-[50px]" *ngIf="isDesktop">
                 <div *ngLet="now$ | async as now" class="flex flex-col items-end">
                     <div class="truncate font-semibold text-gray-600 text-md">{{ now | date: 'HH:mm:ss' }}</div>
                     <div class="text-xs text-gray-400">{{ now | date: 'EEEE, dd/MM/yyyy' }}</div>
@@ -27,26 +30,31 @@
             </div>
             <div nz-dropdown #dropdown="nzDropdown" [nzDropdownMenu]="accountDesktopMenu"
                  class="flex gap-2 items-center px-2 h-[50px] hover:bg-gray-200 cursor-pointer rounded-md transition duration-300">
-                <div class="flex flex-col items-end">
+                <div class="flex flex-col items-end" *ngIf="isDesktop">
                     <div class="truncate font-semibold text-gray-600 text-md">{{ profile?.fullName }}</div>
                     <div class="w-fit text-xs px-1 bg-yellow-500 rounded-md text-white">{{ profile?.role | role }}</div>
                 </div>
-                <nz-avatar [nzShape]="'square'" [nzSize]="40" [nzText]="profile?.fullName?.charAt(0)" [nzSrc]="(profile?.avatar || '') | driverUrl: 'image'"></nz-avatar>
+                <nz-avatar [nzShape]="'square'" [nzSize]="40" [nzText]="profile?.fullName?.charAt(0)"
+                           [nzSrc]="(profile?.avatar || '') | driverUrl"></nz-avatar>
             </div>
             <nz-dropdown-menu #accountDesktopMenu="nzDropdownMenu">
                 <div class="w-[250px] bg-white border border-gray-200 rounded-md shadow-md z-[999]">
                     <div class="px-4 py-2 flex items-center border-b border-gray-150 gap-2">
-                        <nz-avatar class="flex-shrink-0" [nzShape]="'square'" [nzSize]="40" [nzText]="profile?.fullName?.charAt(0)" [nzSrc]="(profile?.avatar || '') | driverUrl: 'image'"></nz-avatar>
+                        <nz-avatar class="flex-shrink-0" [nzShape]="'square'" [nzSize]="40"
+                                   [nzText]="profile?.fullName?.charAt(0)"
+                                   [nzSrc]="(profile?.avatar || '') | driverUrl"></nz-avatar>
                         <div>
                             <div class="font-bold text-md text-black truncate">{{ profile?.fullName }}</div>
                             <div class="text-xs text-gray-400 truncate">{{ profile?.email }}</div>
                         </div>
                     </div>
                     <div class="p-2 flex flex-col border-b border-gray-150">
-                        <div routerLink="/profile" class="text-gray-500 px-3 py-1.5 font-semibold rounded-md cursor-pointer hover:bg-gray-200 hover:text-blue-400 transition-all duration-300">
+                        <div routerLink="/profile"
+                             class="text-gray-500 px-3 py-1.5 font-semibold rounded-md cursor-pointer hover:bg-gray-200 hover:text-blue-400 transition-all duration-300">
                             Trang cá nhân
                         </div>
-                        <div (click)="logout.emit()" class="text-gray-500 px-3 py-1.5 font-semibold rounded-md cursor-pointer hover:bg-gray-200 hover:text-blue-400 transition-all duration-300">
+                        <div (click)="logout.emit()"
+                             class="text-gray-500 px-3 py-1.5 font-semibold rounded-md cursor-pointer hover:bg-gray-200 hover:text-blue-400 transition-all duration-300">
                             Đăng xuất
                         </div>
                     </div>
@@ -55,3 +63,29 @@
         </div>
     </div>
 </div>
+
+<nz-drawer #drawer
+           nzClosable="false"
+           nzCloseOnNavigation="true"
+           nzMaskClosable="true"
+           nzPlacement="left"
+           [nzWidth]="CONFIG.SIDEBAR.WIDTH"
+           [nzTitle]="menuTitle"
+           [nzContent]="drawerContent"
+           [(nzVisible)]="isOpenDrawer"
+           (nzOnClose)="isOpenDrawer = false">
+    <ng-template #menuTitle>
+        <div class="w-full flex justify-between">
+            <img class="h-[40px] object-cover" src="assets/images/logos/logo-1.png" alt="">
+            <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center hover:bg-gray-200 text-gray-400"
+                  (click)="drawer.close()">
+                <i class='bx bx-x text-2xl'></i>
+            </span>
+        </div>
+    </ng-template>
+    <ng-template #drawerContent>
+        <app-menu *ngIf="!isDesktop"
+                  [role]="profile?.role"
+                  (itemClick)="drawer.close()"/>
+    </ng-template>
+</nz-drawer>

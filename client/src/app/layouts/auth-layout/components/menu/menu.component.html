@@ -2,24 +2,29 @@
     <ng-container *ngIf="menu.separator; else menuTmpl">
         <div [@fadeL2rMotion]="{ value: '', params: { delay: i * 0.1 } }"
              class="px-4 pt-4 pb-2">
-            <span *ngIf="!isCollapsedSidebar" class="uppercase text-xs text-[#4c4e6f] tracking-widest">{{menu.separator}}</span>
-            <div *ngIf="isCollapsedSidebar" class="ml-[3px] h-[21px] w-full flex items-center transition-all duration-150">
+            <span *ngIf="!isCollapsedSidebar"
+                  class="uppercase text-xs text-[#4c4e6f] tracking-widest">{{menu.separator}}</span>
+            <div *ngIf="isCollapsedSidebar"
+                 class="ml-[3px] h-[21px] w-full flex items-center transition-all duration-150">
                 <div class="w-[4px] h-[4px] rounded-full bg-[#7987a1]"></div>
             </div>
         </div>
     </ng-container>
     <ng-template #menuTmpl>
-        <a (click)="menu.children?.length ? onToggleMenu(i) : false"
+        <a (click)="menu.children?.length ? onToggleMenu(i) : itemClick.emit()"
            [@fadeL2rMotion]="{value: '', params: {delay: i * 0.1}}"
            [menuLinkActive]="menu.routerLink || ''"
            [isCollapsedSidebar]="isCollapsedSidebar"
            [routerLink]="(!!menu.routerLink && [menu.routerLink]) || []"
            class="cursor-pointer transition-all duration-300 text-gray-400 hover:bg-[#1b1b28] rounded-md group px-3 py-2 flex flex-row items-center outline-0">
-            <span [class.text-blue-500]="menu.active" class="menu-icon w-8 flex justify-items-start group-hover:text-blue-500">
+            <span [class.text-blue-500]="menu.active"
+                  class="menu-icon w-8 flex justify-items-start group-hover:text-blue-500">
                 <i class="text-lg bx" [ngClass]="menu.icon"></i>
             </span>
-            <span [class.opacity-0]="isCollapsedSidebar" [class.text-white]="menu.active" class="grow text-sm group-hover:text-white transition-all duration-300">{{menu.title}}</span>
-            <span *ngIf="menu.children?.length" class="group-hover:text-white transition-all duration-300" [class.rotate-90]="activeMenuId === i">
+            <span [class.opacity-0]="isCollapsedSidebar" [class.text-white]="menu.active"
+                  class="grow text-sm group-hover:text-white transition-all duration-300">{{menu.title}}</span>
+            <span *ngIf="menu.children?.length" class="group-hover:text-white transition-all duration-300"
+                  [class.rotate-90]="activeMenuId === i">
                 <i class='bx bx-chevron-right'></i>
             </span>
         </a>
@@ -30,7 +35,8 @@
                [routerLink]="(!!sub.routerLink && [sub.routerLink]) || []"
                class="cursor-pointer transition-all duration-500 text-gray-400 hover:bg-[#1b1b28] group pl-10 pr-6 py-3 flex flex-row items-center outline-0">
                 <span class="w-4 mr-2 flex justify-items-start items-center">
-                    <span [class.bg-blue-500]="sub.active" class="w-[4px] h-[4px] rounded-full bg-gray-400 group-hover:bg-blue-500"></span>
+                    <span [class.bg-blue-500]="sub.active"
+                          class="w-[4px] h-[4px] rounded-full bg-gray-400 group-hover:bg-blue-500"></span>
                 </span>
                 <span class="grow text-sm group-hover:text-white">{{sub.title}}</span>
             </a>

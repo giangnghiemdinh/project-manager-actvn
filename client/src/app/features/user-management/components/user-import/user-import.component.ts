@@ -6,11 +6,10 @@ import { NzUploadChangeParam, NzUploadFile, NzUploadModule, NzUploadXHRArgs } fr
 import { timer } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { FormsModule } from '@angular/forms';
-import { ExcelService } from '../../../../common/services/excel.service';
-import { NotificationService } from '../../../../common/services';
+import { ExcelService, NotificationService } from '../../../../common/services';
 import { isEmpty } from 'lodash';
 import { User } from '../../../../common/models';
-import { Gender } from '../../../../common/constants/user.constant';
+import { Gender } from '../../../../common/constants';
 import moment from 'moment';
 
 @Component({

@@ -6,8 +6,8 @@ import { ExaminerCouncil, PaginationPayload, PaginationResponse } from '../../..
     providedIn: 'root'
 })
 export class ExaminerCouncilService extends AbstractService {
-    getExaminerCouncils(payload: PaginationPayload) {
-        return this.get<PaginationResponse<ExaminerCouncil>>('examiner-council', { payload });
+    getExaminerCouncils(params: PaginationPayload) {
+        return this.get<PaginationResponse<ExaminerCouncil>>('examiner-council', { params });
     }
 
     getExaminerCouncil(id: number) {

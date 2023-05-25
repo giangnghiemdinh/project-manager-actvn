@@ -6,8 +6,8 @@ import { PaginationPayload, PaginationResponse, ReviewerStaff } from '../../../c
     providedIn: 'root'
 })
 export class ReviewerStaffService extends AbstractService {
-    getReviewerStaffs(payload: PaginationPayload) {
-        return this.get<PaginationResponse<ReviewerStaff>>('reviewer-staff', { payload });
+    getReviewerStaffs(params: PaginationPayload) {
+        return this.get<PaginationResponse<ReviewerStaff>>('reviewer-staff', { params });
     }
 
     getReviewerStaff(id: number) {

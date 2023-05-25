@@ -1,13 +1,13 @@
-<div class="bg-white border border-gray-150 shadow rounded-md py-2">
+<div class="bg-white border border-gray-150 shadow rounded-md">
     <div class="px-6 py-4 border-b border-gray-150">
         <div class="font-bold text-lg text-[$262626] leading-none">
             Hồ sơ
         </div>
     </div>
-    <div class="px-6 py-4">
-        <div class="flex items-end gap-2 text-gray-600 font-semibold pb-4 mb-4 border-b border-dashed border-gray-150">
-            <div class="grid grid-cols-12 flex-1">
-                <div class="col-span-3">
+    <div class="px-4 md:px-6 py-2 md:py-4">
+        <div class="flex items-center gap-2 text-gray-600 pb-2 md:pb-4 mb-2 md:mb-4 border-b border-dashed border-gray-150">
+            <div class="grid grid-cols-1 md:grid-cols-12 flex-1">
+                <div class="col-span-3 font-semibold">
                     Email
                 </div>
                 <div class="col-span-9">
@@ -20,13 +20,13 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-end gap-2 text-gray-600 font-semibold pb-4 mb-4 border-b border-dashed border-gray-150">
-            <div class="grid grid-cols-12 flex-1">
-                <div class="col-span-3">
-                    Password
+        <div class="flex items-center gap-2 text-gray-600 pb-2 md:pb-4 mb-2 md:mb-4 border-b border-dashed border-gray-150">
+            <div class="grid grid-cols-1 md:grid-cols-12 flex-1">
+                <div class="col-span-3 font-semibold">
+                    Mật khẩu
                 </div>
                 <div class="col-span-9">
-                    *****
+                    ******
                 </div>
             </div>
             <div class="flex-shrink-0">
@@ -35,9 +35,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-end gap-2 text-gray-600 font-semibold">
-            <div class="grid grid-cols-12 flex-1">
-                <div class="col-span-3">
+        <div class="flex items-center gap-2 text-gray-600">
+            <div class="grid grid-cols-1 md:grid-cols-12 flex-1">
+                <div class="col-span-3 font-semibold">
                     Vai trò
                 </div>
                 <div class="col-span-9">
@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="flex-shrink-0">
-                <div *ngIf="id" class="w-[30px] h-[30px] rounded-md hover:bg-gray-200 text-blue-400 cursor-pointer flex items-center justify-center text-xl transition-all duration-300">
+                <div class="w-[30px] h-[30px] rounded-md hover:bg-gray-200 text-blue-400 cursor-pointer flex items-center justify-center text-xl transition-all duration-300">
                     <i class='bx bx-edit-alt'></i>
                 </div>
             </div>
@@ -53,21 +53,17 @@
     </div>
 </div>
 
-<div class="bg-white border border-gray-150 shadow rounded-md py-2 mt-6">
-    <div class="flex justify-between items-center min-h-[70px] px-6">
+<div class="bg-white border border-gray-150 shadow rounded-md py-4 mt-4 lg:mt-6">
+    <div class="flex flex-wrap justify-between items-center min-h-[70px] px-6 gap-y-4 gap-x-2">
         <div class="font-bold text-lg text-[$262626]">
             Xác thực hai bước
             <div class="text-gray-400 mt-1 text-sm">
                 Giữ tài khoản của bạn an toàn hơn với bước xác thực thứ hai.
             </div>
         </div>
-        <div>
-            <button nzSize="large" nz-button nzType="default">
-                <div class="flex items-center gap-1">
-                    <i class='bx bx-fingerprint' ></i>
-                    Thay đổi phương thức xác thực
-                </div>
-            </button>
-        </div>
+        <button nzSize="large" class="flex items-center gap-1 truncate" nz-button nzType="default">
+            <i class='bx bx-fingerprint' ></i>
+            Thay đổi phương thức xác thực
+        </button>
     </div>
 </div>

@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -22,15 +28,26 @@ import {
   EmailQueueService,
   OtpService,
 } from '../../../shared/services';
-import { Role, USER_DUPLICATE_EMAIL, UserStatus, VERIFY_EMAIL_PROCESS, } from '../../../common/constants';
+import {
+  Role,
+  USER_DUPLICATE_EMAIL,
+  UserStatus,
+  VERIFY_EMAIL_PROCESS,
+} from '../../../common/constants';
 import moment from 'moment/moment';
 import { OtpInvalidException } from '../../../common/exceptions';
 import { UserSessionService } from './user-session.service';
 import { UserChangePasswordRequestDto } from '../dtos/user-change-password.dto';
 import { generateHash, validateHash } from '../../../common/utilities';
 import { UserEventService } from './user-event.service';
-import { UserEventPageRequestDto, UserEventPageResponseDto, } from '../dtos/user-event-page.dto';
-import { UserSessionPageRequestDto, UserSessionPageResponseDto, } from '../dtos/user-session-page.dto';
+import {
+  UserEventPageRequestDto,
+  UserEventPageResponseDto,
+} from '../dtos/user-event-page.dto';
+import {
+  UserSessionPageRequestDto,
+  UserSessionPageResponseDto,
+} from '../dtos/user-session-page.dto';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
 
 @Injectable()
@@ -47,8 +64,7 @@ export class UserService {
     private readonly configService: ApiConfigService,
     private readonly emailQueueService: EmailQueueService,
     private readonly driverService: DriverService,
-  ) {
-  }
+  ) {}
 
   findByEmail(email: string): Promise<UserEntity | null> {
     return this.userRepository.findOne({
@@ -83,10 +99,10 @@ export class UserService {
     if (pageOptionsDto.q) {
       queryBuilder.where(
         'UCASE(user.fullName) LIKE :q ' +
-        'OR UCASE(user.email) LIKE :q ' +
-        'OR UCASE(user.phone) LIKE :q ' +
-        'OR UCASE(user.workPlace) LIKE :q',
-        { q: `%${ pageOptionsDto.q.toUpperCase() }%` },
+          'OR UCASE(user.email) LIKE :q ' +
+          'OR UCASE(user.phone) LIKE :q ' +
+          'OR UCASE(user.workPlace) LIKE :q',
+        { q: `%${pageOptionsDto.q.toUpperCase()}%` },
       );
     }
 
@@ -107,7 +123,7 @@ export class UserService {
       if (extras.includes('p')) {
         queryBuilder
           .leftJoin('user.projects', 'projects')
-          .addSelect([ 'projects.semesterId' ]);
+          .addSelect(['projects.semesterId']);
       }
     }
 
@@ -116,7 +132,7 @@ export class UserService {
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
 
-    const [ entities, itemCount ] = await queryBuilder.getManyAndCount();
+    const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
 
@@ -164,22 +180,25 @@ export class UserService {
           request.avatarFile,
           this.configService.defaultFolderIds.avatars,
         );
-        id && ( request.avatar = id );
+        id && (request.avatar = id);
       }
     } catch (e) {
       throw new BadRequestException('Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
+
+    delete request.avatarFile;
+
     const user = this.userRepository.create(request);
     await this.userRepository.insert(user);
     currentUser &&
-    ( await this.userEventService.insert({
-      message: `Thêm mới người dùng {userFullName}`,
-      params: JSON.stringify({
-        fullName: user.fullName,
-        userId: user.id,
-      }),
-      userId: currentUser.id,
-    }) );
+      (await this.userEventService.insert({
+        message: `Thêm mới người dùng {userFullName}`,
+        params: JSON.stringify({
+          fullName: user.fullName,
+          userId: user.id,
+        }),
+        userId: currentUser.id,
+      }));
     return user.toDto();
   }
 
@@ -199,7 +218,7 @@ export class UserService {
       }
       switch (request.duplicateEmail) {
         case USER_DUPLICATE_EMAIL.STOP:
-          throw new ConflictException(`Email ${ user.email } đã tồn tại!`);
+          throw new ConflictException(`Email ${user.email} đã tồn tại!`);
         default:
           await this.userRepository.update({ email: user.email }, { ...user });
       }
@@ -219,21 +238,22 @@ export class UserService {
       if (request.avatarFile) {
         if (request.avatar) {
           // Remove old file
-          this.driverService.deleteFile(request.avatar).then();
+          await this.driverService.deleteFile(request.avatar);
         }
         const { id } = await this.driverService.uploadFile(
           request.avatarFile,
           this.configService.defaultFolderIds.avatars,
         );
-        id && ( request.avatar = id );
+        id && (request.avatar = id);
       }
       if (!request.avatar && user.avatar) {
         // Remove old file
-        this.driverService.deleteFile(user.avatar).then();
+        await this.driverService.deleteFile(user.avatar);
       }
     } catch (e) {
       throw new BadRequestException('Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
+    delete request.avatarFile;
     await this.userRepository.update({ id }, request);
     this.userRepository.merge(user, request);
     if (user.id !== currentUser.id) {
@@ -368,7 +388,7 @@ export class UserService {
       await this.userSessionService.findAllByUser(userId);
     for (const session of sessions) {
       await this.cacheService.set(
-        `Blocked_${ session.uid }`,
+        `Blocked_${session.uid}`,
         true,
         this.configService.authConfig.refreshExpirationTime * 1000,
       );

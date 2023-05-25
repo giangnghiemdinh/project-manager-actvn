@@ -12,6 +12,10 @@ export const UserProfileActions = createActionGroup({
         'Update User Success': props<{ response: User }>(),
         'Update User Failure': props<{ errors: any }>(),
 
+        'Update Profile': props<{ payload: User }>(),
+        'Update Profile Success': props<{ response: User }>(),
+        'Update Profile Failure': props<{ errors: any }>(),
+
         'Update Visible': props<{ isVisible: boolean }>(),
 
         'Load Sessions': props<{ payload: PaginationPayload }>(),

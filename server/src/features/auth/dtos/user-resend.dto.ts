@@ -8,7 +8,7 @@ export class UserResendDto {
 
   @StringProperty('Email', {
     required: true,
-    isEmail: true,
+    email: true,
   })
   readonly email: string;
 

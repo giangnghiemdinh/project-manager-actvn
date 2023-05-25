@@ -20,7 +20,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { Store } from '@ngrx/store';
 import { CommonState, selectDepartments, selectSemesters } from '../../common/stores';
 import { Router, RouterLink } from '@angular/router';
-import { Project, ProjectImportPayload } from '../../common/models';
+import { Project, ProjectImportPayload, ProjectProgress } from '../../common/models';
 import { ModalType, ProjectActions } from './store/project.actions';
 import {
     ProjectState,
@@ -36,23 +36,21 @@ import {
     selectReport
 } from './store/project.reducer';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { ProjectFormComponent } from './components/project-form/project-form.component';
 import { selectQueryParams } from '../../common/stores/router';
-import { RO_PROJECT_MANAGER } from '../../common/constants';
 import { HasRoleDirective } from '../../core-ui/directives';
-import { ProjectStatusPipe } from '../../core-ui/pipes/project-status.pipe';
+import { ProjectStatusPipe } from '../../core-ui/pipes';
 import { ProgressReportComponent } from './components/progress-report/progress-report.component';
-import { ProjectProgress } from '../../common/models/project-progress.model';
 import { ProjectReviewComponent } from './components/project-review/project-review.component';
 import { ProjectImportComponent } from './components/project-import/project-import.component';
 import { CouncilReviewComponent } from './components/council-review/council-review.component';
-import { ProjectProgressType, ProjectStatuses } from '../../common/constants/project.constant';
+import { ProjectProgressType, ProjectStatuses, RO_PROJECT_MANAGER } from '../../common/constants';
 
 @Component({
     selector: 'app-project-management',
     standalone: true,
-    imports: [ ToolbarComponent, NzButtonModule, NzInputModule, NzTableModule, NzPaginationModule, NzModalModule, NzFormModule, TableColumnDirective, TableComponent, TableCellDirective, NzDropDownModule, AsyncPipe, ProjectFormComponent, SearchStudentComponent, SearchUserComponent, FormComponent, FormSelectComponent, FormTextComponent, NgForOf, NgIf, ProjectStatusPipe, NgClass, ProgressReportComponent, RouterLink, ProjectReviewComponent, ProjectImportComponent, CouncilReviewComponent, HasRoleDirective ],
+    imports: [ ToolbarComponent, NzButtonModule, NzInputModule, NzTableModule, NzPaginationModule, NzModalModule, NzFormModule, TableColumnDirective, TableComponent, TableCellDirective, NzDropDownModule, AsyncPipe, ProjectFormComponent, SearchStudentComponent, SearchUserComponent, FormComponent, FormSelectComponent, FormTextComponent, NgForOf, NgIf, ProjectStatusPipe, NgClass, ProgressReportComponent, RouterLink, ProjectReviewComponent, ProjectImportComponent, CouncilReviewComponent, HasRoleDirective, NgTemplateOutlet ],
     templateUrl: './project-management.component.html',
 })
 export class ProjectManagementComponent {
@@ -74,7 +72,7 @@ export class ProjectManagementComponent {
     departments$ = this.commonStore.select(selectDepartments);
     semesters$ = this.commonStore.select(selectSemesters);
     report$ = this.store.select(selectReport);
-    title = 'Quản lý đồ án';
+    title = 'Quản lý đề tài';
     url = RO_PROJECT_MANAGER;
     isPropose = false;
     statuses = ProjectStatuses;
@@ -91,8 +89,7 @@ export class ProjectManagementComponent {
         this.onLoad();
     }
 
-    onSearch() {
-        const value: any = this.filterForm.value;
+    onSearch(value: any) {
         value.page = 1;
         this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
@@ -133,7 +130,7 @@ export class ProjectManagementComponent {
 
     onDelete(id: number) {
         this.modal.confirm({
-            nzTitle: 'Bạn có chắc chắn muốn xoá đồ án?',
+            nzTitle: 'Bạn có chắc chắn muốn xoá đề tài?',
             nzClosable: false,
             nzCentered: true,
             nzOkText: 'Xoá',
