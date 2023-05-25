@@ -2,12 +2,11 @@
           [nzTitle]="(examinerCouncil ? 'Chỉnh sửa' : 'Thêm mới') + ' hội đồng'"
           [nzCentered]="true"
           [nzWidth]="800"
-          [nzBodyStyle]="{ padding: '0' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
             <app-form #form [data]="data" [emitChangesPatching]="false">
-                <div class="grid grid-cols-2 gap-4 max-h-[500px] px-6 py-4 overflow-y-auto scrollable">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <app-form-select control="departmentId" label="Khoa"
                                      selectValue="id" selectLabel="name"
                                      [options]="departments"
@@ -21,12 +20,12 @@
                                      [validators]="{ required: true }"
                                      (valueChange)="onDepartmentOrSemesterChanges($event)"/>
                     <app-form-text control="location" label="Địa điểm"
-                                   class="col-span-2"
+                                   class="sm:col-span-2"
                                    [validators]="{ required: true }"/>
-                    <app-form-wrapper class="col-span-2">
+                    <app-form-wrapper class="sm:col-span-2">
                         <ng-container label>Danh sách thành viên</ng-container>
                         <ng-container control>
-                            <app-table [scroll]="{ x: '500px' }" [data]="selectedUsers" size="small">
+                            <app-table [scroll]="{ x: '450px' }" [data]="selectedUsers" size="small">
                                 <app-table-column key="user.fullName" title="Họ và tên" width="250px"/>
                                 <app-table-column key="position" title="Chức vụ" width="150px">
                                     <ng-template table-cell let-row>
@@ -40,7 +39,7 @@
                                         </nz-select>
                                     </ng-template>
                                 </app-table-column>
-                                <app-table-column key="action" title="Hành động" align="center" width="100px">
+                                <app-table-column key="action" title="Hành động" align="center" width="50px" [right]="true">
                                     <ng-template table-cell let-row>
                                         <i (click)="onRemoveUser(row.userId!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
                                     </ng-template>
@@ -53,7 +52,7 @@
                             </div>
                         </ng-container>
                     </app-form-wrapper>
-                    <app-form-wrapper class="col-span-2">
+                    <app-form-wrapper class="sm:col-span-2">
                         <ng-container label>Danh sách đề tài bảo vệ</ng-container>
                         <ng-container control>
                             <app-table [data]="selectedProjects" [scroll]="{ x: '800px' }" size="small">

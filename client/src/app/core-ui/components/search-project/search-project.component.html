@@ -11,8 +11,8 @@
                 Tìm kiếm đề tài
             </div>
             <div class="mt-2">
-                <app-form>
-                    <app-form-text control="name" label="Từ khoá" noFormWrapper placeholder="Nhập để tìm kiếm"/>
+                <app-form [debounceTime]="500" (valueChanges)="onSearch($event)">
+                    <app-form-text control="q" noFormWrapper allowClear placeholder="Nhập để tìm kiếm"/>
                 </app-form>
             </div>
         </div>
@@ -47,7 +47,11 @@
                     </div>
                 </div>
                 <div class="px-3 py-2 flex justify-between items-center border-t border-gray-150">
-                    <div></div>
+                    <a target="_blank" [routerLink]="['/project-management', project.id]">
+                        <button nzSize="small" nz-button nzType="default">
+                            Chi tiết
+                        </button>
+                    </a>
                     <button nzSize="small" nz-button
                             nzType="primary"
                             [nzDanger]="isMultiple && isSelected(project.id!)"

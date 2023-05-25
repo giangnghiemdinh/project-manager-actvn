@@ -11,8 +11,8 @@
                 Tìm kiếm sinh viên
             </div>
             <div class="mt-2">
-                <app-form>
-                    <app-form-text control="name" label="Từ khoá" noFormWrapper placeholder="Nhập để tìm kiếm"/>
+                <app-form [debounceTime]="500" (valueChanges)="onSearch($event)">
+                    <app-form-text control="q" noFormWrapper allowClear placeholder="Nhập để tìm kiếm"/>
                 </app-form>
             </div>
         </div>

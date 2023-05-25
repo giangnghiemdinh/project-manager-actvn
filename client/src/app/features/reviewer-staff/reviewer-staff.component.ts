@@ -31,6 +31,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { ReviewerStaffFormComponent } from './components/reviewer-staff-form/reviewer-staff-form.component';
 import { HasRoleDirective } from '../../core-ui/directives';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 
 @Component({
     selector: 'app-reviewer-staff',
@@ -51,7 +52,8 @@ import { HasRoleDirective } from '../../core-ui/directives';
         NzDividerModule,
         NgIf,
         ReviewerStaffFormComponent,
-        HasRoleDirective
+        HasRoleDirective,
+        NzDropDownModule
     ],
     templateUrl: './reviewer-staff.component.html',
 })
@@ -78,8 +80,7 @@ export class ReviewerStaffComponent {
         this.onLoad();
     }
 
-    onSearch() {
-        const value: any = this.filterForm.value;
+    onSearch(value: any) {
         value.page = 1;
         this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }

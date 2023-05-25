@@ -5,14 +5,14 @@
                     { title: 'Danh sách GV Quản lý' },
                     { title: title },
                  ]">
-        <div class="flex items-center gap-2">
-            <button nz-button nzType="dashed" nzSize="large"
+        <div class="flex justify-end items-center gap-2">
+            <button nz-button nzType="dashed" nzSize="default"
                     class="w-[100px]"
                     [routerLink]="['/' + urlManagerStaff]"
                     [disabled]="isLoading$ | async">
                 Trở lại
             </button>
-            <button nz-button nzType="primary" nzSize="large"
+            <button nz-button nzType="primary" nzSize="default"
                     class="w-[100px]"
                     [disabled]="!groups.length || (isLoading$ | async)"
                     (click)="onSave()">
@@ -21,15 +21,15 @@
         </div>
     </app-toolbar>
     <nz-spin [nzSpinning]="isLoading$ | async">
-        <div class="flex gap-8">
-            <div class="w-1/4">
+        <div class="flex flex-col xl:flex-row gap-y-4 gap-x-6">
+            <div class="w-full xl:w-1/4">
                 <div class="bg-white border border-gray-150 shadow rounded-md overflow-hidden">
-                    <div class="flex justify-between items-center min-h-[70px] px-6 lg:px-8">
-                        <div class="font-semibold text-xl">
+                    <div class="px-6 py-4 border-b border-gray-150">
+                        <div class="font-bold text-lg text-[$262626] leading-none">
                             Thông tin chung
                         </div>
                     </div>
-                    <div class="px-6 lg:px-8 mb-6">
+                    <div class="px-6 lg:px-8 pt-3 pb-4">
                         <app-form #form>
                             <div class="flex flex-col gap-4">
                                 <app-form-select control="departmentId" label="Khoa"
@@ -44,7 +44,7 @@
                                                  [validators]="{ required: true }"/>
                             </div>
                         </app-form>
-                        <button class="mt-4" nzSize="large"
+                        <button class="mt-6" nzSize="large"
                                 nzBlock nz-button nzType="primary"
                                 [disabled]="!form.form.valid"
                                 (click)="onLoadingProjects(form.form)">
@@ -53,10 +53,10 @@
                     </div>
                 </div>
             </div>
-            <div class="w-3/4 flex flex-col gap-6">
+            <div class="w-full xl:w-3/4 flex flex-col gap-4 lg:gap-6">
                 <div class="bg-white border border-gray-150 shadow rounded-md overflow-hidden"
                      *ngFor="let group of groups; let index = index;">
-                    <div class="flex justify-between items-center min-h-[70px] px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 py-2 lg:py-3 px-6 lg:px-8">
                         <div class="flex gap-2 items-center">
                             <div class="text-lg font-semibold text-gray-600 border-r border-gray-150 pr-2">
                                 Nhóm {{ index < 10 ? '0' + (index + 1) : (index + 1) }}
@@ -74,7 +74,7 @@
                                 </ng-template>
                             </nz-avatar>
                         </div>
-                        <div class="flex gap-2 items-center">
+                        <div class="w-full md:w-fit flex gap-2 flex-wrap justify-end items-center">
                             <button nz-button nzType="primary" nzSize="default" (click)="onSearchUser(index)">
                                 Chọn GV quản lý
                             </button>
@@ -119,7 +119,7 @@
 </div>
 
 <ng-template #confirmContent let-params let-ref="modalRef">
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 my-2">
         <div class="rounded-md px-4 py-2 border border-blue-300 bg-blue-200">
             Có tất cả {{ (projects$ | async)?.length }} đề tài đủ điều kiện.
         </div>

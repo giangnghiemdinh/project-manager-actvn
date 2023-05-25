@@ -131,6 +131,7 @@ export class ManagerStaffMassComponent {
 
     onSearchProject(groupIndex: number) {
         this.currentGroupIndex = groupIndex;
+        this.hiddenIds = [];
         this.groups.forEach(g => {
             this.hiddenIds = [ ...this.hiddenIds, ...g.projects.map(p => p.id!) ];
         });

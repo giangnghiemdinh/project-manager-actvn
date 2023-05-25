@@ -10,6 +10,7 @@ import { cloneDeep } from 'lodash';
 import { FormComponent, FormTextComponent } from '../form';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { UiScrollModule } from 'ngx-ui-scroll';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-search-project',
@@ -25,7 +26,8 @@ import { UiScrollModule } from 'ngx-ui-scroll';
         FormComponent,
         FormTextComponent,
         NzSpinModule,
-        UiScrollModule
+        UiScrollModule,
+        RouterLink
     ],
     templateUrl: './search-project.component.html',
 })
@@ -40,7 +42,6 @@ export class SearchProjectComponent implements OnChanges {
     selected: Project[] = [];
     checked = false;
     indeterminate = false;
-    q = '';
 
     ngOnChanges(changes: SimpleChanges): void {
         const { isVisible, projects, hiddenIds } = changes;
@@ -57,10 +58,10 @@ export class SearchProjectComponent implements OnChanges {
         }
     }
 
-    onSearch() {
+    onSearch(event: { q: string }) {
         this.filterProjects = (this.projects || []).filter(p =>
             !this.hiddenIds.includes(p.id!)
-            && p.name?.includes(this.q));
+            && (!event.q || p.name?.toLowerCase().includes(event.q.toLowerCase())));
     }
 
     isSelected(id: number) {

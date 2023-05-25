@@ -14,6 +14,7 @@ import { Datasource, UiScrollModule } from 'ngx-ui-scroll';
 import { UserService } from '../../../common/services';
 import { lastValueFrom, map } from 'rxjs';
 import { Role } from '../../../common/constants';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-search-user',
@@ -32,7 +33,8 @@ import { Role } from '../../../common/constants';
         FormComponent,
         FormTextComponent,
         NzSpinModule,
-        UiScrollModule
+        UiScrollModule,
+        RouterLink
     ],
     templateUrl: './search-user.component.html',
 })
@@ -50,10 +52,10 @@ export class SearchUserComponent implements OnChanges {
     pagination: MetaPagination = { limit: 50 };
     cacheData: any = {};
     selectedUser: User[] = [];
+    params: any;
 
     dataSource = new Datasource<any>({
-        get: (index, count, success) => {
-        }
+        get: (index, count, success) => {}
     });
 
     async ngOnChanges(changes: SimpleChanges) {
@@ -87,8 +89,12 @@ export class SearchUserComponent implements OnChanges {
         this.selectedUser.push(user);
     }
 
-    onSearch(page: number, limit = 30) {
-
+    async onSearch(value: any) {
+        this.params = value;
+        this.cacheData = {};
+        if (!this.initialized) { return; }
+        await this.dataSource.adapter.relax();
+        await this.dataSource.adapter.reset();
     }
 
     onOk() {
@@ -145,7 +151,8 @@ export class SearchUserComponent implements OnChanges {
         return lastValueFrom(this.userService.getUsers({
             page,
             limit: this.pagination.limit,
-            role: Role.LECTURER
+            role: Role.LECTURER,
+            ...this.params
         }).pipe(
             map(res => {
                 this.pagination = res.meta;

@@ -14,7 +14,7 @@ import {
     ToolbarComponent
 } from '../../../../core-ui/components';
 import { CommonState, selectDepartments, selectSemesters } from '../../../../common/stores';
-import { RO_REVIEWER_STAFF } from '../../../../common/constants';
+import { RO_MANAGER_STAFF, RO_REVIEWER_STAFF } from '../../../../common/constants';
 import { Project, ReviewerStaff, User } from '../../../../common/models';
 import { setTitle } from '../../../../common/utilities';
 import { FormGroup, FormsModule } from '@angular/forms';
@@ -135,6 +135,7 @@ export class ReviewerStaffMassComponent {
 
     onSearchProject(groupIndex: number) {
         this.currentGroupIndex = groupIndex;
+        this.hiddenIds = [];
         this.groups.forEach(g => {
             this.hiddenIds = [ ...this.hiddenIds, ...g.projects.map(p => p.id!) ];
         });
@@ -252,4 +253,6 @@ export class ReviewerStaffMassComponent {
                 }
             });
     }
+
+    protected readonly RO_MANAGER_STAFF = RO_MANAGER_STAFF;
 }

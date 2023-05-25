@@ -2,12 +2,11 @@
           [nzTitle]="(reviewerStaff ? 'Chỉnh sửa' : 'Thêm mới') + ' nhóm'"
           [nzCentered]="true"
           [nzWidth]="800"
-          [nzBodyStyle]="{ padding: '0' }"
           (nzOnCancel)="onClose()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
             <app-form #form [data]="data" [emitChangesPatching]="false">
-                <div class="grid grid-cols-2 gap-4 max-h-[500px] overflow-y-auto scrollable px-6 py-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <app-form-select control="departmentId" label="Khoa"
                                      selectValue="id" selectLabel="name"
                                      [options]="departments || []"
@@ -21,11 +20,11 @@
                                      [validators]="{ required: true }"
                                      (valueChange)="onDepartmentOrSemesterChanges($event)"/>
                     <app-form-text control="instructorName" label="Người phản biện"
-                                   class="col-span-2"
+                                   class="sm:col-span-2"
                                    [validators]="{ required: true }"
                                    [readonly]="true" [allowClear]="true"
                                    (click)="onSearchUser()"/>
-                    <app-form-wrapper class="col-span-2">
+                    <app-form-wrapper class="sm:col-span-2">
                         <ng-container label>Danh sách đề tài</ng-container>
                         <ng-container control>
                             <app-table [data]="selectedProjects" [scroll]="{ x: '800px' }" size="small">

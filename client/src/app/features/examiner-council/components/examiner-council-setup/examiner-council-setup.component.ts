@@ -36,7 +36,7 @@ import { CommonState, selectDepartments, selectSemesters } from '../../../../com
 import { setTitle } from '../../../../common/utilities';
 import { chunk, cloneDeep, shuffle, uniqBy } from 'lodash';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { RO_EXAMINER_COUNCIL } from '../../../../common/constants';
+import { RO_EXAMINER_COUNCIL, RO_REVIEWER_STAFF } from '../../../../common/constants';
 import { RouterLink } from '@angular/router';
 import { ProjectStatus } from '../../../../common/constants/project.constant';
 import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../../../common/constants/user.constant';
@@ -192,6 +192,7 @@ export class ExaminerCouncilSetupComponent {
 
     onSearchProject(groupIndex: number) {
         this.currentGroupIndex = groupIndex;
+        this.hiddenIds = [];
         this.groups.forEach(g => {
             this.hiddenIds = [ ...this.hiddenIds, ...g.projects.map(p => p.id!) ];
         });
@@ -319,4 +320,6 @@ export class ExaminerCouncilSetupComponent {
                 }
             });
     }
+
+    protected readonly RO_REVIEWER_STAFF = RO_REVIEWER_STAFF;
 }

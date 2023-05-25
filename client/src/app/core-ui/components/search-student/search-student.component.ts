@@ -52,6 +52,7 @@ export class SearchStudentComponent implements OnChanges {
     pagination: MetaPagination = { limit: 50 };
     cacheData: any = {};
     selectedStudent: Student[] = [];
+    params: any;
 
     dataSource = new Datasource<any>({
         get: (index, count, success) => { }
@@ -88,8 +89,12 @@ export class SearchStudentComponent implements OnChanges {
         this.selectedStudent.push(student);
     }
 
-    onSearch(page: number, limit = 30) {
-
+    async onSearch(value: any) {
+        this.params = value;
+        this.cacheData = {};
+        if (!this.initialized) { return; }
+        await this.dataSource.adapter.relax();
+        await this.dataSource.adapter.reset();
     }
 
     onOk() {
@@ -145,7 +150,8 @@ export class SearchStudentComponent implements OnChanges {
         }
         return lastValueFrom(this.studentService.getStudents({
             page,
-            limit: this.pagination.limit
+            limit: this.pagination.limit,
+            ...this.params
         }).pipe(
             map(res => {
                 this.pagination = res.meta;

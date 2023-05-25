@@ -217,7 +217,7 @@ export const appRoutes: Routes = [
                         loadComponent: () => import('./features/examiner-council/examiner-council.component').then(c => c.ExaminerCouncilComponent)
                     },
                     {
-                        path: 'setup',
+                        path: 'mass',
                         loadComponent: () => import('./features/examiner-council/components/examiner-council-setup/examiner-council-setup.component').then(c => c.ExaminerCouncilSetupComponent)
                     }
                 ]
