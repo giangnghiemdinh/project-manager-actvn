@@ -85,7 +85,7 @@ export class ProjectImportComponent implements OnChanges {
         this.files = [ file ];
     }
 
-    onClose() {
+    onCancel() {
         this.cancel.emit();
     }
 

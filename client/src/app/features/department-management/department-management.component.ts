@@ -45,7 +45,7 @@ export class DepartmentManagementComponent {
         );
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(updateVisible({ isVisible: false }));
     }
 }

@@ -143,7 +143,7 @@ export class ExaminerCouncilComponent {
         );
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(updateVisible({ isVisible: false }));
     }
 

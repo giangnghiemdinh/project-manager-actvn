@@ -195,7 +195,7 @@
                   [departments]="departments$ | async"
                   [isPropose]="isPropose"
                   (ok)="onSave($event)"
-                  (cancel)="onClose('form')"
+                  (cancel)="onCancel('form')"
 ></app-project-form>
 
 <app-project-import [isVisible]="isVisibleImport$ | async"
@@ -203,22 +203,22 @@
                     [semesters]="semesters$ | async"
                     [departments]="departments$ | async"
                     (ok)="onSaveImport($event)"
-                    (cancel)="onClose('import')"/>
+                    (cancel)="onCancel('import')"/>
 
 <app-progress-report [isVisible]="isVisibleReport$ | async"
                      [isLoading]="isLoading$ | async"
                      [report]="report$ | async"
                      (ok)="onSaveReport($event)"
-                     (cancel)="onClose('report')"/>
+                     (cancel)="onCancel('report')"/>
 
 <app-project-review [isVisible]="isVisibleReview$ | async"
                     [isLoading]="isLoading$ | async"
                     [report]="report$ | async"
                     (ok)="onSaveReview($event)"
-                    (cancel)="onClose('review')"/>
+                    (cancel)="onCancel('review')"/>
 
 <app-council-review [isVisible]="isVisibleCouncilReview$ | async"
                     [isLoading]="isLoading$ | async"
                     [project]="project$ | async"
                     (ok)="onSaveCouncilReview($event)"
-                    (cancel)="onClose('council')"/>
+                    (cancel)="onCancel('council')"/>

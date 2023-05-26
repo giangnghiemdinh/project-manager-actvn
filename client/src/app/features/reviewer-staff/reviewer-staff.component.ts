@@ -133,7 +133,7 @@ export class ReviewerStaffComponent {
         );
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(ReviewerStaffActions.updateVisible({ isVisible: false }));
     }
 

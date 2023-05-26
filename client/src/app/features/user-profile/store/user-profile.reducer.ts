@@ -10,6 +10,9 @@ export interface UserProfileState extends AbstractState {
     sessions: UserSession[];
     sessionPagination: MetaPagination | null;
     isVisible: boolean;
+    isVisibleEmail: boolean;
+    isVisiblePass: boolean;
+    isVisible2FA: boolean;
 }
 
 export const initialState: UserProfileState = {
@@ -20,6 +23,9 @@ export const initialState: UserProfileState = {
     sessionPagination: null,
     isLoading: true,
     isVisible: false,
+    isVisibleEmail: false,
+    isVisiblePass: false,
+    isVisible2FA: false,
     errors: null
 };
 
@@ -109,10 +115,117 @@ export const userProfileFeature = createFeature({
             isLoading: false,
         })),
 
-        on(UserProfileActions.updateVisible, (state, { isVisible }) => ({
+        on(UserProfileActions.verifyNewEmail, (state) => ({
             ...state,
-            isVisible: isVisible,
+            errors: null,
+            isLoading: true,
         })),
+
+        on(UserProfileActions.verifyNewEmailSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isVisible: false,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.verifyNewEmailFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.changeEmail, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(UserProfileActions.changeEmailSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isVisibleEmail: false,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.changeEmailFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.changePassword, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(UserProfileActions.changePasswordSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isVisiblePass: false,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.changePasswordFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.change2FA, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(UserProfileActions.change2FASuccess, (state) => ({
+            ...state,
+            errors: null,
+            isVisible2FA: false,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.change2FAFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.deleteSession, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(UserProfileActions.deleteSessionSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.deleteSessionFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.updateVisible, (state, { isVisible, modal }) => {
+            const newState = { ...state };
+            switch (modal) {
+                case 'email':
+                    newState.isVisibleEmail = isVisible;
+                    break;
+                case 'password':
+                    newState.isVisiblePass = isVisible;
+                    break;
+                case '2fa':
+                    newState.isVisible2FA = isVisible;
+                    break;
+                default:
+                    newState.isVisible = isVisible;
+            }
+            return newState;
+        }),
     ),
 });
 
@@ -123,6 +236,9 @@ export const {
     selectEvents,
     selectEventPagination,
     selectIsVisible,
+    selectIsVisiblePass,
+    selectIsVisibleEmail,
+    selectIsVisible2FA,
     selectIsLoading,
     selectErrors,
 } = userProfileFeature;

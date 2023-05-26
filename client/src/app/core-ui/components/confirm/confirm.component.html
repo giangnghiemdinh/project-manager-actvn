@@ -1,0 +1,12 @@
+<div class="grid grid-cols-2 gap-4 py-2">
+    <div class="col-span-2 font-semibold text-[#000000d9]">
+        {{ nzModalData?.title }}
+    </div>
+    <button class="col-span-1" nzBlock nzSize="large" nz-button nzType="default" (click)="onCancel()">
+        Trở về
+    </button>
+    <button class="col-span-1" [nzDanger]="nzModalData?.okDanger || false"
+            nzBlock nzSize="large" nz-button nzType="primary" (click)="onOK()">
+        {{ nzModalData?.okText || 'Đồng ý' }}
+    </button>
+</div>

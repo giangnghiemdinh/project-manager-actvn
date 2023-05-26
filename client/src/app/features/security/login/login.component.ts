@@ -24,7 +24,7 @@ export class LoginComponent {
     private readonly store = inject(Store<AuthState>);
     form = new FormGroup({
         email: new FormControl('', [ Validators.required, Validators.email ]),
-        password: new FormControl('', [ Validators.required, NoWhitespaceValidator ]),
+        password: new FormControl('', [ Validators.required, NoWhitespaceValidator() ]),
         recaptcha: new FormControl(null, Validators.required)
     });
     passwordVisible = false;

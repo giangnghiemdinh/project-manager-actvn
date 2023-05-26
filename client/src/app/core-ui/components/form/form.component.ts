@@ -60,7 +60,7 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
     }
 
     get value() {
-        return this.form.value;
+        return this.form.value as any;
     }
 
     get rawValue() {
@@ -85,6 +85,10 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
         timer(0).subscribe(_ => {
             this.initialized = true;
             this.log(`Initialized | ${JSON.stringify(this.initialData)}`);
+            this.validators.length
+                ? this.form.setValidators(this.validators)
+                : this.form.clearValidators();
+            this.form.updateValueAndValidity();
             !isEmpty(this.data)
                 ? this.patchValue(this.data)
                 : this.valueChangesListener();
@@ -129,7 +133,7 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
                 }
             }
         }
-        if (validators) {
+        if (validators && this.initialized) {
             this.validators.length
                 ? this.form.setValidators(this.validators)
                 : this.form.clearValidators();

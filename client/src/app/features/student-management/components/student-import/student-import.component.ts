@@ -30,7 +30,7 @@ export class StudentImportComponent {
         this.files = [ file ];
     }
 
-    onClose() {
+    onCancel() {
         this.cancel.emit();
     }
 }

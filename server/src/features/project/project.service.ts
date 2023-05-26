@@ -390,7 +390,7 @@ export class ProjectService {
                 const newStudent = await this.studentService.createStudent({
                   fullName: (fullName || '').trim(),
                   code: (code || '').trim(),
-                  email: (email || '').trim(),
+                  email: (email || '').trim().toLowerCase(),
                   phone: (phone || '').trim(),
                   departmentId: request.departmentId,
                 });
@@ -423,7 +423,7 @@ export class ProjectService {
           switch (request.instrNotExist) {
             case PROJECT_INSTR_NOT_EXIST.INSERT:
               const newInstr = await this.userService.createUser({
-                email: (email || '').trim(),
+                email: (email || '').trim().toLowerCase(),
                 fullName: (fullName || '').trim(),
                 workPlace: (workPlace || '').trim(),
                 phone: (phone || '').trim(),

@@ -347,10 +347,10 @@ export class UserService {
         currentUser.password,
       );
       if (!isPasswordMatch) {
-        throw new BadRequestException('Mật khẩu hiện tại không chính xác!');
+        throw new BadRequestException('Mật khẩu cũ không chính xác!');
       }
     }
-    await this.updatePassword(currentUser.id, request.newPassword);
+    await this.updatePassword(currentUser.id, request.password);
     await this.logoutAllSections(currentUser.id);
   }
 
@@ -395,6 +395,7 @@ export class UserService {
       session.expired = new Date();
       session.refreshJwt = '';
       session.uid = '';
+      session.isTrusted = false;
       await this.userSessionService.save(session);
     }
   }

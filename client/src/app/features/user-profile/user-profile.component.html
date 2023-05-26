@@ -24,7 +24,6 @@
                                      [src]="user.avatar ? (user.avatar | driverUrl) : 'assets/images/avatars/default-avatar.jpg'" alt="">
                             </div>
                             <div class="mt-4 font-bold text-gray-600 text-base truncate">{{ user.fullName }}</div>
-                            <div class="mt-1.5 w-fit text-xs px-1 bg-yellow-500 rounded-md text-white">{{ user.role | role }}</div>
                         </div>
                         <div class="p-4 py-3">
                             <div class="flex items-center justify-between">
@@ -32,12 +31,6 @@
                                 <button nz-button nzSize="small" nzType="primary" (click)="onEdit()">Chỉnh sửa</button>
                             </div>
                             <div class="mt-2 flex flex-col gap-2">
-                                <div>
-                                    <div class="font-semibold text-gray-600">Email</div>
-                                    <div class="text-gray-400 truncate" [class.invisible]="!user.email">
-                                        {{ user.email || 'Email' }}
-                                    </div>
-                                </div>
                                 <div>
                                     <div class="font-semibold text-gray-600">Số điện thoại</div>
                                     <div class="text-gray-400 truncate" [class.invisible]="!user.phone">
@@ -75,10 +68,14 @@
             </div>
             <div class="w-full xl:w-3/4">
                 <div class="flex flex-col gap-4 lg:gap-6">
-                    <app-user-security [id]="id" [user]="user$ | async"/>
+                    <app-user-security [isAdministrator]="isAdministrator$ | async"
+                                       [user]="user$ | async"
+                                       [isSelf]="isSelf$ | async"
+                                       (openChange)="onOpenModal($event)"/>
                     <app-user-sessions [sessions]="sessions$ | async"
                                        [pagination]="sessionPagination$ | async"
-                                       (pageChange)="onSessionPageChange($event)"/>
+                                       (pageChange)="onSessionPageChange($event)"
+                                       (delete)="onDeleteSession($event)"/>
                     <app-user-events [events]="events$ | async"
                                      [pagination]="eventsPagination$ | async"
                                      (pageChange)="onEventPageChange($event)"/>
@@ -92,6 +89,24 @@
                [isLoading]="isLoading$ | async"
                [user]="user$ | async"
                [departments]="departments$ | async"
-               [isSelf]="true"
+               [isAdministrator]="isAdministrator$ | async"
                (ok)="onSave($event)"
-               (cancel)="onClose()"/>
+               (cancel)="onCancel()"/>
+
+<app-change-email [isVisible]="isVisibleEmail$ | async"
+                  [isLoading]="isLoading$ | async"
+                  (verify)="onVerifyNewEmail($event)"
+                  (change)="onChangeEmail($event)"
+                  (cancel)="onCancel('email')"/>
+
+<app-change-password [isVisible]="isVisiblePass$ | async"
+                     [isLoading]="isLoading$ | async"
+                     (change)="onChangePass($event)"
+                     (cancel)="onCancel('password')"/>
+
+<app-change-two-factor [isVisible]="isVisible2FA$ | async"
+                       [isLoading]="isLoading$ | async"
+                       [isSelf]="isSelf$ | async"
+                       [user]="user$ | async"
+                       (change)="onChange2FA($event)"
+                       (cancel)="onCancel('2fa')"/>

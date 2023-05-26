@@ -96,10 +96,10 @@
                   [student]="student$ | async"
                   [departments]="departments$ | async"
                   (ok)="onSave($event)"
-                  (cancel)="onClose()"
+                  (cancel)="onCancel()"
 ></app-student-form>
 
 <app-student-import [isVisible]="isVisibleImport$ | async"
                     [isLoading]="isLoading$ | async"
                     (ok)="onSaveImport($event)"
-                    (cancel)="onCloseImport()"/>
+                    (cancel)="onCancelImport()"/>

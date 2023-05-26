@@ -18,3 +18,5 @@ export * from './user-import.model';
 export * from './reviewer-staff.model';
 export * from './user-verify.model';
 export * from './project-progress.model';
+export * from './user-change-email.model';
+export * from './user-change-password.model';

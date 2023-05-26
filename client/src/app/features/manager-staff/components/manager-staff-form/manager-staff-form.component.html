@@ -2,7 +2,7 @@
           [nzTitle]="(managerStaff ? 'Chỉnh sửa' : 'Thêm mới') + ' nhóm'"
           [nzCentered]="true"
           [nzWidth]="800"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
             <app-form #form [data]="data" [emitChangesPatching]="false">
@@ -56,7 +56,7 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex justify-between gap-2">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onClose()" [disabled]="isLoading">
+            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
                 Trở về
             </button>
             <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">

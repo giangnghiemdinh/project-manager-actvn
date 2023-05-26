@@ -9,7 +9,7 @@ import { InputParserDirective, QrCodeDirective } from '../../../core-ui/directiv
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormErrorComponent } from '../../../core-ui/components';
 import { combineLatest, interval, map, take } from 'rxjs';
-import { UserVerifyPayload } from '../../../common/models/user-verify.model';
+import { UserVerifyPayload } from '../../../common/models';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';

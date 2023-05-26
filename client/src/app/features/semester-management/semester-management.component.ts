@@ -79,7 +79,7 @@ export class SemesterManagementComponent {
                 && this.store.dispatch(SemesterActions.deleteSemester({ id })));
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(SemesterActions.updateVisible({ isVisible: false }));
     }
 }

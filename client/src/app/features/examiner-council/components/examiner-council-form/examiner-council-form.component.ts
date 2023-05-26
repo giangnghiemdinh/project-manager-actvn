@@ -181,7 +181,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
         this.selectedUsers = (uniqBy([...this.selectedUsers, ...newUsers], 'userId')).slice(0, 5);
     }
 
-    onClose() {
+    onCancel() {
         this.isVisible = false;
         this.cancel.emit(false);
     }

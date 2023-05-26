@@ -133,7 +133,7 @@ export class ManagerStaffComponent {
         );
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(ManagerStaffActions.updateVisible({ isVisible: false }));
     }
 

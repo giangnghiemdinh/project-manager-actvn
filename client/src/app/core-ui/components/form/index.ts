@@ -13,3 +13,4 @@ export * from './form-time/form-time.component';
 export * from './form-wrapper/form-wrapper.component';
 export * from './form-file/form-file.component';
 export * from './form-checkbox/form-checkbox.component';
+export * from './form-password/form-password.component';

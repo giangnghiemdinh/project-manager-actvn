@@ -3,7 +3,7 @@
           [nzWidth]="800"
           [nzTitle]="'Hôị đồng chấm điểm'"
           [nzBodyStyle]="{ padding: '0', maxHeight: 'unset' }"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <app-form #form [data]="project" [debounceTime]="300">
             <nz-table [nzData]="[1, 2]" nzSize="middle" [nzScroll]="{ y: '500px' }" nzBordered nzShowPagination="false">
@@ -204,7 +204,7 @@
         </app-form>
     </ng-container>
     <ng-container *nzModalFooter>
-        <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+        <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
             Trở về
         </button>
         <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">

@@ -163,7 +163,7 @@ export class ReviewerStaffFormComponent {
         this.formComponent?.setValue('instructorName', user.fullName);
     }
 
-    onClose() {
+    onCancel() {
         this.isVisible = false;
         this.cancel.emit(false);
     }

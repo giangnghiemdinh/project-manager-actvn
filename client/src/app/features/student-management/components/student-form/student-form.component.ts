@@ -33,7 +33,7 @@ export class StudentFormComponent {
 
   genders = Genders;
 
-  onClose() {
+  onCancel() {
     this.isVisible = false;
     this.cancel.emit(false);
   }

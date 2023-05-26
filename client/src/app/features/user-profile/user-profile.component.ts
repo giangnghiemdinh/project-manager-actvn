@@ -5,19 +5,22 @@ import { UserSessionsComponent } from './components/user-sessions/user-sessions.
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { UserSecurityComponent } from './components/user-security/user-security.component';
 import { ToolbarComponent, UserFormComponent } from '../../core-ui/components';
-import { AuthState, CommonState, selectDepartments } from '../../common/stores';
+import { AuthState, CommonState, selectDepartments, selectProfile } from '../../common/stores';
 import { Store } from '@ngrx/store';
 import { RouterReducerState } from '@ngrx/router-store';
-import { filter, ReplaySubject, takeUntil } from 'rxjs';
-import { User } from '../../common/models';
+import { combineLatest, filter, map, ReplaySubject, takeUntil } from 'rxjs';
+import { User, UserChangeEmail, UserChangePassword } from '../../common/models';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { DriverUrlPipe, RolePipe } from '../../core-ui/pipes';
+import { DriverUrlPipe } from '../../core-ui/pipes';
 import { selectRouterParam } from '../../common/stores/router';
 import {
     selectEventPagination,
     selectEvents,
     selectIsLoading,
     selectIsVisible,
+    selectIsVisible2FA,
+    selectIsVisibleEmail,
+    selectIsVisiblePass,
     selectSessionPagination,
     selectSessions,
     selectUser,
@@ -26,11 +29,15 @@ import {
 import { UserProfileActions } from './store/user-profile.actions';
 import { NavigationEnd, Router, RouterLink, Scroll } from '@angular/router';
 import { concatLatestFrom } from '@ngrx/effects';
+import { Role, TwoFactorMethod } from '../../common/constants';
+import { ChangeEmailComponent } from './components/change-email/change-email.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { ChangeTwoFactorComponent } from './components/change-two-factor/change-two-factor.component';
 
 @Component({
     selector: 'app-user-profile',
     standalone: true,
-    imports: [ NgForOf, NgClass, NgIf, NzButtonModule, ToolbarComponent, UserSecurityComponent, UserSessionsComponent, UserEventsComponent, AsyncPipe, JsonPipe, NzSpinModule, DriverUrlPipe, UserFormComponent, DatePipe, RouterLink, RolePipe ],
+    imports: [ NgForOf, NgClass, NgIf, NzButtonModule, ToolbarComponent, UserSecurityComponent, UserSessionsComponent, UserEventsComponent, AsyncPipe, JsonPipe, NzSpinModule, DriverUrlPipe, UserFormComponent, DatePipe, RouterLink, ChangeEmailComponent, ChangePasswordComponent, ChangeTwoFactorComponent ],
     templateUrl: './user-profile.component.html',
 })
 export class UserProfileComponent implements OnDestroy {
@@ -43,12 +50,24 @@ export class UserProfileComponent implements OnDestroy {
 
     departments$ = this.commonStore.select(selectDepartments);
     isVisible$ = this.profileStore.select(selectIsVisible);
+    isVisibleEmail$ = this.profileStore.select(selectIsVisibleEmail);
+    isVisiblePass$ = this.profileStore.select(selectIsVisiblePass);
+    isVisible2FA$ = this.profileStore.select(selectIsVisible2FA);
     isLoading$ = this.profileStore.select(selectIsLoading);
     user$ = this.profileStore.select(selectUser);
     sessions$ = this.profileStore.select(selectSessions);
     sessionPagination$ = this.profileStore.select(selectSessionPagination);
     events$ = this.profileStore.select(selectEvents);
     eventsPagination$ = this.profileStore.select(selectEventPagination);
+    isAdministrator$ = this.authStore.select(selectProfile).pipe(
+        map(profile => profile && profile.role == Role.ADMINISTRATOR)
+    );
+    isSelf$ = combineLatest([
+        this.authStore.select(selectProfile),
+        this.profileStore.select(selectUser)
+    ]).pipe(
+        map(([profile, user]) => profile && user && profile.id === user.id)
+    );
     id = '';
 
     constructor() {
@@ -83,8 +102,8 @@ export class UserProfileComponent implements OnDestroy {
         );
     }
 
-    onClose() {
-        this.profileStore.dispatch(UserProfileActions.updateVisible({ isVisible: false }));
+    onCancel(modal?: 'email' | 'password' | '2fa') {
+        this.profileStore.dispatch(UserProfileActions.updateVisible({ isVisible: false, modal }));
     }
 
     onEventPageChange(event: { index: number, size: number }) {
@@ -106,5 +125,29 @@ export class UserProfileComponent implements OnDestroy {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    onOpenModal(modal: 'email' | 'password' | '2fa') {
+        this.profileStore.dispatch(UserProfileActions.updateVisible({ isVisible: true, modal }));
+    }
+
+    onDeleteSession(payload: { id: number, deviceId: string }) {
+        this.profileStore.dispatch(UserProfileActions.deleteSession({ payload }));
+    }
+
+    onVerifyNewEmail(payload: UserChangeEmail) {
+        this.profileStore.dispatch(UserProfileActions.verifyNewEmail({ payload }));
+    }
+
+    onChangeEmail(payload: UserChangeEmail) {
+        this.profileStore.dispatch(UserProfileActions.changeEmail({ payload }));
+    }
+
+    onChangePass(payload: UserChangePassword) {
+        this.profileStore.dispatch(UserProfileActions.changePassword({ payload }));
+    }
+
+    onChange2FA(payload: { twoFactory: TwoFactorMethod, isSelf: boolean }) {
+        this.profileStore.dispatch(UserProfileActions.change2FA({ payload }));
     }
 }

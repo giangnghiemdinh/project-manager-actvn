@@ -2,7 +2,7 @@
           [nzTitle]="'Phê duyệt đề tài'"
           [nzCentered]="true"
           [nzWidth]="600"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
             <ng-container *ngIf="project">
@@ -69,7 +69,7 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex justify-between gap-2">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onClose()" [disabled]="isLoading">
+            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
                 Trở về
             </button>
             <div class="flex gap-2">

@@ -73,7 +73,7 @@ export class UserImportComponent implements OnChanges {
         this.files = [ file ];
     }
 
-    onClose() {
+    onCancel() {
         this.cancel.emit();
     }
 

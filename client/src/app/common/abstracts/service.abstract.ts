@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { IGNORE_BASE_URL, IGNORE_TOKEN } from '../intercepters';
-import { DEFAULT_ERROR_MESSAGE } from '../constants/common.constant';
+import { DEFAULT_ERROR_MESSAGE } from '../constants';
 import { NotificationService } from '../services';
 import { values } from 'lodash';
 

@@ -82,7 +82,7 @@ export class ProjectApproveManagementComponent {
         this.store.dispatch(approveProject({ payload: value }));
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(updateVisible({ isVisible: false }));
     }
 }

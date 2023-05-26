@@ -70,7 +70,7 @@ export class ProjectApproveFormComponent {
         });
     }
 
-    onClose() {
+    onCancel() {
         this.isVisible = false;
         this.cancel.emit(false);
     }

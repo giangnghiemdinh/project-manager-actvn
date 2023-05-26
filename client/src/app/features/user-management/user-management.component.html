@@ -123,9 +123,9 @@
                [user]="user$ | async"
                [departments]="departments$ | async"
                (ok)="onSave($event)"
-               (cancel)="onClose()"/>
+               (cancel)="onCancel()"/>
 
 <app-user-import [isVisible]="isImportVisible$ | async"
                  [isLoading]="isLoading$ | async"
                  (ok)="onSaveImport($event)"
-                 (cancel)="onCloseImport()"/>
+                 (cancel)="onCancelImport()"/>

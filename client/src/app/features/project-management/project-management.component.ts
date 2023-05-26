@@ -181,7 +181,7 @@ export class ProjectManagementComponent {
         this.store.dispatch(ProjectActions.councilReview({ payload }));
     }
 
-    onClose(modal: ModalType) {
+    onCancel(modal: ModalType) {
         this.store.dispatch(ProjectActions.updateVisible({ isVisible: false, modal }));
     }
 

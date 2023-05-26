@@ -145,7 +145,7 @@ export class StudentManagementComponent {
         );
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(updateVisible({ isVisible: false }));
     }
 
@@ -153,7 +153,7 @@ export class StudentManagementComponent {
         this.store.dispatch(updateVisibleImport({ isVisible: true }));
     }
 
-    onCloseImport() {
+    onCancelImport() {
         this.store.dispatch(updateVisibleImport({ isVisible: false }));
     }
 

@@ -29,7 +29,7 @@ export class ProjectReviewComponent {
     @Output() cancel = new EventEmitter();
     type = ProjectProgressType;
 
-    onClose() {
+    onCancel() {
         if (this.isLoading) { return; }
         this.cancel.emit();
     }

@@ -1,0 +1,29 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzCentered]="true"
+          [nzWidth]="400"
+          [nzTitle]="''"
+          [nzFooter]="null"
+          (nzOnCancel)="onCancel()">
+    <ng-container *nzModalContent>
+        <div class="my-2">
+            <div class="text-center text-lg uppercase font-bold">
+                Thay đổi phương thức xác thực
+            </div>
+            <div class="mt-4 mb-6">
+                <nz-radio-group class="w-full grid grid-cols-1 gap-4" [(ngModel)]="twoFactory">
+                    <label class="radio-block w-full" nz-radio [nzValue]="twoFactorMethod.DISABLE">Tắt</label>
+                    <label class="radio-block w-full" nz-radio [nzValue]="twoFactorMethod.OTP">Ứng dụng di động</label>
+                    <label class="radio-block w-full" nz-radio [nzValue]="twoFactorMethod.EMAIL">Email</label>
+                </nz-radio-group>
+            </div>
+            <div class="grid grid-cols-2 gap-4 items-center justify-between">
+                <button class="col-span-1" nzBlock nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
+                    Trở về
+                </button>
+                <button class="col-span-1" nzBlock nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                    Xác nhận
+                </button>
+            </div>
+        </div>
+    </ng-container>
+</nz-modal>

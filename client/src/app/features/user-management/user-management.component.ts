@@ -156,11 +156,11 @@ export class UserManagementComponent {
         this.store.dispatch(UserActions.importUser({ payload }));
     }
 
-    onClose() {
+    onCancel() {
         this.store.dispatch(UserActions.updateVisible({ isVisible: false }));
     }
 
-    onCloseImport() {
+    onCancelImport() {
         this.store.dispatch(UserActions.updateImportVisible({ isVisible: false }));
     }
 }

@@ -181,6 +181,7 @@ export function StringProperty(
   }
 
   if (options.email) {
+    options.toLowerCase = true;
     decorators.push(IsEmail({}, { message: `${propertyName} không hợp lệ!` }));
   }
 

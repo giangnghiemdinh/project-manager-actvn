@@ -40,7 +40,7 @@
                 Bước 3: Nhập mã xác thực do ứng dụng cung cấp
             </div>
             <div class="mb-8">
-                <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser"
+                <input minlength="6" maxlength="6" placeholder="6 ký tự" [formControl]="otp" nz-input input-parser [parser]="parser"
                        nzSize="large">
                 <app-form-error [formControl]="otp" label="Mã xác thực"/>
             </div>
@@ -51,7 +51,7 @@
             </div>
             <div class="mb-8">
                 <input minlength="6" maxlength="6" [formControl]="otp" nz-input input-parser [parser]="parser"
-                       nzSize="large">
+                       nzSize="large" placeholder="6 ký tự">
                 <app-form-error [formControl]="otp" label="Mã xác thực"/>
                 <div class="w-full flex justify-end mt-2"
                      *ngIf="auth.credentials!.twoFactorMethod === method.EMAIL">

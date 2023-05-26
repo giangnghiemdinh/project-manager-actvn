@@ -11,5 +11,5 @@ export class UserChangePasswordRequestDto {
     required: true,
     password: true,
   })
-  readonly newPassword: string;
+  readonly password: string;
 }

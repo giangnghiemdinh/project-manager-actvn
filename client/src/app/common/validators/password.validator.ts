@@ -1,4 +1,4 @@
-import { AbstractControl, FormGroup, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 
 export function NoWhitespaceValidator() {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -12,12 +12,13 @@ export function NoWhitespaceValidator() {
     };
 }
 
-export function ConfirmPasswordMatched() {
-    return (formGroup: FormGroup): ValidationErrors | null => {
+export const ConfirmPasswordMatched = (): any => {
+    return (formGroup: FormGroup) => {
         const { value: password } = formGroup.get('password') as AbstractControl;
         const { value: confirmPassword } = formGroup.get('confirmPassword') as AbstractControl;
         if (password && confirmPassword && password !== confirmPassword) {
             formGroup.get('confirmPassword')?.setErrors({ confirmPasswordNotMatched: true });
+            formGroup.get('confirmPassword')?.markAsTouched();
         }
         return null;
     };

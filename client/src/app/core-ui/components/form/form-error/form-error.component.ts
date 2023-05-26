@@ -96,10 +96,10 @@ export class FormErrorComponent {
         const label = this.label || 'Trường này';
 
         if (errors['required']) {
-            return `${label} không được để trống!`;
+            return `${label} không được để trống`;
         }
         if (errors['email'] || errors['invalid'] || errors['pattern']) {
-            return `${label} không hợp lệ!`;
+            return `${label} không hợp lệ`;
         }
         if (errors['max']) {
             return `${label} phải bé hơn ${errors['max'].max}`;
@@ -108,11 +108,19 @@ export class FormErrorComponent {
             return `${label} phải lớn hơn ${errors['min'].min}`;
         }
         if (errors['maxlength']) {
-            return `${label} có tối đa ${errors['maxlength'].requiredLength} ký tự!`
+            return `${label} có tối đa ${errors['maxlength'].requiredLength} ký tự`;
         }
         if (errors['minlength']) {
-            return `${label} có tối thiểu ${errors['minlength'].requiredLength} ký tự!`
+            return `${label} có tối thiểu ${errors['minlength'].requiredLength} ký tự`;
         }
+        if (errors['whitespace']) {
+            return `${ label } không được chứa khoảng trắng`;
+        }
+
+        if (errors['confirmPasswordNotMatched']) {
+            return `Mật khẩu không trùng khớp`;
+        }
+
         return '';
     }
 

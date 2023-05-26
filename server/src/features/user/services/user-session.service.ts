@@ -46,6 +46,7 @@ export class UserSessionService {
         'userSession.deviceId',
         'userSession.ipAddress',
         'userSession.expired',
+        'userSession.id',
       ])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);

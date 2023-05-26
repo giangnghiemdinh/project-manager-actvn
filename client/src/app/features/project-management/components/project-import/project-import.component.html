@@ -2,7 +2,7 @@
           [nzCentered]="true"
           [nzFooter]="null"
           [nzWidth]="500"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <div class="flex flex-wrap items-center gap-x-1">
             <div class="text-base font-bold">
@@ -83,7 +83,7 @@
             </nz-upload>
         </div>
         <div class="mt-6 flex justify-between gap-2">
-            <button nz-button nzSize="large" nzType="default" (click)="onClose()">Trở về</button>
+            <button nz-button nzSize="large" nzType="default" (click)="onCancel()">Trở về</button>
             <button nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onPreImport()">Nhập danh sách</button>
         </div>
     </ng-container>

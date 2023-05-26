@@ -1,7 +1,16 @@
 import { Injectable } from '@angular/core';
 import { AbstractService } from '../abstracts';
-import { PaginationPayload, PaginationResponse, User, UserEvent, UserImportPayload, UserSession } from '../models';
-import { UserStatus } from '../constants';
+import {
+    PaginationPayload,
+    PaginationResponse,
+    User,
+    UserChangeEmail,
+    UserChangePassword,
+    UserEvent,
+    UserImportPayload,
+    UserSession
+} from '../models';
+import { TwoFactorMethod, UserStatus } from '../constants';
 import { toNonAccentVietnamese } from '../utilities';
 import { isNotNil } from 'ng-zorro-antd/core/util';
 
@@ -48,6 +57,26 @@ export class UserService extends AbstractService {
 
     getSessions(payload: PaginationPayload) {
         return this.get<PaginationResponse<UserSession>>('user/sessions', { payload })
+    }
+
+    verifyNewEmail(payload: UserChangeEmail) {
+        return this.post<void>('user/verify-email', { payload });
+    }
+
+    changeEmail(payload: UserChangeEmail) {
+        return this.post<void>('user/change-email', { payload });
+    }
+
+    changePassword(payload: UserChangePassword) {
+        return this.post<void>('user/change-password', { payload });
+    }
+
+    change2FA(twoFactory: TwoFactorMethod) {
+        return this.post<void>('user/change-2fa', { payload: { twoFactory } });
+    }
+
+    deleteSession(id: number) {
+        return this.delete<void>(`user/session/${id}`);
     }
 
     private parsePayload(user: User) {

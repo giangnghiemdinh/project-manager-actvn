@@ -2,7 +2,7 @@
           [nzTitle]="(user ? 'Chỉnh sửa' : 'Thêm mới') + ' người dùng'"
           [nzCentered]="true"
           [nzWidth]="600"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
             <app-form #form [data]="user">
@@ -27,13 +27,13 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     <app-form-select control="role" label="Vai trò"
                                      [options]="roles"
-                                     [disabled]="isSelf"
+                                     [disabled]="!isAdministrator"
                                      [validators]="{ required: true }"/>
                     <app-form-select control="gender" label="Giới tính"
                                      [options]="genders"
                                      [validators]="{ required: true }"/>
                     <app-form-text control="email" label="Email"
-                                   [disabled]="isSelf"
+                                   [disabled]="!isAdministrator"
                                    [validators]="{ required: true, email: true }"/>
                     <app-form-text control="phone" label="Số điện thoại"/>
                     <app-form-textarea control="workPlace" label="Đơn vị công tác"
@@ -46,7 +46,7 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex justify-between gap-2">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onClose()" [disabled]="isLoading">
+            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
                 Trở về
             </button>
             <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">

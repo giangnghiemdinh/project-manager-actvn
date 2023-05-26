@@ -8,7 +8,7 @@ WORKDIR /app/web
 COPY package*.json ./
 
 # Cài đặt các phụ thuộc
-RUN npm install --force
+RUN npm install
 
 # Sao chép mã nguồn ứng dụng vào thư mục làm việc
 COPY . .
@@ -20,7 +20,6 @@ RUN npm run build
 FROM nginx:alpine
 
 # Sao chép tệp cấu hình Nginx của ứng dụng
-#COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Sao chép các tệp đã được build từ giai đoạn trước vào thư mục nginx/html

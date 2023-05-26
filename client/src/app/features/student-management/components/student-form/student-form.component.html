@@ -2,7 +2,7 @@
           [nzTitle]="(student ? 'Chỉnh sửa' : 'Thêm mới') + ' sinh viên'"
           [nzCentered]="true"
           [nzWidth]="600"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
             <app-form #form [data]="student">
@@ -31,7 +31,7 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex items-center justify-between">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
                 Trở về
             </button>
             <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">

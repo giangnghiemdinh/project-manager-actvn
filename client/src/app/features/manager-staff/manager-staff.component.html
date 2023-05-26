@@ -125,6 +125,6 @@
                         [semesters]="semesters$ | async"
                         [projects]="projects$ | async"
                         (ok)="onSave($event)"
-                        (cancel)="onClose()"
+                        (cancel)="onCancel()"
                         (loadProject)="onReloadProject($event)"/>
 

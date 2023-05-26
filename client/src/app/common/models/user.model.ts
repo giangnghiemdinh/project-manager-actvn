@@ -1,4 +1,4 @@
-import { Gender, Role } from '../constants';
+import { Gender, Role, TwoFactorMethod } from '../constants';
 
 export interface User {
     id?: number;
@@ -14,4 +14,5 @@ export interface User {
     lastLogin?: Date;
     role?: Role;
     avatarFile?: any;
+    twoFactory?: TwoFactorMethod;
 }

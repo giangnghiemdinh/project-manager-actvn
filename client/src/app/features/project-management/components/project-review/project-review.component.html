@@ -2,7 +2,7 @@
           [nzCentered]="true"
           [nzWidth]="600"
           [nzTitle]="report?.type === type.INSTRUCTOR_REVIEW ? 'Nhận xét của GVHD' : 'Nhận xét của GVPB'"
-          (nzOnCancel)="onClose()">
+          (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <app-form #form [data]="report">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -55,7 +55,7 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex items-center justify-between">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onClose()">
+            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
                 Trở về
             </button>
             <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">

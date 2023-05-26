@@ -44,7 +44,7 @@ export class ProgressReportComponent {
     accept = ['.pdf', '.doc', '.docx', '.zip', '.rar'];
     maxSize = 10;
 
-    onClose() {
+    onCancel() {
         if (this.isLoading) { return; }
         this.cancel.emit();
     }

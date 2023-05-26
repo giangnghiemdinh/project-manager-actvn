@@ -40,7 +40,7 @@ export class UserFormComponent implements OnChanges {
     @Input() isVisible: boolean | null = false;
     @Input() user: User | null = null;
     @Input() departments: Department[] | null = [];
-    @Input() isSelf = false;
+    @Input() isAdministrator: boolean | null = true;
     @Output() ok = new EventEmitter();
     @Output() cancel = new EventEmitter();
 
@@ -59,7 +59,7 @@ export class UserFormComponent implements OnChanges {
         }
     }
 
-    onClose() {
+    onCancel() {
         this.isVisible = false;
         this.cancel.emit(false);
     }

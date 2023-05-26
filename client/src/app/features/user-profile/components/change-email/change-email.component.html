@@ -1,0 +1,43 @@
+<nz-modal [(nzVisible)]="isVisible"
+          [nzCentered]="true"
+          [nzWidth]="400"
+          [nzTitle]="''"
+          [nzFooter]="null"
+          (nzOnCancel)="onCancel()">
+    <ng-container *nzModalContent>
+        <div class="my-2">
+            <div class="text-center text-lg uppercase font-bold">
+                Thay đổi Email
+            </div>
+            <div class="mt-2 mb-6">
+                <app-form #form>
+                    <app-form-text control="email" label="Email"
+                                   [validators]="{ required: true, email: true }"
+                                   [suffix]="suffixTmpl">
+                        <ng-template #suffixTmpl>
+                            <a [class]="(countdown > 0 || !form.value?.email) ? 'text-gray-300 pointer-events-none' : 'text-[#009ef7]'"
+                               (click)="onVerify()">
+                                Gửi mã
+                                <span *ngIf="countdown > 0">({{ countdown }})</span>
+                            </a>
+                        </ng-template>
+                    </app-form-text>
+                    <app-form-text control="otp" label="Mã xác thực"
+                                   placeholder="6 ký tự" itemClass="mt-4"
+                                   maxLength="6" minLength="6"
+                                   [disabled]="!isGetOtp"
+                                   [validators]="{ required: true }"
+                    ></app-form-text>
+                </app-form>
+            </div>
+            <div class="grid grid-cols-2 gap-4 items-center justify-between">
+                <button class="col-span-1" nzBlock nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
+                    Trở về
+                </button>
+                <button class="col-span-1" nzBlock nzSize="large" nz-button nzType="primary" [disabled]="isLoading || !isGetOtp" [nzLoading]="isLoading" (click)="onSave()">
+                    Xác nhận
+                </button>
+            </div>
+        </div>
+    </ng-container>
+</nz-modal>

@@ -28,7 +28,7 @@ export class CouncilReviewComponent {
     @Output() cancel = new EventEmitter();
     totalScore = 0;
 
-    onClose() {
+    onCancel() {
         if (this.isLoading) { return; }
         this.cancel.emit();
     }

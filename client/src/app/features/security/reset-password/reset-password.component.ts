@@ -28,9 +28,9 @@ export class ResetPasswordComponent {
     queryParams$ = this.routerStore.select(selectQueryParams);
     errors$ = this.store.select(selectAuthErrors);
     form = new FormGroup({
-        password: new FormControl('', [ Validators.required, NoWhitespaceValidator ]),
-        confirmPassword: new FormControl('', [ Validators.required, NoWhitespaceValidator ])
-    }, [ ConfirmPasswordMatched ]);
+        password: new FormControl('', [ Validators.required, NoWhitespaceValidator() ]),
+        confirmPassword: new FormControl('', [ Validators.required, NoWhitespaceValidator() ])
+    }, { validators: ConfirmPasswordMatched() });
 
     constructor() {
         setTitle('Đổi mật khẩu');

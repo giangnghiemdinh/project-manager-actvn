@@ -26,7 +26,7 @@ export class SemesterFormComponent {
     @Output() ok = new EventEmitter();
     @Output() cancel = new EventEmitter();
 
-    onClose() {
+    onCancel() {
         this.cancel.emit();
     }
 
