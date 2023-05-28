@@ -2,6 +2,7 @@
           [nzTitle]="'Phê duyệt đề tài'"
           [nzCentered]="true"
           [nzWidth]="600"
+          [nzBodyStyle]="{ padding: '0' }"
           (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
@@ -28,6 +29,22 @@
                     </div>
                     <div class="col-span-8">
                         {{ project.department?.name }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Học kỳ
+                    </div>
+                    <div class="col-span-8">
+                        {{ project.semester?.name }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
+                    <div class="col-span-4">
+                        Người đề xuất
+                    </div>
+                    <div class="col-span-8">
+                        {{ project.proposeBy?.fullName }}
                     </div>
                 </div>
                 <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
@@ -69,9 +86,12 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex justify-between gap-2">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
-                Trở về
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
+
             <div class="flex gap-2">
                 <button class="w-[100px]" nzSize="large" nz-button nzType="dashed" [disabled]="isLoading" (click)="onRefuse()">
                     Từ chối
@@ -93,11 +113,11 @@
     </nz-form-item>
 
     <div class="grid grid-cols-2 gap-4 mt-4">
+        <button nz-button nzType="default" nzSize="large" (click)="ref.destroy()">
+            Quay lại
+        </button>
         <button nz-button nzType="primary" nzSize="large" (click)="ref.destroy(params)">
             Từ chối
-        </button>
-        <button nz-button nzType="default" nzSize="large" (click)="ref.destroy()">
-            Trở lại
         </button>
     </div>
 </ng-template>

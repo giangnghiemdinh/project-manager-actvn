@@ -1,7 +1,7 @@
 <nz-modal [(nzVisible)]="isVisible"
           [nzTitle]="(semester ? 'Chỉnh sửa' : 'Thêm mới') + ' học kỳ'"
           [nzCentered]="true"
-          [nzWidth]="600"
+          [nzWidth]="500"
           (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
@@ -10,9 +10,9 @@
                     <app-form-text control="name" label="Tên học kỳ"
                                    class="sm:col-span-2"
                                    [validators]="{ required: true }"/>
-                    <app-form-date control="start" label="Thời gian bắt đầu"
+                    <app-form-date control="start" label="Ngày bắt đầu"
                                    [validators]="{ required: true }"/>
-                    <app-form-date control="end" label="Thời gian kết thúc"
+                    <app-form-date control="end" label="Ngày kết thúc"
                                    [validators]="{ required: true }"/>
                 </div>
             </app-form>
@@ -20,11 +20,15 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex items-center justify-between">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
-                Trở về
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
-            <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
+                <i class='bx bx-save text-lg'></i>
             </button>
         </div>
     </ng-container>

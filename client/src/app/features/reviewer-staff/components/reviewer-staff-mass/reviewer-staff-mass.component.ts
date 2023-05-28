@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { NotificationService } from '../../../../common/services';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     SearchProjectComponent,
@@ -18,7 +19,7 @@ import { RO_MANAGER_STAFF, RO_REVIEWER_STAFF } from '../../../../common/constant
 import { Project, ReviewerStaff, User } from '../../../../common/models';
 import { setTitle } from '../../../../common/utilities';
 import { FormGroup, FormsModule } from '@angular/forms';
-import { filter, take, withLatestFrom } from 'rxjs';
+import { filter, first, take, withLatestFrom } from 'rxjs';
 import { chunk, cloneDeep, shuffle } from 'lodash';
 import {
     ReviewerStaffState,
@@ -172,32 +173,40 @@ export class ReviewerStaffMassComponent {
             && departmentId.value && semesterId.value
             && ( this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value )) {
-            this.modal.confirm({
-                nzTitle: '',
-                nzContent: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn thiết lập lại danh sách?',
-                nzOkText: 'Có',
+            const ref = this.modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
                 nzCentered: true,
-                nzMaskClosable: false,
-                nzOkType: 'primary',
-                nzOkDanger: true,
-                nzOnOk: () => {
-                    this.groups = [];
-                    this.currentDepartment = departmentId.value;
-                    this.currentSemester = semesterId.value;
-                    this.getAllProjects();
-                },
-                nzCancelText: 'Không',
-                nzOnCancel: () => {
-                    departmentId.setValue(this.currentDepartment);
-                    semesterId.setValue(this.currentSemester);
+                nzAutofocus: null,
+                nzData: {
+                    title: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn chọn lại danh sách?',
+                    okText: 'Đồng ý',
+                    okDanger: false
                 }
             });
+            ref.afterClose
+                .pipe(first())
+                .subscribe(confirm => {
+                    if (confirm) {
+                        this.groups = [];
+                        this.currentDepartment = departmentId.value;
+                        this.currentSemester = semesterId.value;
+                        this.getAllProjects();
+                        form.markAsPristine();
+                        return;
+                    }
+                    departmentId.setValue(this.currentDepartment);
+                    semesterId.setValue(this.currentSemester);
+                });
             return;
         }
         if (departmentId.value && semesterId.value) {
             this.currentDepartment = departmentId.value;
             this.currentSemester = semesterId.value;
             this.getAllProjects();
+            form.markAsPristine();
         }
     }
 
@@ -233,6 +242,10 @@ export class ReviewerStaffMassComponent {
             ref.afterClose
                 .pipe(take(1))
                 .subscribe(params => {
+                    if (!params) {
+                        this.formComponent.markAsDirty();
+                        return;
+                    }
                     if (!params.type) {
                         this.onRandomStaff(params.projectPerGroup);
                         return;

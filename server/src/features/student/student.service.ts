@@ -1,14 +1,24 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StudentEntity } from './models';
 import {
   StudentDto,
-  StudentPagePayloadDto,
+  StudentImportRequestDto,
+  StudentPageRequestDto,
   StudentPageResponseDto,
-  StudentPayloadDto,
+  StudentRequestDto,
 } from './dtos';
 import { Pagination, PaginationMetaDto } from '../../common/dtos';
+import { Transactional } from 'typeorm-transactional';
+import { UserEntity } from '../user/models';
+import { STUDENT_DUPLICATE_CODE } from '../../common/constants';
 
 @Injectable()
 export class StudentService {
@@ -16,28 +26,25 @@ export class StudentService {
 
   constructor(
     @InjectRepository(StudentEntity)
-    private studentRepository: Repository<StudentEntity>,
+    private readonly studentRepository: Repository<StudentEntity>,
   ) {}
-
-  get queryBuilder() {
-    return this.studentRepository.createQueryBuilder('student');
-  }
 
   findByCode(code: string) {
     return this.studentRepository.findOne({ where: { code } });
   }
 
   async getStudents(
-    pageOptionsDto: StudentPagePayloadDto,
+    pageOptionsDto: StudentPageRequestDto,
   ): Promise<Pagination<StudentDto>> {
     const queryBuilder = this.studentRepository.createQueryBuilder('student');
 
     if (pageOptionsDto.q) {
       queryBuilder.where(
-        'UCASE(student.firstName) LIKE :q ' +
-          'OR UCASE(student.lastName) LIKE :q ' +
+        'UCASE(student.fullName) LIKE :q ' +
+          'OR UCASE(student.email) LIKE :q ' +
+          'OR UCASE(student.phone) LIKE :q ' +
           'OR UCASE(student.code) LIKE :q',
-        { q: `${pageOptionsDto.q.toUpperCase()}` },
+        { q: `%${pageOptionsDto.q.toUpperCase()}%` },
       );
     }
 
@@ -50,8 +57,6 @@ export class StudentService {
     queryBuilder
       .orderBy('student.createdAt', pageOptionsDto.order)
       .leftJoinAndSelect('student.department', 'department')
-      .leftJoin('student.projects', 'project')
-      .addSelect(['project.id', 'project.name', 'project.semester'])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
 
@@ -65,8 +70,8 @@ export class StudentService {
     );
   }
 
-  async createStudent(studentDto: StudentPayloadDto): Promise<StudentDto> {
-    const student = this.studentRepository.create(studentDto);
+  async createStudent(request: StudentRequestDto): Promise<StudentDto> {
+    const student = this.studentRepository.create(request);
     await this.studentRepository.insert(student);
     this.logger.log(`Thêm mới sinh viên ${student.id}`);
     return student.toDto();
@@ -82,10 +87,7 @@ export class StudentService {
     return student.toDto();
   }
 
-  async updateStudent(
-    id: number,
-    studentDto: StudentPayloadDto,
-  ): Promise<void> {
+  async updateStudent(id: number, request: StudentRequestDto): Promise<void> {
     const student = await this.studentRepository.findOne({
       where: { id },
     });
@@ -93,22 +95,76 @@ export class StudentService {
       throw new NotFoundException('Sinh viên không tồn tại');
     }
 
-    this.studentRepository.merge(student, studentDto);
-
-    await this.studentRepository.save(student);
+    await this.studentRepository.update(
+      { id },
+      {
+        fullName: request.fullName,
+        code: request.code,
+        email: request.email,
+        phone: request.phone,
+        gender: request.gender,
+        birthday: request.birthday,
+        departmentId: request.departmentId,
+      },
+    );
   }
 
   async deleteStudent(id: number): Promise<void> {
-    const queryBuilder = this.studentRepository
+    const student = await this.studentRepository
       .createQueryBuilder('student')
-      .where('student.id = :id', { id });
-
-    const student = await queryBuilder.getOne();
+      .where('student.id = :id', { id })
+      .loadRelationCountAndMap(
+        'student.projectCount',
+        'student.projects',
+        'project',
+      )
+      .getOne();
 
     if (!student) {
       throw new NotFoundException('Sinh viên không tồn tại');
     }
 
-    await this.studentRepository.remove(student);
+    if (student.projectCount > 0) {
+      throw new NotAcceptableException(
+        'Xoá không thành công do sinh viên có thực hiện đồ án!',
+      );
+    }
+
+    await this.studentRepository.delete({ id });
+  }
+
+  @Transactional()
+  async importStudent(
+    request: StudentImportRequestDto,
+    currentUser: UserEntity,
+  ): Promise<void> {
+    for (const student of request.students) {
+      const isExist = await this.studentRepository.exist({
+        where: { code: student.code },
+      });
+      if (!isExist) {
+        await this.createStudent(student);
+        continue;
+      }
+      switch (request.duplicateCode) {
+        case STUDENT_DUPLICATE_CODE.STOP:
+          throw new ConflictException(
+            `Mã sinh viên ${student.code} đã tồn tại!`,
+          );
+        default:
+          await this.studentRepository.update(
+            { code: student.code },
+            {
+              fullName: student.fullName,
+              code: student.code,
+              email: student.email,
+              phone: student.phone,
+              gender: student.gender,
+              birthday: student.birthday,
+              departmentId: student.departmentId,
+            },
+          );
+      }
+    }
   }
 }

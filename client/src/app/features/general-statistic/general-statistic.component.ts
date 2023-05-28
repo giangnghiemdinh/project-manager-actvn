@@ -6,21 +6,33 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { CommonState, selectDepartments, selectSemesters } from '../../common/stores';
 import { Store } from '@ngrx/store';
 import { LetDirective } from '../../core-ui/directives';
-import { AsyncPipe, NgForOf } from '@angular/common';
-import { Department, Semester } from '../../common/models';
+import { AsyncPipe, DecimalPipe, NgForOf, NgIf } from '@angular/common';
+import { Department, ProjectStatisticalResponse, Semester } from '../../common/models';
 import * as echarts from 'echarts';
+import { GeneralStatisticState, selectIsLoading, selectProjectStatistic } from './store/general-statistic.reducer';
+import { GeneralStatisticActions } from './store/general-statistic.actions';
+import { Router } from '@angular/router';
+import { RO_GENERAL_STATISTIC } from '../../common/constants';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { sortBy } from 'lodash';
+import { debounceTime, fromEvent } from 'rxjs';
 
 @Component({
     selector: 'app-general-statistic',
     standalone: true,
-    imports: [ NzButtonModule, ToolbarComponent, NzDropDownModule, LetDirective, AsyncPipe, NgForOf ],
+    imports: [ NzButtonModule, ToolbarComponent, NzDropDownModule, LetDirective, AsyncPipe, NgForOf, NzSpinModule, NgIf, DecimalPipe ],
     templateUrl: './general-statistic.component.html',
 })
 export class GeneralStatisticComponent implements AfterViewInit {
 
-    private readonly commonStore = inject(Store<CommonState>);
-    department$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #store = inject(Store<GeneralStatisticState>);
+    readonly #router = inject(Router);
+    department$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
+    isLoading$ = this.#store.select(selectIsLoading);
+    projectStatistic: ProjectStatisticalResponse | null = null;
     title = 'Thống kê tổng quan';
 
     department: Department | null = null
@@ -28,51 +40,116 @@ export class GeneralStatisticComponent implements AfterViewInit {
 
     constructor() {
         setTitle(this.title);
+        this.onLoad();
+        this.windowResizeListener();
+        this.#store.select(selectProjectStatistic)
+            .pipe(takeUntilDestroyed())
+            .subscribe(value => {
+                this.projectStatistic = value;
+                this.updateScoreDistributionChart();
+                this.updateOutScoreChart();
+                this.updateReviewRatioChart();
+                this.updatePresentationRatioChart();
+            });
     }
 
     ngAfterViewInit(): void {
-        this.setChart1();
-        this.setChart2();
+        this.updateScoreDistributionChart();
+        this.updateOutScoreChart();
+        this.updateReviewRatioChart();
+        this.updatePresentationRatioChart();
+    }
+
+    private onLoad() {
+        this.#store.dispatch(GeneralStatisticActions.loadProjectStatistic());
+    }
+
+    private windowResizeListener() {
+        fromEvent(window, 'resize')
+            .pipe(
+                takeUntilDestroyed(),
+                debounceTime(200)
+            )
+            .subscribe(_ => {
+                this.scoreDistributionChart?.resize();
+                this.outscoreChart?.resize();
+                this.reviewRatioChart?.resize();
+                this.presentationRatioChart?.resize();
+            });
+    }
+
+    get scoreDistributionChart() {
+        const element = document.getElementById('scoreDistributionChart');
+        if (!element) { return null; }
+        return echarts.getInstanceByDom(element) || echarts.init(element);
+    }
+
+    get outscoreChart() {
+        const element = document.getElementById('outscoreChart');
+        if (!element) { return null; }
+        return echarts.getInstanceByDom(element) || echarts.init(element);
+    }
+
+    get reviewRatioChart() {
+        const element = document.getElementById('reviewRatioChart');
+        if (!element) { return null; }
+        return echarts.getInstanceByDom(element) || echarts.init(element);
+    }
+
+    get presentationRatioChart() {
+        const element = document.getElementById('presentationRatioChart');
+        if (!element) { return null; }
+        return echarts.getInstanceByDom(element) || echarts.init(element);
     }
 
     onSelectDepartment(department?: Department) {
         this.department = department || null;
+        this.navigate();
     }
 
     onSelectSemester(semester?: Semester) {
         this.semester = semester || null;
+        this.navigate();
     }
 
-    setChart1() {
-        const chartDom = document.getElementById('chart1');
-        if (!chartDom) { return; }
-        const myChart = echarts.init(chartDom);
+    private navigate() {
+        const queryParams: any = {};
+        this.department && (queryParams.departmentId = this.department.id);
+        this.semester && (queryParams.semesterId = this.semester.id);
+        this.#router.navigate([RO_GENERAL_STATISTIC], { queryParams }).then(_ => this.onLoad());
+    }
+
+    updateScoreDistributionChart() {
+        const chart = this.scoreDistributionChart;
+        if (!chart) { return; }
+        const column = Object.keys(this.projectStatistic?.scoreDistribution || {});
+        const value = Object.values(this.projectStatistic?.scoreDistribution || {});
         const option = {
             xAxis: {
                 type: 'category',
-                data: ['1_2021-2022', '2_2021-2022', '1_2022-2023', '2_2022-2023']
+                data: column
             },
             yAxis: {
                 type: 'value'
             },
             series: [
                 {
-                    data: [8.5, 7, 9.3, 8.4, 7.6, 8.2, 8.4],
+                    data: value,
                     type: 'line',
                     smooth: true
                 }
             ]
         };
-
-        option && myChart.setOption(option);
-
+        chart.setOption(option);
     }
 
-    setChart2() {
-        const chartDom = document.getElementById('chart2');
-        if (!chartDom) { return; }
-        const myChart = echarts.init(chartDom);
-
+    updateOutScoreChart() {
+        const chart = this.outscoreChart;
+        if (!chart) { return; }
+        const data: { value: number, name: string }[] = [];
+        for (const [name, value] of Object.entries(this.projectStatistic?.outpoint || {})) {
+            data.push({ value, name });
+        }
         const option = {
             tooltip: {
                 trigger: 'item'
@@ -85,27 +162,80 @@ export class GeneralStatisticComponent implements AfterViewInit {
                 {
                     type: 'pie',
                     radius: '50%',
-                    data: [
-                        { value: 294, name: 'A+' },
-                        { value: 423, name: 'A' },
-                        { value: 734, name: 'B+' },
-                        { value: 484, name: 'B' },
-                        { value: 300, name: 'C+' },
-                        { value: 345, name: 'D+' },
-                        { value: 100, name: 'D' },
-                        { value: 50, name: 'F' }
-                    ],
-                    emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }
+                    data: sortBy(data, ['name', 'asc']),
+                    percentPrecision: 0,
+                    label: { show: true, formatter: (params: any) => `${params.percent}%\n${params.name}`, lineHeight: 16 }
                 }
             ]
         };
+        chart.setOption(option);
+    }
 
-        option && myChart.setOption(option);
+    updateReviewRatioChart() {
+        const chart = this.reviewRatioChart;
+        if (!chart) { return; }
+        const data: { value: number, name: string }[] = [
+            {
+                name: 'Chấm phản biện',
+                value: this.projectStatistic?.totalReview || 0
+            },
+            {
+                name: 'Không phản biện',
+                value: (this.projectStatistic?.total || 0) - (this.projectStatistic?.totalReview || 0)
+            },
+        ];
+        const option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                top: '5%',
+                left: 'center'
+            },
+            series: [
+                {
+                    type: 'pie',
+                    radius: '50%',
+                    data: data,
+                    percentPrecision: 0,
+                    label: { show: true, formatter: (params: any) => `${params.percent}%\n${params.name}`, lineHeight: 16 }
+                }
+            ]
+        };
+        chart.setOption(option);
+    }
+
+    updatePresentationRatioChart() {
+        const chart = this.presentationRatioChart;
+        if (!chart) { return; }
+        const data: { value: number, name: string }[] = [
+            {
+                name: 'Bảo vệ',
+                value: this.projectStatistic?.totalReview || 0
+            },
+            {
+                name: 'Không bảo vệ',
+                value: (this.projectStatistic?.total || 0) - (this.projectStatistic?.totalPresentation || 0)
+            },
+        ];
+        const option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                top: '5%',
+                left: 'center'
+            },
+            series: [
+                {
+                    type: 'pie',
+                    radius: '50%',
+                    data: data,
+                    percentPrecision: 0,
+                    label: { show: true, formatter: (params: any) => `${params.percent}%\n${params.name}`, lineHeight: 16 }
+                }
+            ]
+        };
+        chart.setOption(option);
     }
 }

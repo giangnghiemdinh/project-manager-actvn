@@ -21,4 +21,12 @@ export class SemesterService extends AbstractService {
     updateSemester(payload: Semester) {
         return this.put<Semester>(`semester/${ payload.id }`, { payload });
     }
+
+    deleteSemester(id: number) {
+        return this.delete<void>(`semester/${ id }`);
+    }
+
+    lockSemester(id: number) {
+        return this.post<void>(`semester/${ id }`);
+    }
 }

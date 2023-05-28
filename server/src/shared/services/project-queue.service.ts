@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
-import { DRIVER_QUEUE } from '../../common/constants';
+import { PROJECT_QUEUE } from '../../common/constants';
 import { Queue } from 'bull';
 
 @Injectable()
-export class DriverQueueService {
+export class ProjectQueueService {
   constructor(
-    @InjectQueue(DRIVER_QUEUE)
+    @InjectQueue(PROJECT_QUEUE)
     private readonly driverQueue: Queue,
   ) {}
 

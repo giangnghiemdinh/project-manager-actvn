@@ -116,6 +116,26 @@ export const studentFeature = createFeature({
             errors,
             isLoading: false,
         })),
+
+        on(studentActions.importStudent, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(studentActions.importStudentSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isVisibleImport: false,
+            isLoading: false,
+        })),
+
+        on(studentActions.importStudentFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
         on(studentActions.deleteStudent, (state) => ({
             ...state,
             errors: null,

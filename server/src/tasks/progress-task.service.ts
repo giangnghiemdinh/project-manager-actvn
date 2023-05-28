@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ProjectService } from '../features/project/project.service';
-import { ProgressService } from '../features/progress/progress.service';
 import { DriverService } from '../shared/services';
 
 @Injectable()
@@ -10,7 +9,6 @@ export class ProgressTaskService {
 
   constructor(
     private readonly projectService: ProjectService,
-    private readonly progressService: ProgressService,
     private readonly googleDriverService: DriverService,
   ) {}
 

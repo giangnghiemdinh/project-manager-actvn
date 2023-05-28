@@ -2,21 +2,23 @@
     <app-toolbar [pageTitle]="title"
                  [breadcrumbs]="[
                     { title: 'Trang chủ' },
-                    { title: 'Danh sách HĐ bảo vệ' },
+                    { title: 'Danh sách HĐ bảo vệ', url: '/' + urlExaminerCouncil },
                     { title: title },
                  ]">
         <div class="flex justify-end items-center gap-2">
-            <button nz-button nzType="dashed" nzSize="default"
-                    class="w-[100px]"
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default"
                     [routerLink]="['/' + urlExaminerCouncil]"
                     [disabled]="isLoading$ | async">
-                Trở lại
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
-            <button nz-button nzType="primary" nzSize="default"
-                    class="w-[100px]"
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary"
                     [disabled]="!groups.length || (isLoading$ | async)"
                     (click)="onSave()">
                 Lưu
+                <i class='bx bx-save text-lg'></i>
             </button>
         </div>
     </app-toolbar>
@@ -39,6 +41,7 @@
                                                  [validators]="{ required: true }"/>
                                 <app-form-select control="semesterId" label="Học kì"
                                                  selectValue="id" selectLabel="name"
+                                                 selectDisabled="isLocked"
                                                  [options]="semesters$ | async"
                                                  [allowClear]="false"
                                                  [validators]="{ required: true }"/>
@@ -46,8 +49,7 @@
                         </app-form>
                         <button class="mt-6" nzSize="large"
                                 nzBlock nz-button nzType="primary"
-                                [disabled]="(form.getValue('departmentId') === currentDepartment
-                                && form.getValue('semesterId') === currentSemester)"
+                                [disabled]="!form.isValid || form.isPristine"
                                 (click)="onLoadingProjects(form.form)">
                             Kiểm tra danh sách đề tài
                         </button>
@@ -85,7 +87,7 @@
                             </div>
                         </div>
                         <div *ngIf="index > 0" class="w-full md:w-fit flex gap-2 flex-wrap justify-end items-center">
-                            <button (click)="onRemoveGroup(index)" class="flex items-center justify-center gap-1" nz-button nzType="primary" nzDanger nzSize="default">
+                            <button (click)="onRemoveGroup(index)" class="flex items-center justify-center gap-2" nz-button nzType="primary" nzDanger nzSize="default">
                                 <i class='bx bxs-trash-alt'></i>
                                 Xoá
                             </button>
@@ -93,7 +95,11 @@
                     </div>
                     <div class="px-6 py-1.5 bg-[#F5F5F5] font-semibold border-b border-gray-100 flex items-center justify-between gap-2">
                         Danh sách thành viên
-                        <button nz-button nzType="primary" nzSize="default" (click)="onSearchUser(index)">
+                        <button class="flex items-center justify-center gap-1"
+                                nz-button nzType="primary" nzSize="default"
+                                [disabled]="group.users.length >= 6"
+                                (click)="onSearchUser(index)">
+                            <i class='bx bx-plus text-base'></i>
                             Chọn thành viên
                         </button>
                     </div>
@@ -121,7 +127,9 @@
                     </div>
                     <div class="px-6 py-1.5 bg-[#F5F5F5] font-semibold border-b border-gray-100 flex items-center justify-between gap-2">
                         Danh sách đề tài bảo vệ
-                        <button nz-button nzType="primary" nzSize="default" (click)="onSearchProject(index)">
+                        <button class="flex items-center justify-center gap-1"
+                                nz-button nzType="primary" nzSize="default" (click)="onSearchProject(index)">
+                            <i class='bx bx-plus text-base'></i>
                             Chọn đề tài
                         </button>
                     </div>
@@ -147,7 +155,9 @@
                 </div>
 
                 <div class="flex justify-end" *ngIf="groups.length">
-                    <button (click)="onAddGroup()" nzSize="large" nz-button nzType="primary">
+                    <button class="flex justify-center items-center gap-2"
+                            (click)="onAddGroup()" nzSize="large" nz-button nzType="primary">
+                        <i class='bx bx-plus text-lg'></i>
                         Thêm nhóm
                     </button>
                 </div>
@@ -181,11 +191,11 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4 mt-4">
+        <button nz-button nzType="default" nzSize="large" (click)="ref.destroy()">
+            Quay lại
+        </button>
         <button nz-button nzType="primary" nzSize="large" (click)="ref.destroy(params)">
             Xác nhận
-        </button>
-        <button nz-button nzType="default" nzSize="large" (click)="ref.destroy()">
-            Trở lại
         </button>
     </div>
 </ng-template>

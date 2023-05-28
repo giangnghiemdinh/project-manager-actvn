@@ -46,8 +46,9 @@ import { ProgressReportComponent } from './components/progress-report/progress-r
 import { ProjectReviewComponent } from './components/project-review/project-review.component';
 import { ProjectImportComponent } from './components/project-import/project-import.component';
 import { CouncilReviewComponent } from './components/council-review/council-review.component';
-import { ProjectProgressType, ProjectStatuses, RO_PROJECT_MANAGER } from '../../common/constants';
+import { ProjectProgressType, ProjectStatus, ProjectStatuses, RO_PROJECT_MANAGER } from '../../common/constants';
 import { first } from 'rxjs';
+import { ExcelService, NotificationService } from '../../common/services';
 
 @Component({
     selector: 'app-project-management',
@@ -57,6 +58,9 @@ import { first } from 'rxjs';
 })
 export class ProjectManagementComponent {
     @ViewChild('filterForm') filterForm!: FormComponent;
+    @ViewChild('table') table!: TableComponent;
+    readonly #excelService = inject(ExcelService);
+    readonly #notification = inject(NotificationService);
     private readonly commonStore = inject(Store<CommonState>);
     private readonly store = inject(Store<ProjectState>);
     private readonly router = inject(Router);
@@ -78,6 +82,7 @@ export class ProjectManagementComponent {
     url = RO_PROJECT_MANAGER;
     isPropose = false;
     statuses = ProjectStatuses;
+    status = ProjectStatus;
     states = [
         { value: 'i', label: 'Đề tài hướng dẫn' },
         { value: 'm', label: 'Đề tài quản lý' },
@@ -85,6 +90,7 @@ export class ProjectManagementComponent {
         { value: 'c', label: 'Đề tài thuộc hội đồng' },
     ];
     progressType = ProjectProgressType;
+    selectedItems: Project[] = [];
 
     constructor() {
         setTitle(this.title);
@@ -130,7 +136,11 @@ export class ProjectManagementComponent {
         this.store.dispatch(ProjectActions.loadProject({ payload: { id, modal: 'form' } }));
     }
 
-    onDelete(id: number) {
+    onDelete(project: Project) {
+        if (!!project.managerStaff?.id) {
+            this.#notification.error('Không được phép xoá đề tài đã được phân công quản lý!');
+            return;
+        }
         const ref = this.modal.create({
             nzWidth: 400,
             nzContent: ConfirmComponent,
@@ -147,13 +157,15 @@ export class ProjectManagementComponent {
         ref.afterClose
             .pipe(first())
             .subscribe(confirm => confirm
-                && this.store.dispatch(ProjectActions.deleteProject({ payload: { id } })));
+                && this.store.dispatch(ProjectActions.deleteProject({ payload: { id: project.id! } })));
     }
 
     onSave(payload: Project) {
         this.store.dispatch(payload.id
             ? ProjectActions.updateProject({ payload })
-            : ProjectActions.createProject({ payload })
+            : (this.isPropose
+                ? ProjectActions.createProposeProject({ payload })
+                : ProjectActions.createProject({ payload }))
         );
     }
 
@@ -187,5 +199,57 @@ export class ProjectManagementComponent {
 
     onImport() {
         this.store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'import' }));
+    }
+
+    onCheckedChange(event: { ids: Set<number>, data: Project[] }) {
+        this.selectedItems = this.selectedItems.filter(p => event.ids.has(p.id!));
+        event.ids.forEach(id => {
+            if (!this.selectedItems.some(p => p.id === id)) {
+                const selected = event.data.find(p => p.id === id);
+                selected && this.selectedItems.push(selected);
+            }
+        });
+    }
+
+    onClearChecked() {
+        this.table?.clearChecked();
+        this.selectedItems = [];
+    }
+
+    onExport() {
+        if (!this.selectedItems.length) { return; }
+        const data: (string | number)[][] = [];
+
+        for (let i = 0; i < this.selectedItems.length; i++) {
+            const project = this.selectedItems[i];
+            const row: (string | number)[] = [ i + 1 ];
+            row.push(project.name || '');
+            row.push(project.description || '');
+
+            let requirement = `${project.requirement || ''}`;
+            project.students?.forEach(s => {
+                requirement += `${requirement ? '\n\n' : ''}Sinh viên: \n${s.fullName}\n${s.code}\n${s.email}\n${s.phone}`;
+            });
+            row.push(requirement);
+
+            const instructor = project.instructor;
+            instructor && row.push(`${instructor.fullName}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}`);
+
+            data.push(row);
+        }
+
+        this.#excelService.export('Danh sách đề tài', [
+            {
+                columns: [
+                    { title: 'STT', width: 5, alignment: 'center', numFmt: '#' },
+                    { title: 'Đề tài', width: 30, wrapText: true },
+                    { title: 'Mô tả', width: 30, wrapText: true },
+                    { title: 'Yêu cầu', width: 30, wrapText: true },
+                    { title: 'Người hướng dẫn', width: 25, wrapText: true },
+                ],
+                sheetName: 'Danh sách đề tài',
+                data,
+            }
+        ]);
     }
 }

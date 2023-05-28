@@ -1,9 +1,8 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { AbstractState } from '../../../common/abstracts';
-import { MetaPagination, Project } from '../../../common/models';
+import { MetaPagination, Project, ProjectProgress } from '../../../common/models';
 import { ProjectActions } from './project.actions';
-import { ProjectProgress } from '../../../common/models/project-progress.model';
-import { ProjectProgressType } from '../../../common/constants/project.constant';
+import { ProjectProgressType } from '../../../common/constants';
 
 export interface ProjectState extends AbstractState {
     projects: Project[],
@@ -144,6 +143,25 @@ export const projectFeature = createFeature({
         })),
 
         on(ProjectActions.createProjectFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
+        on(ProjectActions.createProposeProject, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(ProjectActions.createProposeProjectSuccess, (state, { response }) => ({
+            ...state,
+            errors: null,
+            isVisible: false,
+            isLoading: false,
+        })),
+
+        on(ProjectActions.createProposeProjectFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,

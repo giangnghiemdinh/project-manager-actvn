@@ -45,6 +45,8 @@ import { managerStaffFeature } from './features/manager-staff/stores/manager-sta
 import { ManagerStaffEffects } from './features/manager-staff/stores/manager-staff.effects';
 import { reviewerStaffFeature } from './features/reviewer-staff/stores/reviewer-staff.reducer';
 import { ReviewerStaffEffects } from './features/reviewer-staff/stores/reviewer-staff.effects';
+import { generalStatisticFeature } from './features/general-statistic/store/general-statistic.reducer';
+import { GeneralStatisticEffects } from './features/general-statistic/store/general-statistic.effects';
 
 export const appRoutes: Routes = [
     {
@@ -233,6 +235,10 @@ export const appRoutes: Routes = [
             {
                 path: RO_GENERAL_STATISTIC,
                 data: { role: Role.ADMINISTRATOR },
+                providers: [
+                    provideState(generalStatisticFeature),
+                    provideEffects(GeneralStatisticEffects)
+                ],
                 loadComponent: () => import('./features/general-statistic/general-statistic.component').then(c => c.GeneralStatisticComponent)
             },
         ]

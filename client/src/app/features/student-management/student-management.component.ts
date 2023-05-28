@@ -27,6 +27,7 @@ import {
 import {
     createStudent,
     deleteStudent,
+    importStudent,
     loadStudent,
     loadStudents,
     updateStudent,
@@ -157,8 +158,8 @@ export class StudentManagementComponent {
         this.store.dispatch(updateVisibleImport({ isVisible: false }));
     }
 
-    onSaveImport(value: any) {
-
+    onSaveImport(payload: any) {
+        this.store.dispatch(importStudent({ payload }));
     }
 
 }

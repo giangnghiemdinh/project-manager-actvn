@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import { PaginationPayload, PaginationResponse, Project, ProjectImportPayload, ProjectProgress } from '../models';
+import {
+    PaginationPayload,
+    PaginationResponse,
+    Project,
+    ProjectImportPayload,
+    ProjectProgress,
+    ProjectStatisticalPayload,
+    ProjectStatisticalResponse
+} from '../models';
 import { Observable } from 'rxjs';
 import { ProjectProgressType, ProjectStatus } from '../constants';
 import { AbstractService } from '../abstracts';
@@ -18,6 +26,10 @@ export class ProjectService extends AbstractService {
 
     createProject(payload: Project) {
         return this.post<Project>('project', { payload });
+    }
+
+    createProposeProject(payload: Project) {
+        return this.post<Project>('project/propose', { payload });
     }
 
     approveProject(payload: { id: number, status: ProjectStatus, reason: string }) {
@@ -67,5 +79,9 @@ export class ProjectService extends AbstractService {
 
     getReport(payload: { id: number, type: ProjectProgressType }) {
         return this.get<ProjectProgress>(`project/${ payload.id }/${ payload.type }`);
+    }
+
+    getStatistical(params: ProjectStatisticalPayload) {
+        return this.get<ProjectStatisticalResponse>('project/statistical', { params: {...params} });
     }
 }

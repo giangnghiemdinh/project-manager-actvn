@@ -63,7 +63,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
                class="ant-input-clear-icon"
                nzTheme="fill"
                nzType="close-circle"
-               *ngIf="allowClear && formControl && formControl.value"
+               *ngIf="allowClear && formControl && formControl.value && form.enabled"
                (click)="$event.stopPropagation(); formControl.setValue(initialValue); valueChange.emit({ form: form, value: initialValue })"
             ></i>
         </ng-template>

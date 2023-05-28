@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
@@ -15,6 +20,7 @@ import { Transactional } from 'typeorm-transactional';
 import { ProjectService } from '../project/project.service';
 import { ExaminerCouncilUserEntity } from './models/examiner-council-user.entity';
 import { ProjectStatus } from '../../common/constants';
+import { SemesterService } from '../semester/semester.service';
 
 @Injectable()
 export class ExaminerCouncilService {
@@ -28,6 +34,8 @@ export class ExaminerCouncilService {
     private readonly examinerCouncilUserRepository: Repository<ExaminerCouncilUserEntity>,
 
     private readonly projectService: ProjectService,
+
+    private readonly semesterService: SemesterService,
   ) {}
 
   async getExaminerCouncils(
@@ -50,15 +58,43 @@ export class ExaminerCouncilService {
 
     queryBuilder
       .orderBy('examinerCouncil.createdAt', pageOptionsDto.order)
-      .leftJoinAndSelect('examinerCouncil.department', 'department')
-      .leftJoinAndSelect('examinerCouncil.semester', 'semester')
-      .leftJoinAndSelect('examinerCouncil.users', 'users')
-      .leftJoinAndSelect('users.user', 'user')
-      .leftJoinAndSelect('examinerCouncil.projects', 'project')
-      .leftJoinAndSelect('project.instructor', 'instructor')
-      .leftJoinAndSelect('project.students', 'student')
-      .leftJoinAndSelect('project.reviewerStaff', 'reviewerStaff')
-      .leftJoinAndSelect('reviewerStaff.user', 'reviewerStaffUser')
+      .leftJoin('examinerCouncil.department', 'department')
+      .leftJoin('examinerCouncil.semester', 'semester')
+      .leftJoin('examinerCouncil.users', 'member')
+      .leftJoin('member.user', 'user')
+      .leftJoin('examinerCouncil.projects', 'project')
+      .leftJoin('project.instructor', 'instructor')
+      .leftJoin('project.students', 'student')
+      .leftJoin('project.reviewerStaff', 'reviewerStaff')
+      .leftJoin('reviewerStaff.user', 'reviewerStaffUser')
+      .addSelect([
+        'department.id',
+        'department.name',
+        'semester.id',
+        'semester.name',
+        'semester.isLocked',
+        'member.id',
+        'member.position',
+        'user.id',
+        'user.fullName',
+        'project.id',
+        'project.name',
+        'project.conclusionScore',
+        'instructor.id',
+        'instructor.fullName',
+        'instructor.workPlace',
+        'instructor.email',
+        'instructor.phone',
+        'student.id',
+        'student.code',
+        'student.fullName',
+        'reviewerStaff.id',
+        'reviewerStaffUser.id',
+        'reviewerStaffUser.fullName',
+        'reviewerStaffUser.email',
+        'reviewerStaffUser.phone',
+        'reviewerStaffUser.workPlace',
+      ])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
 
@@ -88,6 +124,10 @@ export class ExaminerCouncilService {
   async createExaminerCouncil(
     examinerCouncilDto: ExaminerPayloadDto,
   ): Promise<ExaminerCouncilDto> {
+    await this.semesterService.validateLockedSemester(
+      examinerCouncilDto.semesterId,
+    );
+
     const examinerCouncil =
       this.examinerCouncilRepository.create(examinerCouncilDto);
     await this.examinerCouncilRepository.save(examinerCouncil);
@@ -106,18 +146,40 @@ export class ExaminerCouncilService {
   }
 
   async getExaminerCouncil(id: number): Promise<ExaminerCouncilDto> {
-    const examinerCouncil = await this.examinerCouncilRepository.findOne({
-      where: { id },
-      relations: [
-        'users',
-        'projects',
-        'users.user',
-        'projects.students',
-        'projects.instructor',
-        'projects.reviewerStaff',
-        'projects.reviewerStaff.user',
-      ],
-    });
+    const examinerCouncil = await this.examinerCouncilRepository
+      .createQueryBuilder('examinerCouncil')
+      .leftJoin('examinerCouncil.users', 'member')
+      .leftJoin('member.user', 'user')
+      .leftJoin('examinerCouncil.projects', 'project')
+      .leftJoin('project.students', 'student')
+      .leftJoin('project.instructor', 'instructor')
+      .leftJoin('project.reviewerStaff', 'reviewerStaff')
+      .leftJoin('reviewerStaff.user', 'reviewerStaffUser')
+      .where('examinerCouncil.id = :id', { id })
+      .addSelect([
+        'examinerCouncil.id',
+        'examinerCouncil.location',
+        'examinerCouncil.departmentId',
+        'examinerCouncil.semesterId',
+        'member.id',
+        'member.position',
+        'member.userId',
+        'user.id',
+        'user.fullName',
+        'project.id',
+        'project.name',
+        'project.status',
+        'project.conclusionScore',
+        'student.id',
+        'student.code',
+        'student.fullName',
+        'instructor.id',
+        'instructor.fullName',
+        'reviewerStaff.id',
+        'reviewerStaffUser.id',
+        'reviewerStaffUser.fullName',
+      ])
+      .getOne();
     if (!examinerCouncil) {
       throw new NotFoundException('Hội đồng không tồn tại');
     }
@@ -129,6 +191,10 @@ export class ExaminerCouncilService {
     id: number,
     examinerCouncilDto: ExaminerPayloadDto,
   ): Promise<void> {
+    await this.semesterService.validateLockedSemester(
+      examinerCouncilDto.semesterId,
+    );
+
     const examinerCouncil = await this.examinerCouncilRepository.findOne({
       where: { id },
       relations: ['users', 'projects'],
@@ -154,6 +220,11 @@ export class ExaminerCouncilService {
     const oldProject = examinerCouncil.projects.filter((p) =>
       examinerCouncilDto.projects.every((c) => c.id !== p.id),
     );
+    if (oldProject.some((o) => o.conclusionScore)) {
+      throw new NotAcceptableException(
+        'Không thể xoá đề tài đã có điểm bảo vệ!',
+      );
+    }
     await Promise.all(
       oldProject.map(async (p) => {
         await this.projectService.updateStatus(p.id, ProjectStatus.IN_REVIEW);
@@ -162,11 +233,11 @@ export class ExaminerCouncilService {
 
     // Remove old user
     const oldUser = examinerCouncil.users.filter((u) =>
-      examinerCouncilDto.users.every((o) => o.userId !== u.userId),
+      examinerCouncilDto.users.every((o) => o.id !== u.id),
     );
     await Promise.all(
       oldUser.map(async (p) => {
-        await this.examinerCouncilUserRepository.remove(p);
+        await this.examinerCouncilUserRepository.delete({ id: p.id });
       }),
     );
 
@@ -181,9 +252,16 @@ export class ExaminerCouncilService {
   async deleteExaminerCouncil(id: number): Promise<void> {
     const queryBuilder = this.examinerCouncilRepository
       .createQueryBuilder('examinerCouncil')
-      .leftJoinAndSelect('examinerCouncil.projects', 'project')
-      .leftJoinAndSelect('examinerCouncil.users', 'users')
-      .where('examinerCouncil.id = :id', { id });
+      .leftJoin('examinerCouncil.projects', 'project')
+      .leftJoin('examinerCouncil.users', 'member')
+      .leftJoin('examinerCouncil.semester', 'semester')
+      .where('examinerCouncil.id = :id', { id })
+      .addSelect([
+        'semester.isLocked',
+        'member.id',
+        'project.id',
+        'project.conclusionScore',
+      ]);
 
     const examinerCouncil = await queryBuilder.getOne();
 
@@ -191,10 +269,20 @@ export class ExaminerCouncilService {
       throw new NotFoundException('Hội đồng không tồn tại');
     }
 
+    if (examinerCouncil.semester.isLocked) {
+      throw new NotAcceptableException('Học kỳ đã khoá!');
+    }
+
+    if (examinerCouncil.projects.some((p) => p.conclusionScore)) {
+      throw new NotAcceptableException(
+        'Không thể xoá hội đồng do có đề tài đã có điểm bảo vệ!',
+      );
+    }
+
     // Remove all user
     await Promise.all(
       examinerCouncil.users.map(async (p) => {
-        await this.examinerCouncilUserRepository.remove(p);
+        await this.examinerCouncilUserRepository.delete({ id: p.id });
       }),
     );
 

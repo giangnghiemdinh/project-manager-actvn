@@ -8,7 +8,6 @@ import { UserModule } from './features/user/user.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ProjectModule } from './features/project/project.module';
 import { DepartmentModule } from './features/department/department.module';
-import { ProgressModule } from './features/progress/progress.module';
 import { StudentModule } from './features/student/student.module';
 import { ExaminerCouncilModule } from './features/examiner-council/examiner-council.module';
 import { ManagerStaffModule } from './features/manager-staff/manager-staff.module';
@@ -29,7 +28,6 @@ import { APP_GUARD } from '@nestjs/core';
     UserModule,
     ProjectModule,
     DepartmentModule,
-    ProgressModule,
     StudentModule,
     ExaminerCouncilModule,
     ManagerStaffModule,

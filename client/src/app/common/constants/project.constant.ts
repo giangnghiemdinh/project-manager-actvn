@@ -1,7 +1,7 @@
 export enum ProjectStatus {
   PROPOSE = 'PROPOSE', // Đề xuất
   REFUSE = 'REFUSE', // Từ chối
-  EXPIRED = 'EXPIRED', // Hết hạn // Các trạng thái này chỉ hiển thị ở trang xét duyệt
+  EXPIRED = 'EXPIRED', // Hết hạn
 
   PENDING = 'PENDING', // Chờ đăng kí
   IN_PROGRESS = 'IN_PROGRESS', // Đang thực hiện
@@ -14,7 +14,7 @@ export enum ProjectStatus {
 export const ProjectApproveStatuses = [
   { value: ProjectStatus.PROPOSE, label: 'Đề xuất', class: 'bg-gray-200 text-gray-600' },
   { value: ProjectStatus.REFUSE, label: 'Từ chối', class: 'bg-yellow-400 text-white' },
-  // { value: ProjectStatus.EXPIRED, label: 'Hết hạn', class: 'bg-red-400 text-white' },
+  { value: ProjectStatus.EXPIRED, label: 'Hết hạn', class: 'bg-red-400 text-white' },
 ];
 
 export const ProjectStatuses = [

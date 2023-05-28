@@ -52,6 +52,7 @@ import { FormWrapperComponent } from '../form-wrapper/form-wrapper.component';
                                      [nzLabel]="group.label">
                         <nz-option *ngFor="let option of group.options"
                                    [nzCustomContent]="!!optionTemplate"
+                                   [nzDisabled]=""
                                    [nzLabel]="optionLabel ? (optionLabel | callbackFn: option) : option[selectLabel]"
                                    [nzValue]="optionValue ? (optionValue | callbackFn: option) : option[selectValue]">
                             <ng-container
@@ -62,6 +63,7 @@ import { FormWrapperComponent } from '../form-wrapper/form-wrapper.component';
                 <ng-template #singleOption>
                     <nz-option *ngFor="let option of options"
                                [nzCustomContent]="!!optionTemplate"
+                               [nzDisabled]="selectDisabled ? option[selectDisabled] : false"
                                [nzLabel]="optionLabel ? (optionLabel | callbackFn: option) : option[selectLabel]"
                                [nzValue]="optionValue ? (optionValue | callbackFn: option) : option[selectValue]">
                         <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: option }"></ng-container>
@@ -94,10 +96,12 @@ export class FormSelectComponent extends FormItemComponent {
     @Input() optionGroups: { label: string, options: any[] }[] = [];
     @Input() selectValue = 'value';
     @Input() selectLabel = 'label';
+    @Input() selectDisabled?: string;
     @Input() optionHeightPx = 32;
     @Input() optionTemplate: TemplateRef<any> | null = null;
     @Input() optionLabel?: (option: any) => string;
     @Input() optionValue?: (option: any) => any;
+    @Input() optionDisabled?: (option: any) => boolean;
     @Input() maxMultipleCount: number = Infinity;
     @Input() maxTagCount: number = Infinity;
     @Input() suffixIcon: TemplateRef<NzSafeAny> | string | null = null;

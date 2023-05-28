@@ -4,13 +4,33 @@
                     { title: 'Trang chủ' },
                     { title: title }
                  ]">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-x-4 gap-y-2" *hasRole="'Administrator'">
-            <button class="w-full sm:w-1/2 md:w-fit" nz-button nzType="dashed" nzSize="large" [routerLink]="['./mass']">
-                Thành lập danh sách
-            </button>
-            <button class="w-full sm:w-1/2 md:w-fit" nzSize="large" nz-button nzType="primary" (click)="onAdd()">
-                Thêm mới
-            </button>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-x-4 gap-y-2" >
+            <ng-container *ngIf="!selectedItems.length; else checkedActionsTmpl">
+                <ng-template [hasRole]="'Administrator'">
+                    <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                            nz-button nzType="dashed" nzSize="large" [routerLink]="['./mass']">
+                        <i class='bx bx-list-ul text-lg'></i>
+                        Thành lập danh sách
+                    </button>
+                    <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                            nzSize="large" nz-button nzType="primary" (click)="onAdd()">
+                        <i class='bx bx-plus text-lg'></i>
+                        Thêm mới
+                    </button>
+                </ng-template>
+            </ng-container>
+            <ng-template #checkedActionsTmpl>
+                <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                        nzSize="large" nz-button nzType="dashed" (click)="onExport()">
+                    <i class='bx bx-cloud-download text-lg' ></i>
+                    Xuất Excel
+                </button>
+                <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                        nzSize="large" nz-button nzType="default" (click)="onClearChecked()">
+                    <i class='bx bx-x text-lg' ></i>
+                    Bỏ chọn
+                </button>
+            </ng-template>
         </div>
     </app-toolbar>
     <div class="bg-white shadow border border-gray-150 rounded-md">
@@ -37,13 +57,15 @@
                 </div>
             </app-form>
         </div>
-        <app-table [showCheckbox]="false"
+        <app-table #table
+                   [showCheckbox]="true"
                    [expandTemplate]="projectTable"
                    [data]="managerStaffs$ | async"
                    [isLoading]="isLoading$ | async"
                    [pagination]="pagination$ | async"
                    [scroll]="{ x: '1024px' }"
-                   (pageChanges)="onPageChanges($event)">
+                   (pageChanges)="onPageChanges($event)"
+                   (checkedChange)="onCheckedChange($event)">
             <app-table-column key="department.name" title="Khoa" width="150px"/>
             <app-table-column key="semester.name" title="Học kì" width="150px"/>
             <app-table-column key="user.fullName" title="Người quản lý" width="200px">
@@ -56,19 +78,19 @@
             <ng-template [hasRole]="'Administrator'">
                 <app-table-column [responsive]="{ md: true }" key="action" title="" width="70px" [right]="true">
                     <ng-template table-cell let-row>
-                        <div class="flex justify-center items-center gap-1">
-                            <div (click)="onDelete(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
-                                <i class='bx bx-trash-alt' ></i>
-                            </div>
+                        <div class="flex justify-center items-center gap-1" *ngIf="!row.semester?.isLocked">
                             <div (click)="onEdit(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
                                 <i class='bx bx-edit-alt' ></i>
+                            </div>
+                            <div (click)="onDelete(row)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-red-500 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                                <i class='bx bx-trash-alt' ></i>
                             </div>
                         </div>
                     </ng-template>
                 </app-table-column>
                 <app-table-column [responsive]="{ xs: true, md: false }" [right]="true" key="action" title="" width="40px">
                     <ng-template table-cell let-row>
-                        <div class="flex justify-center items-center gap-1">
+                        <div class="flex justify-center items-center gap-1" *ngIf="!row.semester?.isLocked">
                             <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" class="w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
                                 <i class='bx bx-dots-vertical-rounded' ></i>
                             </div>

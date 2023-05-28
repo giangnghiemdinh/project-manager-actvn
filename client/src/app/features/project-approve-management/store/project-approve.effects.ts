@@ -7,7 +7,7 @@ import { PaginationResponse, Project } from '../../../common/models';
 import { AbstractEffects } from '../../../common/abstracts';
 import { ProjectService } from '../../../common/services';
 import { selectQueryParams } from '../../../common/stores/router';
-import { ProjectStatus } from '../../../common/constants/project.constant';
+import { ProjectStatus } from '../../../common/constants';
 
 
 @Injectable()
@@ -21,7 +21,7 @@ export class ProjectApproveEffects extends AbstractEffects {
       mergeMap(([_, queryParams]) =>
         this.projectService.getProjects({
             ...queryParams,
-            status: queryParams['status'] || [ProjectStatus.PROPOSE, ProjectStatus.REFUSE].join(',') }
+            status: queryParams['status'] || [ProjectStatus.PROPOSE, ProjectStatus.REFUSE, ProjectStatus.EXPIRED].join(',') }
         ).pipe(
           map((response: PaginationResponse<Project>) => projectApproveActions.loadProjectsSuccess({ response })),
           catchError(errors => of(projectApproveActions.loadProjectsFailure({ errors })))

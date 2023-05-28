@@ -5,6 +5,7 @@ import { collapseMotion, fadeL2rMotion } from '../../../../common/animations';
 import {
     RO_DEPARTMENT_MANAGER,
     RO_EXAMINER_COUNCIL,
+    RO_GENERAL_STATISTIC,
     RO_MANAGER_STAFF,
     RO_PROJECT_APPROVE,
     RO_PROJECT_MANAGER,
@@ -121,16 +122,16 @@ export class MenuComponent {
         });
         managementMenus.length && ( menus = [ ...menus, { separator: 'Quản lý' }, ...managementMenus ] );
 
-        // const statisticalMenus: Menu[] = [];
-        // if (role === Role.ADMINISTRATOR) {
-        //     statisticalMenus.push({
-        //         title: 'Tổng quan',
-        //         routerLink: RO_GENERAL_STATISTIC,
-        //         icon: 'bx-line-chart',
-        //         active: false
-        //     });
-        // }
-        // statisticalMenus.length && (menus = [...menus, { separator: 'Thống kê' }, ...statisticalMenus]);
+        const statisticalMenus: Menu[] = [];
+        if (role === Role.ADMINISTRATOR) {
+            statisticalMenus.push({
+                title: 'Tổng quan',
+                routerLink: RO_GENERAL_STATISTIC,
+                icon: 'bx-line-chart',
+                active: false
+            });
+        }
+        statisticalMenus.length && (menus = [...menus, { separator: 'Thống kê' }, ...statisticalMenus]);
 
         this.menus = [ ...menus ];
     }

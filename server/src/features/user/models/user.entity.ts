@@ -76,6 +76,9 @@ export class UserEntity extends AbstractEntity<UserDto> {
   @OneToMany(() => ProjectEntity, (project) => project.reviewedBy)
   reviewedProjects: ProjectEntity[];
 
+  @OneToMany(() => ProjectEntity, (project) => project.proposeBy)
+  proposeProjects: ProjectEntity[];
+
   @OneToMany(
     () => ExaminerCouncilEntity,
     (examinerCouncil) => examinerCouncil.users,

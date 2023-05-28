@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pagination, PaginationMetaDto } from '../../common/dtos';
@@ -10,6 +15,8 @@ import {
   ManagerStaffDto,
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
+import { ProjectProgressType, ProjectStatus } from '../../common/constants';
+import { SemesterService } from '../semester/semester.service';
 
 @Injectable()
 export class ManagerStaffService {
@@ -18,6 +25,8 @@ export class ManagerStaffService {
   constructor(
     @InjectRepository(ManagerStaffEntity)
     private readonly managerStaffRepository: Repository<ManagerStaffEntity>,
+
+    private readonly semesterService: SemesterService,
   ) {}
 
   async getManagerStaffs(
@@ -44,14 +53,39 @@ export class ManagerStaffService {
       .leftJoin('managerStaff.department', 'department')
       .leftJoin('managerStaff.semester', 'semester')
       .leftJoin('managerStaff.projects', 'project')
-      .leftJoinAndSelect('project.students', 'student')
+      .leftJoin('project.students', 'student')
+      .leftJoin('project.instructor', 'instructor')
+      .loadRelationCountAndMap(
+        'project.reportedCount',
+        'project.progresses',
+        'progress',
+        (qb) =>
+          qb.andWhere('progress.type NOT IN (:...types)', {
+            types: [
+              ProjectProgressType.INSTRUCTOR_REVIEW,
+              ProjectProgressType.REVIEWER_REVIEW,
+            ],
+          }),
+      )
       .addSelect([
         'department.name',
         'semester.name',
+        'semester.isLocked',
         'user.fullName',
+        'user.email',
+        'user.phone',
+        'user.workPlace',
         'user.id',
         'project.name',
         'project.id',
+        'project.status',
+        'instructor.fullName',
+        'instructor.email',
+        'instructor.workPlace',
+        'instructor.phone',
+        'student.id',
+        'student.fullName',
+        'student.code',
       ])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
@@ -82,6 +116,9 @@ export class ManagerStaffService {
   async createManagerStaff(
     managerStaffDto: ManagerPayloadDto,
   ): Promise<ManagerStaffDto> {
+    await this.semesterService.validateLockedSemester(
+      managerStaffDto.semesterId,
+    );
     const managerStaff = this.managerStaffRepository.create(managerStaffDto);
     await this.managerStaffRepository.save(managerStaff);
     this.logger.log(`Thêm mới nhóm quản lý ${managerStaff.id}`);
@@ -89,17 +126,40 @@ export class ManagerStaffService {
   }
 
   async getManagerStaff(id: number): Promise<ManagerStaffDto> {
-    const managerStaff = await this.managerStaffRepository.findOne({
-      where: { id },
-      relations: [
-        'user',
-        'projects',
-        'projects.instructor',
-        'projects.students',
-      ],
-    });
+    const managerStaff = await this.managerStaffRepository
+      .createQueryBuilder('managerStaff')
+      .where('managerStaff.id = :id', { id })
+      .leftJoin('managerStaff.user', 'user')
+      .leftJoin('managerStaff.projects', 'project')
+      .leftJoin('project.instructor', 'instructor')
+      .leftJoin('project.students', 'student')
+      .loadRelationCountAndMap(
+        'project.reportedCount',
+        'project.progresses',
+        'progress',
+        (qb) =>
+          qb.andWhere('progress.type NOT IN (:...types)', {
+            types: [
+              ProjectProgressType.INSTRUCTOR_REVIEW,
+              ProjectProgressType.REVIEWER_REVIEW,
+            ],
+          }),
+      )
+      .addSelect([
+        'user.id',
+        'user.fullName',
+        'project.id',
+        'project.name',
+        'project.status',
+        'instructor.id',
+        'instructor.fullName',
+        'student.id',
+        'student.code',
+        'student.fullName',
+      ])
+      .getOne();
     if (!managerStaff) {
-      throw new NotFoundException('Hội đồng không tồn tại');
+      throw new NotFoundException('Nhóm quản lý không tồn tại');
     }
     return managerStaff.toDto();
   }
@@ -115,6 +175,10 @@ export class ManagerStaffService {
       throw new NotFoundException('Hội đồng không tồn tại');
     }
 
+    await this.semesterService.validateLockedSemester(
+      managerStaffDto.semesterId,
+    );
+
     managerStaff.projects = [];
     this.managerStaffRepository.merge(managerStaff, managerStaffDto);
 
@@ -122,16 +186,35 @@ export class ManagerStaffService {
   }
 
   async deleteManagerStaff(id: number): Promise<void> {
-    const queryBuilder = this.managerStaffRepository
+    const managerStaff = await this.managerStaffRepository
       .createQueryBuilder('managerStaff')
-      .where('managerStaff.id = :id', { id });
-
-    const managerStaff = await queryBuilder.getOne();
+      .where('managerStaff.id = :id', { id })
+      .leftJoin('managerStaff.semester', 'semester')
+      .leftJoin('managerStaff.projects', 'project')
+      .addSelect(['semester.isLocked', 'project.id', 'project.status'])
+      .getOne();
 
     if (!managerStaff) {
-      throw new NotFoundException('Hội đồng không tồn tại');
+      throw new NotFoundException('Nhóm quản lý không tồn tại');
     }
 
-    await this.managerStaffRepository.remove(managerStaff);
+    if (managerStaff.semester.isLocked) {
+      throw new NotAcceptableException('Học kỳ đã khoá!');
+    }
+
+    for (const project of managerStaff.projects) {
+      if (project.status === ProjectStatus.IN_REVIEW) {
+        throw new NotAcceptableException(
+          'Không thể xoá nhóm do có đề tài đang chấm phản biện!',
+        );
+      }
+      if (project.status === ProjectStatus.IN_PRESENTATION) {
+        throw new NotAcceptableException(
+          'Không thể xoá nhóm do có đề tài đang chấm bảo vệ!',
+        );
+      }
+    }
+
+    await this.managerStaffRepository.delete({ id });
   }
 }

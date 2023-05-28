@@ -6,7 +6,7 @@
     <ng-container *nzModalContent>
         <div class="flex flex-wrap items-center gap-x-1">
             <div class="text-base font-bold">
-                Nhập đồ án từ file dữ liệu
+                Nhập đồ án từ file Excel
             </div>
             <div class="">
                 (Tải về file mẫu: <a class="text-blue-500" (click)="onDownloadSample()">Excel file</a>)
@@ -82,9 +82,17 @@
                 </p>
             </nz-upload>
         </div>
-        <div class="mt-6 flex justify-between gap-2">
-            <button nz-button nzSize="large" nzType="default" (click)="onCancel()">Trở về</button>
-            <button nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onPreImport()">Nhập danh sách</button>
+        <div class="mt-6 flex items-center justify-between gap-2">
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
+            </button>
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onPreImport()">
+                Nhập dữ liệu
+                <i class='bx bx-save text-lg'></i>
+            </button>
         </div>
     </ng-container>
 </nz-modal>
@@ -103,11 +111,12 @@
                              [validators]="{ required: true }"/>
             <app-form-select control="semesterId" label="Học kì"
                              selectValue="id" selectLabel="name"
+                             selectDisabled="isLocked"
                              itemClass="mt-4"
                              [validators]="{ required: true }"
                              [options]="semesters || []"/>
             <div class="flex items-center gap-4 mt-4">
-                <button class="w-1/2" nz-button nzSize="large" nzType="default" (click)="isVisibleModal = false">Trở về</button>
+                <button class="w-1/2" nz-button nzSize="large" nzType="default" (click)="isVisibleModal = false">Quay lại</button>
                 <button class="w-1/2" nz-button nzSize="large" nzType="primary" (click)="onImport()">Tiếp tục</button>
             </div>
         </app-form>

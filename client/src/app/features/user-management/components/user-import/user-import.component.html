@@ -6,7 +6,7 @@
     <ng-container *nzModalContent>
         <div class="flex flex-wrap items-center gap-x-1">
             <div class="text-base font-bold">
-                Nhập người dùng từ file dữ liệu
+                Nhập người dùng từ file Excel
             </div>
             <div class="">
                 (Tải về file mẫu: <a class="text-blue-500" (click)="onDownloadSample()">Excel file</a>)
@@ -48,8 +48,16 @@
             </nz-upload>
         </div>
         <div class="mt-6 flex justify-between gap-2">
-            <button nz-button nzSize="large" nzType="default" (click)="onCancel()">Trở về</button>
-            <button nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onImport()">Nhập danh sách</button>
+            <button class="flex items-center justify-center w-[100px]"
+                    nz-button nzSize="large" nzType="default" (click)="onCancel()">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
+            </button>
+            <button class="flex items-center justify-center gap-2"
+                    nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onImport()">
+                Nhập dữ liệu
+                <i class='bx bx-save text-lg'></i>
+            </button>
         </div>
     </ng-container>
 </nz-modal>

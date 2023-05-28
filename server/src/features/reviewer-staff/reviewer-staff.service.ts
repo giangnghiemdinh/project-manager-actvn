@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pagination, PaginationMetaDto } from '../../common/dtos';
@@ -11,7 +16,7 @@ import {
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
 import { ProjectService } from '../project/project.service';
-import { ProjectStatus } from 'src/common/constants';
+import { ProjectProgressType, ProjectStatus } from 'src/common/constants';
 
 @Injectable()
 export class ReviewerStaffService {
@@ -48,14 +53,36 @@ export class ReviewerStaffService {
       .leftJoin('reviewerStaff.department', 'department')
       .leftJoin('reviewerStaff.semester', 'semester')
       .leftJoin('reviewerStaff.projects', 'project')
-      .leftJoinAndSelect('project.students', 'student')
+      .leftJoin('project.students', 'student')
+      .leftJoin('project.instructor', 'instructor')
+      .loadRelationCountAndMap(
+        'project.reportedCount',
+        'project.progresses',
+        'progress',
+        (qb) =>
+          qb.andWhere('progress.type = :type', {
+            type: ProjectProgressType.REVIEWER_REVIEW,
+          }),
+      )
       .addSelect([
         'department.name',
         'semester.name',
+        'semester.isLocked',
         'user.fullName',
+        'user.email',
+        'user.phone',
+        'user.workPlace',
         'user.id',
         'project.name',
         'project.id',
+        'project.status',
+        'instructor.fullName',
+        'instructor.email',
+        'instructor.workPlace',
+        'instructor.phone',
+        'student.id',
+        'student.fullName',
+        'student.code',
       ])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
@@ -101,15 +128,35 @@ export class ReviewerStaffService {
   }
 
   async getReviewerStaff(id: number): Promise<ReviewerStaffDto> {
-    const reviewerStaff = await this.reviewerStaffRepository.findOne({
-      where: { id },
-      relations: [
-        'user',
-        'projects',
-        'projects.instructor',
-        'projects.students',
-      ],
-    });
+    const reviewerStaff = await this.reviewerStaffRepository
+      .createQueryBuilder('reviewerStaff')
+      .where('reviewerStaff.id = :id', { id })
+      .leftJoin('reviewerStaff.user', 'user')
+      .leftJoin('reviewerStaff.projects', 'project')
+      .leftJoin('project.instructor', 'instructor')
+      .leftJoin('project.students', 'student')
+      .loadRelationCountAndMap(
+        'project.reportedCount',
+        'project.progresses',
+        'progress',
+        (qb) =>
+          qb.andWhere('progress.type = :type', {
+            type: ProjectProgressType.REVIEWER_REVIEW,
+          }),
+      )
+      .addSelect([
+        'user.id',
+        'user.fullName',
+        'project.id',
+        'project.name',
+        'project.status',
+        'instructor.id',
+        'instructor.fullName',
+        'student.id',
+        'student.code',
+        'student.fullName',
+      ])
+      .getOne();
     if (!reviewerStaff) {
       throw new NotFoundException('Nhóm phản biện không tồn tại');
     }
@@ -157,24 +204,36 @@ export class ReviewerStaffService {
 
   @Transactional()
   async deleteReviewerStaff(id: number): Promise<void> {
-    const queryBuilder = this.reviewerStaffRepository
+    const reviewerStaff = await this.reviewerStaffRepository
       .createQueryBuilder('reviewerStaff')
-      .leftJoin('reviewerStaff.projects', 'projects')
       .where('reviewerStaff.id = :id', { id })
-      .addSelect(['projects.id']);
-
-    const reviewerStaff = await queryBuilder.getOne();
+      .leftJoin('reviewerStaff.semester', 'semester')
+      .leftJoin('reviewerStaff.projects', 'project')
+      .addSelect(['semester.isLocked', 'project.id', 'project.status'])
+      .getOne();
 
     if (!reviewerStaff) {
       throw new NotFoundException('Nhóm phản biện không tồn tại');
     }
+
+    if (reviewerStaff.semester.isLocked) {
+      throw new NotAcceptableException('Học kỳ đã khoá!');
+    }
+
+    for (const project of reviewerStaff.projects) {
+      if (project.status === ProjectStatus.IN_PRESENTATION) {
+        throw new NotAcceptableException(
+          'Không thể xoá nhóm do có đề tài đang bảo vệ!',
+        );
+      }
+    }
+
+    await this.reviewerStaffRepository.delete({ id });
 
     await Promise.all(
       reviewerStaff.projects.map(async (p) => {
         await this.projectService.updateStatus(p.id, ProjectStatus.IN_PROGRESS);
       }),
     );
-
-    await this.reviewerStaffRepository.remove(reviewerStaff);
   }
 }

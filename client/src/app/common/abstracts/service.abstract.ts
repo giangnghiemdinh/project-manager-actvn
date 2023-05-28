@@ -76,6 +76,8 @@ export class AbstractService {
             let message = '';
             switch (error.status) {
                 case 0:
+                    message = DEFAULT_ERROR_MESSAGE;
+                    break;
                 case 401:
                 case 902:
                     break;

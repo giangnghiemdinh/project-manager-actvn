@@ -29,6 +29,7 @@ import {
   OtpService,
 } from '../../../shared/services';
 import {
+  EMAIL_CRE_PROCESS,
   Role,
   USER_DUPLICATE_EMAIL,
   UserStatus,
@@ -38,7 +39,11 @@ import moment from 'moment/moment';
 import { OtpInvalidException } from '../../../common/exceptions';
 import { UserSessionService } from './user-session.service';
 import { UserChangePasswordRequestDto } from '../dtos/user-change-password.dto';
-import { generateHash, validateHash } from '../../../common/utilities';
+import {
+  generateHash,
+  randomString,
+  validateHash,
+} from '../../../common/utilities';
 import { UserEventService } from './user-event.service';
 import {
   UserEventPageRequestDto,
@@ -187,6 +192,7 @@ export class UserService {
     }
 
     delete request.avatarFile;
+    request.password = randomString(8);
 
     const user = this.userRepository.create(request);
     await this.userRepository.insert(user);
@@ -194,11 +200,23 @@ export class UserService {
       (await this.userEventService.insert({
         message: `Thêm mới người dùng {userFullName}`,
         params: JSON.stringify({
-          fullName: user.fullName,
+          userFullName: user.fullName,
           userId: user.id,
         }),
         userId: currentUser.id,
       }));
+
+    if (this.configService.isEmailCreNotification) {
+      await this.emailQueueService.add(
+        EMAIL_CRE_PROCESS,
+        {
+          email: request.email,
+          password: request.password,
+        },
+        { removeOnComplete: true },
+      );
+    }
+
     return user.toDto();
   }
 
@@ -260,7 +278,7 @@ export class UserService {
       await this.userEventService.insert({
         message: `Cập nhật người dùng {userFullName}`,
         params: JSON.stringify({
-          fullName: user.fullName,
+          userFullName: user.fullName,
           userId: user.id,
         }),
         userId: currentUser.id,

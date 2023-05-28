@@ -48,6 +48,7 @@
                 </ng-template>
             </app-table-column>
             <app-table-column key="department.name" title="Khoa" width="120px"/>
+            <app-table-column key="semester.name" title="Học kỳ" width="120px"/>
             <app-table-column key="createdAt" title="Thời gian đề xuất" width="150px">
                 <ng-template table-cell let-row>
                     {{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}
@@ -62,13 +63,16 @@
                     </div>
                 </ng-template>
             </app-table-column>
+            <app-table-column key="proposeBy.fullName" title="Người đề xuất" width="150px">
+            </app-table-column>
             <app-table-column key="reviewedBy.fullName" title="Người duyệt" width="150px">
             </app-table-column>
             <app-table-column key="reason" title="Lý do" width="150px"/>
             <app-table-column key="action" title="" width="50px" [right]="true">
                 <ng-template table-cell let-row>
                     <div class="flex justify-center items-center gap-1">
-                        <div (click)="onApprove(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
+                        <div *ngIf="row.status === status.PROPOSE"
+                             (click)="onApprove(row.id!)" class="action-on-hover opacity-0 w-[36px] h-[36px] cursor-pointer text-xl rounded-full text-[#1f1f1f] hover:bg-gray-300 transition-all duration-300 flex items-center justify-center">
                             <i class='bx bx-check'></i>
                         </div>
                     </div>

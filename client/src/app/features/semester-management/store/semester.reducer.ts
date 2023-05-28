@@ -103,6 +103,24 @@ export const semesterFeature = createFeature({
             errors,
             isLoading: false,
         })),
+
+        on(SemesterActions.lockSemester, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(SemesterActions.lockSemesterSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: false,
+        })),
+
+        on(SemesterActions.lockSemesterFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
     )
 });
 

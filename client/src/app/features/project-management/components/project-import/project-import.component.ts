@@ -62,22 +62,23 @@ export class ProjectImportComponent implements OnChanges {
     };
 
     onDownloadSample() {
-        this.excelService.export({
-            columns: [
-                { title: 'TT', width: 10, alignment: 'center' },
-                { title: 'Đề tài', width: 30 },
-                { title: 'Mô tả', width: 40 },
-                { title: 'Yêu cầu', width: 40 },
-                { title: 'Người hướng dẫn', width: 25 },
-            ],
-            notes: [
-                { cell: 'B1', text: 'Đây là trường bắt buộc.' },
-                { cell: 'D1', text: 'Đối với yêu cầu đã có sinh viên đăng ký, vui lòng điền thông tin theo mẫu: \n\n[Yêu cầu đề tài]\n\nSinh viên:\nNghiêm Đình Giang \nAT140414 \ngiangnghiemdinh@gmail.com \n038699964 \n\nSinh viên:\nPhạm Duy Phúc \nAT140434 \nduyphucit@gmail.com \n0123456789' },
-                { cell: 'E1', text: 'Vui lòng điền thông tin theo mẫu: \n\nThs. Hoàng Thanh Nam\nKhoa ATTT - HVKTMM\nnamht@hocvienact.edu.vn\n0978571541' }
-            ],
-            sheetName: 'Danh sách đề tài',
-            fileName: 'Nhập danh sách đề tài'
-        });
+        this.excelService.export('Nhập danh sách đề tài',[
+            {
+                columns: [
+                    { title: 'TT', width: 10, alignment: 'center' },
+                    { title: 'Đề tài', width: 30 },
+                    { title: 'Mô tả', width: 40 },
+                    { title: 'Yêu cầu', width: 40 },
+                    { title: 'Người hướng dẫn', width: 25 },
+                ],
+                notes: [
+                    { cell: 'B1', text: 'Đây là trường bắt buộc.' },
+                    { cell: 'D1', text: 'Đối với yêu cầu đã có sinh viên đăng ký, vui lòng điền thông tin theo mẫu: \n\n[Yêu cầu đề tài]\n\nSinh viên:\nNghiêm Đình Giang \nAT140414 \ngiangnghiemdinh@gmail.com \n038699964 \n\nSinh viên:\nPhạm Duy Phúc \nAT140434 \nduyphucit@gmail.com \n0123456789' },
+                    { cell: 'E1', text: 'Vui lòng điền thông tin theo mẫu: \n\nThs. Hoàng Thanh Nam\nKhoa ATTT - HVKTMM\nnamht@hocvienact.edu.vn\n0978571541' }
+                ],
+                sheetName: 'Danh sách đề tài',
+            }
+        ]);
     }
 
     onFileChanges(event: NzUploadChangeParam) {

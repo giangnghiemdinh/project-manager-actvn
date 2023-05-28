@@ -1,13 +1,17 @@
 import { Process, Processor } from '@nestjs/bull';
-import { DRIVER_QUEUE, PROJECT_FOLDER_PROCESS } from '../common/constants';
+import {
+  PROJECT_FOLDER_PROCESS,
+  PROJECT_QUEUE,
+  PROJECT_STATUS_PROCESS,
+} from '../common/constants';
 import { Job } from 'bull';
 import { ProjectService } from '../features/project/project.service';
 import { DriverService } from '../shared/services';
 import { Logger } from '@nestjs/common';
 
-@Processor(DRIVER_QUEUE)
-export class DriverConsumer {
-  private readonly logger = new Logger(DriverConsumer.name);
+@Processor(PROJECT_QUEUE)
+export class ProjectConsumer {
+  private readonly logger = new Logger(ProjectConsumer.name);
 
   constructor(
     private readonly projectService: ProjectService,
@@ -27,5 +31,12 @@ export class DriverConsumer {
     );
     await this.projectService.updateFolderId(id, folder.id);
     this.logger.log(`Create folder ${folderName} success for project ${id}`);
+  }
+
+  @Process(PROJECT_STATUS_PROCESS)
+  async updateProjectStatus(job: Job<any>) {
+    const { id, status } = job.data;
+    await this.projectService.updateStatus(id, status);
+    this.logger.log(`Update status success for project ${id}`);
   }
 }

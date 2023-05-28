@@ -10,12 +10,13 @@ import {
     SearchUserComponent
 } from '../../../../core-ui/components';
 import { Department, Project, Semester, Student, User } from '../../../../common/models';
-import { ProjectStatus, ProjectStatuses } from '../../../../common/constants/project.constant';
+import { ProjectStatuses } from '../../../../common/constants/project.constant';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { cloneDeep } from 'lodash';
 import { FormGroup } from '@angular/forms';
 import { NotificationService } from '../../../../common/services';
 import { NgIf } from '@angular/common';
+import { timer } from 'rxjs';
 
 @Component({
     selector: 'app-project-form',
@@ -41,10 +42,12 @@ export class ProjectFormComponent implements OnChanges {
     students: Student[] = [];
 
     ngOnChanges(changes: SimpleChanges): void {
-        const { project } = changes;
-        if (this.isVisible) {
-            this.instructor = null;
-            this.students = [];
+        const { project, isVisible } = changes;
+        if (isVisible && !this.isVisible) {
+            timer(200).subscribe(_ => {
+                this.instructor = null;
+                this.students = [];
+            });
         }
         if (project && this.project) {
             const project = cloneDeep(this.project)
@@ -65,21 +68,22 @@ export class ProjectFormComponent implements OnChanges {
 
     onSave() {
         if (!this.formComponent.isValid) { return; }
-        const value: any = this.formComponent.value;
-        value.id = this.project?.id;
-        value.instructorId = this.instructor?.id;
-        value.students = this.students?.map(s => ({ id: s.id })) || [];
-        if (this.isPropose) { value.status = ProjectStatus.PROPOSE; }
-        else if (value.students.length) { value.status = ProjectStatus.IN_PROGRESS }
-        else { value.status = ProjectStatus.PENDING; }
-        this.ok.emit(value);
+        const value = this.formComponent.value;
+        this.ok.emit({
+            ...value,
+            id: this.project?.id,
+            instructorId: !!value.instructorName && this.instructor?.id,
+            students: (!!value.studentCodes && this.students?.map(s => ({ id: s.id, fullName: s.fullName }))) || []
+        });
     }
 
     onSearchUser() {
+        if (!!(this.project && this.project.managerStaffId)) { return; }
         this.isVisibleSearchUser = true;
     }
 
     onSearchStudent() {
+        if (!!(this.project && this.project.managerStaffId)) { return; }
         this.isVisibleSearchStudent = true;
     }
 
@@ -92,17 +96,7 @@ export class ProjectFormComponent implements OnChanges {
 
     onSelectStudent(students: Student[]) {
         if (!students.length) { return; }
-        const currentSemester = this.formComponent.getValue('semester');
-        if (currentSemester) {
-            for (const student of students) {
-                const find = student.projects?.find(p => p.id !== this.project?.id && p.semester === currentSemester);
-                if (find) {
-                    this.notification.error(`Sinh viên ${student.fullName} đang thực hiện đề tài ${find.name} ở kỳ ${currentSemester}. Vui lòng kiểm tra lại!`);
-                    return;
-                }
-            }
-        }
-        this.students = cloneDeep(students);
+        this.students = [...students];
         this.formComponent.setValue('studentCodes', this.students.map(s => s.code).join(', '));
     }
 

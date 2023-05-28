@@ -5,19 +5,18 @@
           (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
-            <app-form #form [data]="project">
+            <app-form #form [data]="project" [disabled]="!!(project && project.managerStaffId)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <app-form-text control="name" label="Tên đồ án"
                                    class="sm:col-span-2"
                                    [validators]="{ required: true }"/>
                     <app-form-select control="departmentId" label="Khoa"
                                      selectValue="id" selectLabel="name"
-                                     [class.sm:col-span-2]="isPropose"
                                      [options]="departments || []"
                                      [validators]="{ required: true }"/>
-                    <app-form-select *ngIf="!isPropose"
-                                     control="semesterId" label="Học kì"
+                    <app-form-select control="semesterId" label="Học kì"
                                      selectValue="id" selectLabel="name"
+                                     selectDisabled="isLocked"
                                      [clearOnDestroy]="true"
                                      [validators]="{ required: true }"
                                      [options]="semesters || []"/>
@@ -31,22 +30,33 @@
                                    (click)="onSearchStudent()"/>
                     <app-form-textarea class="sm:col-span-2"
                                        control="description" label="Mô tả"
-                                       [autoSize]="{ minRows: 2, maxRows: 4 }"/>
+                                       [autoSize]="{ minRows: 2 }"/>
                     <app-form-textarea class="sm:col-span-2"
                                        control="requirement" label="Yêu cầu"
-                                       [autoSize]="{ minRows: 2, maxRows: 4 }"/>
+                                       [autoSize]="{ minRows: 2 }"/>
                 </div>
             </app-form>
         </nz-spin>
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex items-center justify-between">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
-                Trở về
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
-            <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
-                Lưu
-            </button>
+            <ng-container *ngIf="!!(project && project.managerStaffId); else allowEditTmpl;">
+                <span class="text-red-600">
+                    Không được phép chỉnh sửa đề tài đã được phân công quản lý!
+                </span>
+            </ng-container>
+            <ng-template #allowEditTmpl>
+                <button class="flex items-center justify-center gap-2"
+                        nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                    Lưu
+                    <i class='bx bx-save text-lg'></i>
+                </button>
+            </ng-template>
         </div>
     </ng-container>
 </nz-modal>

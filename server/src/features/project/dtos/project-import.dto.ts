@@ -1,43 +1,39 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { ValidateNested } from 'class-validator';
 import {
   PROJECT_DUPLICATE_NAME,
   PROJECT_INSTR_NOT_EXIST,
   PROJECT_STUDENT_NOT_EXIST,
 } from '../../../common/constants';
 import { Type } from 'class-transformer';
-import { Trim } from '../../../common/decorators';
+import {
+  EnumProperty,
+  NumberProperty,
+  StringProperty,
+} from '../../../common/decorators';
 
 export class ProjectImportRequestDto {
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
+  @NumberProperty('ID học kỳ', { required: true, int: true, min: 1 })
   semesterId: number;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
+  @NumberProperty('ID khoa', { required: true, int: true, min: 1 })
   departmentId: number;
 
-  @ApiProperty()
-  @IsEnum(PROJECT_DUPLICATE_NAME)
-  @IsNotEmpty()
+  @EnumProperty('Xử lý trùng tên đề tài', PROJECT_DUPLICATE_NAME, {
+    required: true,
+  })
   readonly duplicateName: PROJECT_DUPLICATE_NAME;
 
-  @ApiProperty()
-  @IsEnum(PROJECT_STUDENT_NOT_EXIST)
-  @IsNotEmpty()
+  @EnumProperty('Xử lý sinh viên không tồn tại', PROJECT_STUDENT_NOT_EXIST, {
+    required: true,
+  })
   readonly studentNotExist: PROJECT_STUDENT_NOT_EXIST;
 
-  @ApiProperty()
-  @IsEnum(PROJECT_INSTR_NOT_EXIST)
-  @IsNotEmpty()
+  @EnumProperty(
+    'Xử lý người hướng dẫn không tồn tại',
+    PROJECT_INSTR_NOT_EXIST,
+    { required: true },
+  )
   readonly instrNotExist: PROJECT_INSTR_NOT_EXIST;
 
   @ApiProperty()
@@ -47,26 +43,15 @@ export class ProjectImportRequestDto {
 }
 
 export class ProjectImport {
-  @ApiProperty()
-  @IsString()
-  @Trim()
-  @IsNotEmpty()
+  @StringProperty('Tên đề tài', { required: true })
   name: string;
 
-  @ApiProperty()
-  @IsString()
-  @Trim()
-  @IsNotEmpty()
+  @StringProperty('Mô tả đề tài', { required: true })
   description: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @StringProperty('Yêu cầu', { required: true, trim: false })
   requirement: string;
 
-  @ApiProperty()
-  @IsString()
-  @Trim()
-  @IsNotEmpty()
+  @StringProperty('Người hướng dẫn', { required: true })
   instructor: string;
 }

@@ -20,3 +20,5 @@ export * from './user-verify.model';
 export * from './project-progress.model';
 export * from './user-change-email.model';
 export * from './user-change-password.model';
+export * from './student-import.model';
+export * from './project-statistical.model';

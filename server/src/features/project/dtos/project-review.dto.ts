@@ -1,62 +1,33 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsBoolean,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
-import { Trim } from '../../../common/decorators';
+  BooleanProperty,
+  EnumProperty,
+  NumberProperty,
+  StringProperty,
+} from '../../../common/decorators';
 import { ProjectProgressType } from '../../../common/constants';
 
 export class ProjectReviewRequestDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @Trim()
+  @StringProperty('Nhận xét 1', { required: true })
   comment1: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @Trim()
+  @StringProperty('Nhận xét 2', { required: true })
   comment2: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @Trim()
+  @StringProperty('Nhận xét 3', { required: true })
   comment3: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  @Trim()
+  @StringProperty('Nhận xét 4')
   comment4: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  @Trim()
+  @StringProperty('Nhận xét 5')
   comment5: string;
 
-  @ApiProperty()
-  @IsNumber()
-  @Min(0)
-  @Max(10)
-  @IsNotEmpty()
+  @NumberProperty('Điểm', { required: true, int: true, min: 0, max: 10 })
   score: number;
 
-  @ApiProperty()
-  @IsBoolean()
-  @IsNotEmpty()
+  @BooleanProperty('Cho bảo vệ', { required: true })
   isApproval: boolean;
 
-  @ApiProperty()
-  @IsEnum(ProjectProgressType)
-  @IsNotEmpty()
+  @EnumProperty('Loại tiến độ', ProjectProgressType, { required: true })
   type: ProjectProgressType;
 }

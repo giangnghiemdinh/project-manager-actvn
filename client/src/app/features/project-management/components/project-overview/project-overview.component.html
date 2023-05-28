@@ -8,7 +8,12 @@
                     { title: project.name || '' }
                  ]">
                 <div class="flex justify-end items-center gap-2">
-                    <button routerLink="/project-management" nz-button nzType="default" class="ml-2">Trở về</button>
+                    <button class="flex items-center justify-center w-[100px]"
+                            nzSize="large" nz-button nzType="default"
+                            routerLink="/project-management">
+                        <i class='bx bx-chevron-left text-lg'></i>
+                        <span class="mr-1.5">Quay lại</span>
+                    </button>
                 </div>
             </app-toolbar>
 
@@ -35,6 +40,15 @@
                                  class="rounded-md px-2 py-1 text-center w-[150px]">
                                 {{ status.label }}
                             </div>
+                        </div>
+                    </div>
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
+                        <div class="col-span-12 md:col-span-3 text-[#595959]">
+                            Người đề xuất
+                        </div>
+                        <div class="col-span-12 md:col-span-9 text-[#262626]"
+                             [class.invisible]="!project.proposeBy?.fullName">
+                            {{ project.proposeBy?.fullName || '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
@@ -92,7 +106,7 @@
                             <ng-container *ngIf="!project.students?.length">#</ng-container>
                         </div>
                     </div>
-                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                         <div class="col-span-12 md:col-span-3 text-[#595959]">
                             Người hướng dẫn
                         </div>
@@ -101,7 +115,37 @@
                             {{ project.instructor?.fullName }}
                         </div>
                     </div>
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
+                        <div class="col-span-12 md:col-span-3 text-[#595959]">
+                            Người quản lý
+                        </div>
+                        <div class="col-span-12 md:col-span-9 text-[#262626]"
+                             [class.invisible]="!project.managerStaff?.user?.fullName">
+                            {{ project.managerStaff?.user?.fullName }}
+                        </div>
+                    </div>
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
+                        <div class="col-span-12 md:col-span-3 text-[#595959]">
+                            Người phản biện
+                        </div>
+                        <div class="col-span-12 md:col-span-9 text-[#262626]"
+                             [class.invisible]="!project.reviewerStaff?.user?.fullName">
+                            {{ project.reviewerStaff?.user?.fullName }}
+                        </div>
+                    </div>
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">
+                        <div class="col-span-12 md:col-span-3 text-[#595959]">
+                            Hội đồng
+                        </div>
+                        <div class="col-span-12 md:col-span-9 text-[#262626]"
+                             [class.invisible]="!project.examinerCouncil?.location">
+                            {{ project.examinerCouncil?.location }}
+                        </div>
+                    </div>
                 </div>
+                <ng-template #emptyValueTmpl>
+                    <span class="invisible">#</span>
+                </ng-template>
                 <ng-container *ngLet="project.progresses | progressToObject as progress">
 
                     <!--Báo cáo tiến độ-->
@@ -118,7 +162,7 @@
                                 Đề cương
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp']?.otherFile"
+                                <a *ngIf="progress && progress['rp']?.otherFile; else emptyValueTmpl;"
                                    [href]="progress['rp'].otherFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp'].otherFile.name }}</span>
@@ -138,7 +182,7 @@
                                 Quyển đồ án
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp1']?.wordFile"
+                                <a *ngIf="progress && progress['rp1']?.wordFile; else emptyValueTmpl;"
                                    [href]="progress['rp1'].wordFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp1'].wordFile.name }}</span>
@@ -153,7 +197,7 @@
                                 Phiếu báo cáo
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp1']?.reportFile"
+                                <a *ngIf="progress && progress['rp1']?.reportFile; else emptyValueTmpl;"
                                    [href]="progress['rp1'].reportFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp1'].reportFile.name }}</span>
@@ -173,7 +217,7 @@
                                 Quyển đồ án
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp2']?.wordFile"
+                                <a *ngIf="progress && progress['rp2']?.wordFile; else emptyValueTmpl;"
                                    [href]="progress['rp2'].wordFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp2'].wordFile.name }}</span>
@@ -188,7 +232,7 @@
                                 Phiếu báo cáo
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp2']?.reportFile"
+                                <a *ngIf="progress && progress['rp2']?.reportFile; else emptyValueTmpl;"
                                    [href]="progress['rp2'].reportFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp2'].reportFile.name }}</span>
@@ -208,7 +252,7 @@
                                 Quyển đồ án
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp3']?.wordFile"
+                                <a *ngIf="progress && progress['rp3']?.wordFile; else emptyValueTmpl;"
                                    [href]="progress['rp3'].wordFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp3'].wordFile.name }}</span>
@@ -223,7 +267,7 @@
                                 Phiếu báo cáo
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp3']?.reportFile"
+                                <a *ngIf="progress && progress['rp3']?.reportFile; else emptyValueTmpl;"
                                    [href]="progress['rp3'].reportFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp3'].reportFile.name }}</span>
@@ -243,7 +287,7 @@
                                 Quyển đồ án
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp4']?.wordFile"
+                                <a *ngIf="progress && progress['rp4']?.wordFile; else emptyValueTmpl;"
                                    [href]="progress['rp4'].wordFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp4'].wordFile.name }}</span>
@@ -258,7 +302,7 @@
                                 Phiếu báo cáo
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['rp4']?.reportFile"
+                                <a *ngIf="progress && progress['rp4']?.reportFile; else emptyValueTmpl;"
                                    [href]="progress['rp4'].reportFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['rp4'].reportFile.name }}</span>
@@ -279,40 +323,45 @@
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Nội dung đã thực hiện
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['instr']) ? progress['instr'].comment1 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['instr']?.comment1">
+                                {{ (!!progress && progress['instr']) ? (progress['instr'].comment1 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Chất lượng và mức độ hoàn thành so với yêu cầu
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['instr']) ? progress['instr'].comment2 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['instr']?.comment2">
+                                {{ (!!progress && progress['instr']) ? (progress['instr'].comment2 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Tinh thần và thái độ làm việc
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['instr']) ? progress['instr'].comment3 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['instr']?.comment3">
+                                {{ (!!progress && progress['instr']) ? (progress['instr'].comment3 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Điểm
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['instr']) ? progress['instr'].score : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['instr']?.score">
+                                {{ (!!progress && progress['instr']) ? (progress['instr'].score || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Kết luận
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626] font-semibold">
-                                {{ (!!progress && progress['instr']) ? (progress['instr'].isApproval ? 'Cho bảo vệ' : 'Không cho bảo vệ' ) : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626] font-semibold"
+                                 [class.invisible]="!progress || !progress['instr']">
+                                {{ (!!progress && progress['instr']) ? (progress['instr'].isApproval ? 'Cho bảo vệ' : 'Không cho bảo vệ' ) : '#' }}
                             </div>
                         </div>
                     </div>
@@ -326,55 +375,62 @@
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Ý nghĩa thực tiễn của đề tài, phạm vi và độ khó của đồ án
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['rvr']) ? progress['rvr'].comment1 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['rvr']?.comment1">
+                                {{ (!!progress && progress['rvr']) ? (progress['rvr'].comment1 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Nội dung và chất lượng đã đạt được
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['rvr']) ? progress['rvr'].comment2 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['rvr']?.comment2">
+                                {{ (!!progress && progress['rvr']) ? (progress['rvr'].comment2 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Ưu, nhược điểm của đồ án
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['rvr']) ? progress['rvr'].comment3 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['rvr']?.comment3">
+                                {{ (!!progress && progress['rvr']) ? (progress['rvr'].comment3 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Kết luận chung
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['rvr']) ? progress['rvr'].comment4 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['rvr']?.comment4">
+                                {{ (!!progress && progress['rvr']) ? (progress['rvr'].comment4 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Câu hỏi
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['rvr']) ? progress['rvr'].comment5 : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['rvr']?.comment5">
+                                {{ (!!progress && progress['rvr']) ? (progress['rvr'].comment5 || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Điểm
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ (!!progress && progress['rvr']) ? progress['rvr'].score : '' }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!progress || !progress['rvr']?.score">
+                                {{ (!!progress && progress['rvr']) ? (progress['rvr'].score || '#') : '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Bảo vệ
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626] font-semibold">
+                            <div class="col-span-12 md:col-span-9 text-[#262626] font-semibold"
+                                 [class.invisible]="!progress || !progress['rvr']">
                                 {{ (!!progress && progress['rvr']) ? (progress['rvr'].isApproval ? 'Cho bảo vệ' : 'Không cho bảo vệ' ) : '' }}
                             </div>
                         </div>
@@ -389,40 +445,45 @@
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Hình thức đồ án
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ project.formScore }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!project.formScore">
+                                {{ project.formScore || '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Nội dung đồ án
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ project.contentScore }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!project.contentScore">
+                                {{ project.contentScore || '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Trình bày tóm tắt nội dung đồ án
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ project.summarizeScore }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!project.summarizeScore">
+                                {{ project.summarizeScore || '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Trả lời câu hỏi của người phản biện và thành viên hội đồng
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                {{ project.answerScore }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!project.answerScore">
+                                {{ project.answerScore || '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">
                             <div class="col-span-12 md:col-span-3 text-[#595959]">
                                 Điểm kết luận (Hệ số 10)
                             </div>
-                            <div class="col-span-12 md:col-span-9 text-[#262626] font-semibold">
-                                {{ project.conclusionScore }}
+                            <div class="col-span-12 md:col-span-9 text-[#262626] font-semibold"
+                                 [class.invisible]="!project.conclusionScore">
+                                {{ project.conclusionScore || '#' }}
                             </div>
                         </div>
                     </div>
@@ -436,7 +497,7 @@
                                 Quyển đồ án
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['cpt']?.wordFile"
+                                <a *ngIf="progress && progress['cpt']?.wordFile; else emptyValueTmpl;"
                                    [href]="progress['cpt'].wordFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['cpt'].wordFile.name }}</span>
@@ -451,7 +512,7 @@
                                 Phiếu xác nhận chỉnh sửa
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['cpt']?.reportFile"
+                                <a *ngIf="progress && progress['cpt']?.reportFile; else emptyValueTmpl;"
                                    [href]="progress['cpt'].reportFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['cpt'].reportFile.name }}</span>
@@ -466,7 +527,7 @@
                                 Khác <i class='cursor-pointer text-gray-400 bx bx-info-circle' nz-tooltip="File mềm của ĐATN, toàn bộ sản phẩm liên quan (chương trình, công cụ…)"></i>
                             </div>
                             <div class="col-span-12 md:col-span-9 text-[#262626]">
-                                <a *ngIf="progress && progress['cpt']?.otherFile"
+                                <a *ngIf="progress && progress['cpt']?.otherFile; else emptyValueTmpl;"
                                    [href]="progress['cpt'].otherFile.webViewLink" target="_blank"
                                    class="px-2 w-fit max-w-full flex justify-between items-center gap-1 rounded-md bg-gray-200 text-gray-500">
                                     <span class="mr-2 max-w-[90%] truncate">{{ progress['cpt'].otherFile.name }}</span>

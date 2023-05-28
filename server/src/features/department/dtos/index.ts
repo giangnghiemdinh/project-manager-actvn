@@ -1,2 +1,2 @@
 export * from './department.dto';
-export * from './department-payload.dto';
+export * from './department-request.dto';

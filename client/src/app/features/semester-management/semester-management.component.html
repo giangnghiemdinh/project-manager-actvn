@@ -5,7 +5,9 @@
                     { title: title }
                  ]">
         <div class="flex justify-end items-center gap-2">
-            <button class="w-full sm:w-fit" nz-button nzType="primary" nzSize="large" (click)="onAdd()">
+            <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" (click)="onAdd()">
+                <i class='bx bx-plus text-lg'></i>
                 Thêm mới
             </button>
         </div>
@@ -14,9 +16,16 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6" *ngIf="(semesters$ | async) as semesters">
         <div class="bg-white border border-gray-150 shadow rounded-md py-2"
              *ngFor="let semester of semesters">
-            <div class="flex justify-between items-center min-h-[70px] px-6 lg:px-8">
+            <div class="flex flex-wrap justify-between items-center min-h-[70px] px-6 lg:px-8">
                 <div class="font-semibold text-xl">
                     {{ semester.name }}
+                </div>
+                <div (click)="!semester.isLocked && onLock(semester.id!)"
+                     nz-tooltip="{{ semester.isLocked ? 'Đã khoá' : 'Khoá' }}" class="w-[30px] h-[30px] rounded-md hover:bg-gray-200 text-blue-400 cursor-pointer flex items-center justify-center text-xl transition-all duration-300"
+                     [ngClass]="semester.isLocked ? 'text-gray-500' : 'hover:bg-gray-200 text-blue-400'">
+                    <i class='bx'
+                       [ngClass]="semester.isLocked ? 'bx-lock-alt' : 'bx-lock-open-alt'"
+                    ></i>
                 </div>
             </div>
             <div class="px-6 lg:px-8">
@@ -27,10 +36,12 @@
                     <span class="font-semibold">Kết thúc:</span> {{ semester.end | date: 'dd/MM/yyyy' }}
                 </div>
                 <div class="my-4 grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
-                    <button nz-button nzType="primary" nzSize="large" (click)="onEdit(semester.id!)">
+                    <button nz-button nzType="primary" nzSize="large" [disabled]="semester.isLocked"
+                            (click)="!semester.isLocked && onEdit(semester.id!)">
                         Chỉnh sửa
                     </button>
-                    <button nz-button nzType="default" nzDanger nzSize="large">
+                    <button nz-button nzType="default" nzDanger nzSize="large" [disabled]="semester.isLocked"
+                            (click)="!semester.isLocked && onDelete(semester.id!)">
                         Xoá
                     </button>
                 </div>

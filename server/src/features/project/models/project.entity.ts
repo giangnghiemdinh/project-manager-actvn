@@ -7,7 +7,7 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { UseDto } from '../../../common/decorators';
+import { UseDto, VirtualColumn } from '../../../common/decorators';
 import { AbstractEntity } from '../../../common/abstracts';
 import { ProjectDto } from '../dtos';
 import { ProjectStatus } from '../../../common/constants';
@@ -15,7 +15,6 @@ import { DepartmentEntity } from '../../department/models';
 import { UserEntity } from '../../user/models';
 import { StudentEntity } from '../../student/models';
 import { ProjectProgressEntity } from './project-progress.entity';
-import { ProgressEntity } from '../../progress/models';
 import { ExaminerCouncilEntity } from '../../examiner-council/models';
 import { ManagerStaffEntity } from '../../manager-staff/models';
 import { SemesterEntity } from '../../semester/models';
@@ -46,7 +45,7 @@ export class ProjectEntity extends AbstractEntity<ProjectDto> {
   semesterId: number;
 
   @ManyToOne(() => SemesterEntity, (semester) => semester.projects, {
-    nullable: true,
+    nullable: false,
   })
   @JoinColumn({ name: 'semester_id' })
   semester: SemesterEntity;
@@ -75,6 +74,13 @@ export class ProjectEntity extends AbstractEntity<ProjectDto> {
   @ManyToOne(() => UserEntity, (user) => user.reviewedProjects, {})
   @JoinColumn({ name: 'reviewed_by_id' })
   reviewedBy: UserEntity;
+
+  @Column({ nullable: true })
+  proposeById: number;
+
+  @ManyToOne(() => UserEntity, (user) => user.proposeProjects, {})
+  @JoinColumn({ name: 'propose_by_id' })
+  proposeBy: UserEntity;
 
   @Column({ nullable: true })
   examinerCouncilId: number;
@@ -114,7 +120,7 @@ export class ProjectEntity extends AbstractEntity<ProjectDto> {
   students: StudentEntity[];
 
   @OneToMany(() => ProjectProgressEntity, (progress) => progress.project)
-  progresses: ProgressEntity[];
+  progresses: ProjectProgressEntity[];
 
   @Column({ nullable: true })
   formScore: number;
@@ -130,4 +136,7 @@ export class ProjectEntity extends AbstractEntity<ProjectDto> {
 
   @Column({ type: 'float', nullable: true })
   conclusionScore: number;
+
+  @VirtualColumn()
+  reportedCount?: number;
 }

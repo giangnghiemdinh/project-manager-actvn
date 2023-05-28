@@ -9,8 +9,12 @@
                     { title: (user$ | async)?.fullName || '' }
                  ]">
         <div class="flex justify-end items-center gap-2">
-            <button routerLink="/user-management" nz-button nzType="default" class="ml-2">Trở về</button>
-            <button *ngIf="id"  nz-button nzType="primary">Hành động</button>
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default"
+                    routerLink="/user-management">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
+            </button>
         </div>
     </app-toolbar>
     <nz-spin [nzSpinning]="isLoading$ | async">

@@ -22,6 +22,8 @@ export interface Project {
     department?: Department;
     instructorId?: number;
     instructor?: User;
+    proposeBy?: User;
+    proposeById?: number;
     students?: Student[];
     instructorName?: string;
     studentCodes?: string;
@@ -30,8 +32,10 @@ export interface Project {
     isInstructor?: boolean;
     isReviewer?: boolean;
     isCouncilManager?: boolean;
+    managerStaffId?: number;
     managerStaff?: ManagerStaff;
     reviewerStaff?: ReviewerStaff;
+    reviewerStaffId?: number;
     reviewedById?: number;
     reviewedBy?: User;
     examinerCouncil?: ExaminerCouncil;
@@ -40,4 +44,5 @@ export interface Project {
     summarizeScore?: number;
     answerScore?: number;
     conclusionScore?: number;
+    reportedCount?: number;
 }

@@ -92,6 +92,10 @@ export class ApiConfigService {
     return this.get('WEB_HOST');
   }
 
+  get maxProjectInstrPerSemester() {
+    return this.getNumber('MAX_PRO_INSTR_PER_SEMESTER');
+  }
+
   get defaultFolderIds() {
     return {
       avatars: this.getString('AVATARS_FOLDER_ID'),
@@ -170,6 +174,10 @@ export class ApiConfigService {
 
   get documentationEnabled(): boolean {
     return this.getBoolean('ENABLE_DOCUMENTATION');
+  }
+
+  get isEmailCreNotification(): boolean {
+    return this.getBoolean('EMAIL_CRE_NOTIFICATION');
   }
 
   get twoFactorAuthAppName() {

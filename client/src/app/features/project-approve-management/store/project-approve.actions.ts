@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { PaginationResponse, Project } from '../../../common/models';
-import { ProjectStatus } from '../../../common/constants/project.constant';
+import { ProjectStatus } from '../../../common/constants';
 
 export const updateVisible = createAction(
   '[Project Approve] Update Visible',

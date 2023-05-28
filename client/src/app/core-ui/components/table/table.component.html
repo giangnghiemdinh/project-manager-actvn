@@ -17,13 +17,13 @@
     (nzQueryParams)="queryParams.emit($event)">
     <thead *ngIf="showHeader">
     <tr>
-        <th *ngIf="showCheckbox" nzAlign="center" nzWidth="30px"
+        <th *ngIf="showCheckbox" nzAlign="center" nzWidth="20px"
             [nzChecked]="_checked" [nzIndeterminate]="_indeterminate"
             [nzAlign]="'center'"
             (nzCheckedChange)="onAllChecked($event)"
             (click)="$event.stopPropagation(); $event.preventDefault();"
         ></th>
-        <th nzWidth="30px" *ngIf="_showExpand"></th>
+        <th nzWidth="20px" *ngIf="_showExpand" nzAlign="center"></th>
         <th *ngFor="let column of _columns"
             [nzLeft]="column.left"
             [nzRight]="column.right"

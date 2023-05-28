@@ -18,3 +18,8 @@ export enum PROJECT_INSTR_NOT_EXIST {
   STOP,
   INSERT,
 }
+
+export enum STUDENT_DUPLICATE_CODE {
+  STOP,
+  REPLACE,
+}

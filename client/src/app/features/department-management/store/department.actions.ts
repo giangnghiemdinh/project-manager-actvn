@@ -1,51 +1,25 @@
-import { createAction, props } from '@ngrx/store';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { Department } from '../../../common/models';
 
-export const updateVisible = createAction(
-  '[Department] Update Visible',
-  props<{ isVisible: boolean }>()
-);
+export const DepartmentActions = createActionGroup({
+    source: 'Department',
+    events: {
+        'Update Visible': props<{ isVisible: boolean }>(),
 
-export const loadDepartment = createAction(
-  '[Department] Load Department',
-  props<{ payload: { id: number } }>()
-);
+        'Load Department': props<{ payload: { id: number } }>(),
+        'Load Department Success': props<{ response: Department }>(),
+        'Load Department Failure': props<{ errors: any }>(),
 
-export const loadDepartmentSuccess = createAction(
-  '[Department/API] Load Department Success',
-  props<{ response: Department }>()
-);
+        'Create Department': props<{ payload: Department }>(),
+        'Create Department Success': props<{ response: Department }>(),
+        'Create Department Failure': props<{ errors: any }>(),
 
-export const loadDepartmentFailure = createAction(
-  '[Department/API] Load Department Failure',
-  props<{ errors: any }>()
-);
+        'Update Department': props<{ payload: Department }>(),
+        'Update Department Success': emptyProps(),
+        'Update Department Failure': props<{ errors: any }>(),
 
-export const createDepartment = createAction(
-  '[Department] Create Department',
-  props<{ payload: Department }>()
-);
-
-export const createDepartmentSuccess = createAction(
-  '[Department/API] Create Department Success',
-  props<{ response: Department }>()
-);
-
-export const createDepartmentFailure = createAction(
-  '[Department/API] Create Department Failure',
-  props<{ errors: any }>()
-);
-
-export const updateDepartment = createAction(
-  '[Department] Update Department',
-  props<{ payload: Department }>()
-);
-
-export const updateDepartmentSuccess = createAction(
-  '[Department/API] Update Department Success'
-);
-
-export const updateDepartmentFailure = createAction(
-  '[Department/API] Update Department Failure',
-  props<{ errors: any }>()
-);
+        'Delete Department': props<{ id: number }>(),
+        'Delete Department Success': emptyProps(),
+        'Delete Department Failure': props<{ errors: any }>()
+    }
+})

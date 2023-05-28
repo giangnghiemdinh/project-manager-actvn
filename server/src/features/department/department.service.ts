@@ -1,8 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DepartmentEntity } from './models';
-import { DepartmentDto, DepartmentPayloadDto } from './dtos';
+import { DepartmentDto, DepartmentRequestDto } from './dtos';
 
 @Injectable()
 export class DepartmentService {
@@ -10,7 +15,7 @@ export class DepartmentService {
 
   constructor(
     @InjectRepository(DepartmentEntity)
-    private departmentRepository: Repository<DepartmentEntity>,
+    private readonly departmentRepository: Repository<DepartmentEntity>,
   ) {}
 
   async getDepartments(): Promise<DepartmentDto[]> {
@@ -25,15 +30,6 @@ export class DepartmentService {
     return departments.map((d) => d.toDto());
   }
 
-  async createDepartment(
-    departmentDto: DepartmentPayloadDto,
-  ): Promise<DepartmentDto> {
-    const department = this.departmentRepository.create(departmentDto);
-    await this.departmentRepository.save(department);
-    this.logger.log(`Thêm mới khoa ${department.id}`);
-    return department.toDto();
-  }
-
   async getDepartment(id: number): Promise<DepartmentDto> {
     const department = await this.departmentRepository.findOne({
       where: { id },
@@ -44,9 +40,18 @@ export class DepartmentService {
     return department.toDto();
   }
 
+  async createDepartment(
+    request: DepartmentRequestDto,
+  ): Promise<DepartmentDto> {
+    const department = this.departmentRepository.create(request);
+    await this.departmentRepository.insert(department);
+    this.logger.log(`Thêm mới khoa ${department.id}`);
+    return department.toDto();
+  }
+
   async updateDepartment(
     id: number,
-    departmentDto: DepartmentPayloadDto,
+    request: DepartmentRequestDto,
   ): Promise<void> {
     const department = await this.departmentRepository.findOne({
       where: { id },
@@ -55,22 +60,42 @@ export class DepartmentService {
       throw new NotFoundException('Khoa không tồn tại');
     }
 
-    this.departmentRepository.merge(department, departmentDto);
-
-    await this.departmentRepository.save(department);
+    await this.departmentRepository.update(
+      { id },
+      {
+        name: request.name,
+        shortName: request.shortName,
+        description: request.description,
+      },
+    );
   }
 
   async deleteDepartment(id: number): Promise<void> {
-    const queryBuilder = this.departmentRepository
+    const department = await this.departmentRepository
       .createQueryBuilder('department')
-      .where('department.id = :id', { id });
-
-    const department = await queryBuilder.getOne();
+      .where('department.id = :id', { id })
+      .loadRelationCountAndMap(
+        'department.studentCount',
+        'department.students',
+        'student',
+      )
+      .loadRelationCountAndMap(
+        'department.projectCount',
+        'department.projects',
+        'project',
+      )
+      .getOne();
 
     if (!department) {
       throw new NotFoundException('Khoa không tồn tại');
     }
 
-    await this.departmentRepository.remove(department);
+    if (department.studentCount > 0 || department.projectCount > 0) {
+      throw new NotAcceptableException(
+        'Xoá không thành công do khoa đã có sinh viên hoặc đề tài.',
+      );
+    }
+
+    await this.departmentRepository.delete({ id });
   }
 }

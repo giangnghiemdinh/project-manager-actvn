@@ -21,5 +21,9 @@ export const SemesterActions = createActionGroup({
         'Delete Semester': props<{ id: number }>(),
         'Delete Semester Success': emptyProps(),
         'Delete Semester Failure': props<{ errors: any }>(),
+
+        'Lock Semester': props<{ id: number }>(),
+        'Lock Semester Success': emptyProps(),
+        'Lock Semester Failure': props<{ errors: any }>(),
     }
 });

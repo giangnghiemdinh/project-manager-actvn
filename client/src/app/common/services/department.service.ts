@@ -21,4 +21,8 @@ export class DepartmentService extends AbstractService {
     updateDepartment(payload: Department) {
         return this.put<Department>(`department/${ payload.id }`, { payload });
     }
+
+    deleteDepartment(id: number) {
+        return this.delete<void>(`department/${ id }`);
+    }
 }

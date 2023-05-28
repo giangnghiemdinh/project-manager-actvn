@@ -55,11 +55,15 @@
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex items-center justify-between">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" [disabled]="isLoading" (click)="onCancel()">
-                Trở về
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
-            <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
+                <i class='bx bx-save text-lg'></i>
             </button>
         </div>
     </ng-container>

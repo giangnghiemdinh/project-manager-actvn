@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { PaginationResponse, Student } from '../../../common/models';
+import { PaginationResponse, Student, StudentImport } from '../../../common/models';
 
 export const loadStudents = createAction(
   '[Student] Load Students'
@@ -83,3 +83,16 @@ export const updateVisibleImport = createAction(
     props<{ isVisible: boolean }>()
 );
 
+export const importStudent = createAction(
+    '[Student] Import Student',
+    props<{ payload: StudentImport }>()
+);
+
+export const importStudentSuccess = createAction(
+    '[Student/API] Import Student Success'
+);
+
+export const importStudentFailure = createAction(
+    '[Student/API] Import Student Failure',
+    props<{ errors: any }>()
+);

@@ -18,24 +18,43 @@ import {
 import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ProjectService } from './project.service';
 import { Auth, AuthUser } from '../../common/decorators';
-import { ProjectProgressType, Role } from '../../common/constants';
+import {
+  ProjectProgressType,
+  ProjectStatus,
+  Role,
+} from '../../common/constants';
 import { Pagination } from '../../common/dtos';
 import {
-  ProjectApprovePayloadDto,
+  ProjectApproveRequestDto,
   ProjectCouncilReviewRequestDto,
   ProjectDto,
   ProjectImportRequestDto,
-  ProjectPagePayloadDto,
-  ProjectPayloadDto,
+  ProjectPageRequestDto,
+  ProjectRequestDto,
+  ProjectReviewRequestDto,
+  ProjectStatisticalRequestDto,
+  ProjectStatisticalResponseDto,
 } from './dtos';
 import { UserEntity } from '../user/models';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ProjectReviewRequestDto } from './dtos/project-review.dto';
 
 @Controller('project')
 @ApiTags('Đồ án')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
+
+  @Get('statistical')
+  @Auth(Role.ADMINISTRATOR)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Thống kê',
+  })
+  async statistical(
+    @Query()
+    request: ProjectStatisticalRequestDto,
+  ): Promise<ProjectStatisticalResponseDto> {
+    return this.projectService.getStatistical(request);
+  }
 
   @Get()
   @Auth()
@@ -46,7 +65,7 @@ export class ProjectController {
   })
   async getProjects(
     @Query()
-    pageOptionsDto: ProjectPagePayloadDto,
+    pageOptionsDto: ProjectPageRequestDto,
     @AuthUser() user: UserEntity,
   ): Promise<Pagination<ProjectDto>> {
     return this.projectService.getProjects(pageOptionsDto, user);
@@ -68,13 +87,29 @@ export class ProjectController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @Auth()
+  @Auth(Role.ADMINISTRATOR)
   @ApiOkResponse({ type: ProjectDto, description: 'Thêm đồ án' })
   async createProject(
-    @Body() projectDto: ProjectPayloadDto,
+    @Body() request: ProjectRequestDto,
     @AuthUser() user: UserEntity,
   ): Promise<ProjectDto> {
-    return this.projectService.createProject(projectDto, user);
+    request.status = request.students?.length
+      ? ProjectStatus.IN_PROGRESS
+      : ProjectStatus.PENDING;
+    return this.projectService.createProject(request, user);
+  }
+
+  @Post('/propose')
+  @HttpCode(HttpStatus.OK)
+  @Auth()
+  @ApiOkResponse({ type: ProjectDto, description: 'Đề xuất đồ án' })
+  async createProposeProject(
+    @Body() request: ProjectRequestDto,
+    @AuthUser() user: UserEntity,
+  ): Promise<ProjectDto> {
+    request.status = ProjectStatus.PROPOSE;
+    request.proposeById = user.id;
+    return this.projectService.createProject(request, user);
   }
 
   @Post('/approve')
@@ -82,10 +117,10 @@ export class ProjectController {
   @Auth([Role.ADMINISTRATOR, Role.CENSOR])
   @ApiOkResponse({ type: ProjectDto, description: 'Phê duyệt đồ án' })
   async approveProject(
-    @Body() projectApproveDto: ProjectApprovePayloadDto,
+    @Body() request: ProjectApproveRequestDto,
     @AuthUser() user: UserEntity,
   ): Promise<ProjectDto> {
-    return this.projectService.approveProject(projectApproveDto, user);
+    return this.projectService.approveProject(request, user);
   }
 
   @Put(':id')
@@ -94,10 +129,13 @@ export class ProjectController {
   @ApiOkResponse({ type: ProjectDto, description: 'Cập nhật đồ án' })
   async updateProject(
     @Param('id', ParseIntPipe) id: number,
-    @Body() projectDto: ProjectPayloadDto,
+    @Body() request: ProjectRequestDto,
     @AuthUser() user: UserEntity,
   ): Promise<void> {
-    return this.projectService.updateProject(id, projectDto, user);
+    request.status = request.students?.length
+      ? ProjectStatus.IN_PROGRESS
+      : ProjectStatus.PENDING;
+    return this.projectService.updateProject(id, request, user);
   }
 
   @Delete(':id')
@@ -126,8 +164,9 @@ export class ProjectController {
     @Param('id', new ParseIntPipe()) id: number,
     @Param('type', new ParseEnumPipe(ProjectProgressType))
     type: ProjectProgressType,
+    @AuthUser() user: UserEntity,
   ) {
-    return this.projectService.getReport(id, type);
+    return this.projectService.getReport(id, type, user);
   }
 
   @Post(':id/report')

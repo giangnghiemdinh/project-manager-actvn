@@ -22,14 +22,14 @@ export class PaginationOptionsDto {
   @ApiPropertyOptional({
     minimum: 1,
     maximum: 50,
-    default: 10,
+    default: 20,
   })
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(50)
   @IsOptional()
-  readonly limit: number = 10;
+  readonly limit: number = 20;
 
   @ApiPropertyOptional()
   @IsString()

@@ -2,20 +2,20 @@ import { Global, Module } from '@nestjs/common';
 import {
   ApiConfigService,
   CacheService,
-  DriverQueueService,
   DriverService,
   EmailQueueService,
   OtpService,
+  ProjectQueueService,
 } from './services';
 import { BullModule } from '@nestjs/bull';
-import { DRIVER_QUEUE, EMAIL_QUEUE } from '../common/constants';
+import { EMAIL_QUEUE, PROJECT_QUEUE } from '../common/constants';
 
 const providers = [
   ApiConfigService,
   EmailQueueService,
   DriverService,
   OtpService,
-  DriverQueueService,
+  ProjectQueueService,
   CacheService,
 ];
 
@@ -23,7 +23,7 @@ const providers = [
 @Module({
   providers,
   imports: [
-    BullModule.registerQueue({ name: EMAIL_QUEUE }, { name: DRIVER_QUEUE }),
+    BullModule.registerQueue({ name: EMAIL_QUEUE }, { name: PROJECT_QUEUE }),
   ],
   exports: [...providers],
 })

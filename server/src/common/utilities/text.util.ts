@@ -1,5 +1,3 @@
-import { uniq } from 'lodash';
-
 export function reverseString(str: string) {
   return str.split('').reverse().join('');
 }
@@ -16,37 +14,15 @@ export function hiddenEmail(email: string) {
   return hiddenEmail;
 }
 
-export function parseEmail(str: string) {
-  const emailMatches = str.match(
-    /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi,
-  );
-  if (!emailMatches || !emailMatches.length) {
-    return '';
+export function randomString(length: number) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
   }
-  return emailMatches[0].trim().toLowerCase();
-}
-
-export function parsePhone(str: string) {
-  const phoneMatches = str.match(/(?:[-+(). ]*\d){10,13}/gm);
-  if (!phoneMatches || !phoneMatches.length) {
-    return '';
-  }
-  return phoneMatches[0].trim().toLowerCase();
-}
-
-export function parseName(str: string) {
-  const arr = str.trim().split('\n');
-  if (!arr.length) {
-    return '';
-  }
-  const [name] = arr;
-  return name.includes('.') ? name.split('.')[1].trim() : name;
-}
-
-export function parseStudentCode(str: string) {
-  const codeMatches = str.match(/[ACD]T\d{6}/gm);
-  if (!codeMatches) {
-    return [];
-  }
-  return uniq(codeMatches);
+  return result;
 }

@@ -1,9 +1,8 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { UseDto } from '../../../common/decorators';
+import { UseDto, VirtualColumn } from '../../../common/decorators';
 import { AbstractEntity } from '../../../common/abstracts';
 import { SemesterDto } from '../dtos';
 import { ProjectEntity } from '../../project/models';
-import { ProgressEntity } from '../../progress/models';
 import { ExaminerCouncilEntity } from '../../examiner-council/models';
 import { ManagerStaffEntity } from '../../manager-staff/models';
 
@@ -25,9 +24,6 @@ export class SemesterEntity extends AbstractEntity<SemesterDto> {
   @OneToMany(() => ProjectEntity, (project) => project.semester)
   projects: ProjectEntity[];
 
-  @OneToMany(() => ProgressEntity, (progress) => progress.semester)
-  progresses: ProgressEntity[];
-
   @OneToMany(
     () => ExaminerCouncilEntity,
     (examinerCouncil) => examinerCouncil.semester,
@@ -39,4 +35,7 @@ export class SemesterEntity extends AbstractEntity<SemesterDto> {
     (managerCouncil) => managerCouncil.semester,
   )
   managerCouncils: ManagerStaffEntity[];
+
+  @VirtualColumn()
+  projectCount?: number;
 }

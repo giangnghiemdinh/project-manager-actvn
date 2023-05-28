@@ -13,10 +13,16 @@ import {
 } from '@nestjs/common';
 import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { StudentService } from './student.service';
-import { StudentDto, StudentPagePayloadDto, StudentPayloadDto } from './dtos';
-import { Auth } from '../../common/decorators';
+import {
+  StudentDto,
+  StudentImportRequestDto,
+  StudentPageRequestDto,
+  StudentRequestDto,
+} from './dtos';
+import { Auth, AuthUser } from '../../common/decorators';
 import { Role } from '../../common/constants';
 import { Pagination } from '../../common/dtos';
+import { UserEntity } from '../user/models';
 
 @Controller('student')
 @ApiTags('Sinh viên')
@@ -27,10 +33,8 @@ export class StudentController {
   @HttpCode(HttpStatus.OK)
   @Auth(Role.ADMINISTRATOR)
   @ApiOkResponse({ type: StudentDto, description: 'Thêm sinh viên' })
-  async createStudent(
-    @Body() studentDto: StudentPayloadDto,
-  ): Promise<StudentDto> {
-    return this.studentService.createStudent(studentDto);
+  async createStudent(@Body() request: StudentRequestDto): Promise<StudentDto> {
+    return this.studentService.createStudent(request);
   }
 
   @Put(':id')
@@ -39,9 +43,9 @@ export class StudentController {
   @ApiOkResponse({ type: StudentDto, description: 'Cập nhật sinh viên' })
   async updateStudent(
     @Param('id', ParseIntPipe) id: number,
-    @Body() studentDto: StudentPayloadDto,
+    @Body() request: StudentRequestDto,
   ): Promise<void> {
-    return this.studentService.updateStudent(id, studentDto);
+    return this.studentService.updateStudent(id, request);
   }
 
   @Get()
@@ -53,7 +57,7 @@ export class StudentController {
   })
   async getStudents(
     @Query()
-    pageOptionsDto: StudentPagePayloadDto,
+    pageOptionsDto: StudentPageRequestDto,
   ): Promise<Pagination<StudentDto>> {
     return this.studentService.getStudents(pageOptionsDto);
   }
@@ -75,5 +79,16 @@ export class StudentController {
   @ApiAcceptedResponse()
   async deleteStudent(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.studentService.deleteStudent(id);
+  }
+
+  @Post('import')
+  @HttpCode(HttpStatus.OK)
+  @Auth(Role.ADMINISTRATOR)
+  @ApiOkResponse({ description: 'Nhập danh sách sinh viên' })
+  async importStudent(
+    @Body() request: StudentImportRequestDto,
+    @AuthUser() currentUser: UserEntity,
+  ) {
+    return this.studentService.importStudent(request, currentUser);
   }
 }

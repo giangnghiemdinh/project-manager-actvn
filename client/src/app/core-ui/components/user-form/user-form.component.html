@@ -30,27 +30,30 @@
                                      [disabled]="!isAdministrator"
                                      [validators]="{ required: true }"/>
                     <app-form-select control="gender" label="Giới tính"
-                                     [options]="genders"
-                                     [validators]="{ required: true }"/>
+                                     [options]="genders" [initialValue]="0"/>
                     <app-form-text control="email" label="Email"
                                    [disabled]="!isAdministrator"
                                    [validators]="{ required: true, email: true }"/>
                     <app-form-text control="phone" label="Số điện thoại"/>
                     <app-form-textarea control="workPlace" label="Đơn vị công tác"
-                                       [autoSize]="{ minRows: 3, maxRows: 3 }"/>
+                                       [autoSize]="{ minRows: 3 }"/>
                     <app-form-textarea control="address" label="Địa chỉ"
-                                       [autoSize]="{ minRows: 3, maxRows: 3 }"/>
+                                       [autoSize]="{ minRows: 3 }"/>
                 </div>
             </app-form>
         </nz-spin>
     </ng-container>
     <ng-container *nzModalFooter>
         <div class="flex justify-between gap-2">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
-                Trở về
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
-            <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
+                <i class='bx bx-save text-lg'></i>
             </button>
         </div>
     </ng-container>

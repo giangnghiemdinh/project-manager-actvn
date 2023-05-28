@@ -3,19 +3,19 @@ import { concatLatestFrom, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { mergeMap, of, tap } from 'rxjs';
 import { ProjectActions } from './project.actions';
-import { Project, ProjectImportPayload } from '../../../common/models';
+import { Project, ProjectImportPayload, ProjectProgress } from '../../../common/models';
 import { AbstractEffects } from '../../../common/abstracts';
 import { ProjectService } from '../../../common/services';
 import { selectQueryParams } from '../../../common/stores/router';
-import { ProjectStatus } from '../../../common/constants/project.constant';
 import { AuthState, selectProfile } from '../../../common/stores';
 import { Store } from '@ngrx/store';
-import { ExaminerCouncilPosition, Role } from '../../../common/constants/user.constant';
-import { ProjectProgress } from '../../../common/models/project-progress.model';
+import { ExaminerCouncilPosition, ProjectStatus, RO_PROJECT_MANAGER, Role } from '../../../common/constants';
+import { Router } from '@angular/router';
 
 
 @Injectable()
 export class ProjectEffects extends AbstractEffects {
+    readonly #router = inject(Router);
     private readonly authStore = inject(Store<AuthState>);
     private readonly projectService = inject(ProjectService);
 
@@ -30,9 +30,9 @@ export class ProjectEffects extends AbstractEffects {
                         const isAdministrator = profile?.role === Role.ADMINISTRATOR;
                         const data = response.data.map(d => {
                             d.isInstructor = d.status === ProjectStatus.IN_PROGRESS && (isAdministrator || profile?.id === d.instructor?.id);
-                            d.isManager = d.status === ProjectStatus.IN_PROGRESS && (isAdministrator || profile?.id === d.managerStaff?.userId);
-                            d.isReviewer = d.status === ProjectStatus.IN_REVIEW && (isAdministrator || profile?.id === d.reviewerStaff?.userId);
-                            d.isCouncilManager = d.status === ProjectStatus.IN_PRESENTATION && (isAdministrator || d.examinerCouncil?.users?.some(u =>
+                            d.isManager = d.managerStaff && d.status === ProjectStatus.IN_PROGRESS && (isAdministrator || profile?.id === d.managerStaff.userId);
+                            d.isReviewer = d.reviewerStaff && d.status === ProjectStatus.IN_REVIEW && (isAdministrator || profile?.id === d.reviewerStaff.userId);
+                            d.isCouncilManager = d.examinerCouncil && d.status === ProjectStatus.IN_PRESENTATION && (isAdministrator || d.examinerCouncil.users?.some(u =>
                                 u.position && [ExaminerCouncilPosition.CHAIRPERSON, ExaminerCouncilPosition.SECRETARY].includes(u.position)));
                             return d;
                         });
@@ -58,6 +58,16 @@ export class ProjectEffects extends AbstractEffects {
                 )
             )
         )
+    );
+
+    loadProjectFailure$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ProjectActions.loadProjectFailure),
+            tap(res => {
+                this.#router.navigate([RO_PROJECT_MANAGER]).then();
+            })
+        ),
+        { dispatch: false }
     );
 
     loadReport$ = createEffect(() =>
@@ -90,9 +100,30 @@ export class ProjectEffects extends AbstractEffects {
         this.actions$.pipe(
             ofType(ProjectActions.createProjectSuccess),
             map(res => {
-                this.raiseSuccess(res.response.status == ProjectStatus.PROPOSE
-                    ? 'Đề xuất đề tài thành công'
-                    : 'Thêm mới đề tài thành công.');
+                this.raiseSuccess('Thêm mới đề tài thành công.');
+                return ProjectActions.loadProjects()
+            }),
+        )
+    );
+
+    createProposeProject$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ProjectActions.createProposeProject),
+            map(action => action.payload),
+            switchMap((payload: Project) =>
+                this.projectService.createProposeProject(payload).pipe(
+                    map((response: Project) => ProjectActions.createProposeProjectSuccess({ response })),
+                    catchError(errors => of(ProjectActions.createProposeProjectFailure({ errors })))
+                )
+            )
+        )
+    );
+
+    createProposeProjectSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ProjectActions.createProposeProjectSuccess),
+            map(res => {
+                this.raiseSuccess('Đề xuất đề tài thành công');
                 return ProjectActions.loadProjects()
             }),
         )

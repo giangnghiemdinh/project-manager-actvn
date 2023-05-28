@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AbstractService } from '../abstracts';
-import { PaginationPayload, PaginationResponse, Student } from '../models';
+import { PaginationPayload, PaginationResponse, Student, StudentImport } from '../models';
 
 @Injectable({
     providedIn: 'root'
@@ -24,5 +24,9 @@ export class StudentService extends AbstractService {
 
     deleteStudent(id: number) {
         return this.delete<void>(`student/${ id }`);
+    }
+
+    importStudent(payload: StudentImport) {
+        return this.post<void>(`student/import`, { payload });
     }
 }

@@ -1,36 +1,38 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
+import { NumberProperty } from '../../../common/decorators';
 
 export class ProjectCouncilReviewRequestDto {
-  @ApiProperty()
-  @IsInt()
-  @Min(0)
-  @Max(15)
-  @IsNotEmpty()
-  formScore: number;
+  @NumberProperty('Điểm hình thức', {
+    required: true,
+    int: true,
+    min: 0,
+    max: 15,
+  })
+  readonly formScore: number;
 
-  @ApiProperty()
-  @IsInt()
-  @Min(0)
-  @Max(35)
-  @IsNotEmpty()
-  contentScore: number;
+  @NumberProperty('Điểm nội dung', {
+    required: true,
+    int: true,
+    min: 0,
+    max: 35,
+  })
+  readonly contentScore: number;
 
-  @ApiProperty()
-  @IsInt()
-  @Min(0)
-  @Max(20)
-  @IsNotEmpty()
-  summarizeScore: number;
+  @NumberProperty('Điểm tóm tắt', {
+    required: true,
+    int: true,
+    min: 0,
+    max: 20,
+  })
+  readonly summarizeScore: number;
 
-  @ApiProperty()
-  @IsInt()
-  @Min(0)
-  @Max(30)
-  @IsNotEmpty()
-  answerScore: number;
+  @NumberProperty('Điểm trả lời', {
+    required: true,
+    int: true,
+    min: 0,
+    max: 30,
+  })
+  readonly answerScore: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  conclusionScore: number;
+  @NumberProperty('Điểm kết luận', { required: true, min: 0, max: 10 })
+  readonly conclusionScore: number;
 }

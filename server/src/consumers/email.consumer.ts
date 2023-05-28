@@ -1,7 +1,9 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 import {
+  EMAIL_CRE_PROCESS,
   EMAIL_QUEUE,
+  PROJECT_APPROVE_PROCESS,
   RESET_PASS_PROCESS,
   TFA_VERIFY_PROCESS,
   VERIFY_EMAIL_PROCESS,
@@ -76,6 +78,66 @@ export class EmailConsumer {
         },
       });
       this.logger.log(`Send verify email for ${email} success`);
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Process(EMAIL_CRE_PROCESS)
+  async emailCreatedNotification(job: Job<any>) {
+    try {
+      const { email, password } = job.data;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Thông tin tài khoản | Học viện Kỹ thuật mật mã',
+        template: './account-created',
+        context: {
+          email,
+          password,
+        },
+      });
+      this.logger.log(`Send email notification for ${email} success`);
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Process(PROJECT_APPROVE_PROCESS)
+  async projectApprove(job: Job<any>) {
+    try {
+      const {
+        email,
+        title,
+        content,
+        name,
+        description,
+        requirement,
+        students,
+        instructor,
+        createdDate,
+        reviewedDate,
+        reason,
+        isRefuse,
+      } = job.data;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: `${title} | Học viện Kỹ thuật mật mã`,
+        template: './project-approval',
+        context: {
+          approveTitle: title,
+          approveContent: content,
+          name,
+          description,
+          requirement,
+          students,
+          instructor,
+          createdDate,
+          reviewedDate,
+          reason,
+          isRefuse,
+        },
+      });
+      this.logger.log(`Send email project approve for ${email} success`);
     } catch (e) {
       this.logger.error(e);
     }

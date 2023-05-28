@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
-import { UseDto } from '../../../common/decorators';
+import { UseDto, VirtualColumn } from '../../../common/decorators';
 import { AbstractEntity } from '../../../common/abstracts';
 import { StudentDto } from '../dtos';
 import { Gender } from '../../../common/constants';
@@ -15,10 +15,10 @@ export class StudentEntity extends AbstractEntity<StudentDto> {
   @Column({ unique: true })
   code: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
-  @Column()
+  @Column({ nullable: true })
   email: string;
 
   @Column({ nullable: true, type: 'timestamp' })
@@ -42,4 +42,7 @@ export class StudentEntity extends AbstractEntity<StudentDto> {
 
   @ManyToMany(() => ProjectEntity, (project) => project.students)
   projects: ProjectEntity[];
+
+  @VirtualColumn()
+  projectCount?: number;
 }

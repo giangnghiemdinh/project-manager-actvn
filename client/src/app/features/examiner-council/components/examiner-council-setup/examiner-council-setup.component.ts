@@ -1,5 +1,6 @@
 import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     SearchProjectComponent,
@@ -28,7 +29,7 @@ import {
     selectProjects
 } from '../../store/examiner-council.reducer';
 import { createMultipleExaminerCouncil, loadAllProjects } from '../../store/examiner-council.actions';
-import { filter, take, withLatestFrom } from 'rxjs';
+import { filter, first, take, withLatestFrom } from 'rxjs';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NotificationService } from '../../../../common/services';
@@ -36,7 +37,7 @@ import { CommonState, selectDepartments, selectSemesters } from '../../../../com
 import { setTitle } from '../../../../common/utilities';
 import { chunk, cloneDeep, shuffle, uniqBy } from 'lodash';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { RO_EXAMINER_COUNCIL, RO_REVIEWER_STAFF } from '../../../../common/constants';
+import { RO_EXAMINER_COUNCIL, RO_MANAGER_STAFF, RO_REVIEWER_STAFF } from '../../../../common/constants';
 import { RouterLink } from '@angular/router';
 import { ProjectStatus } from '../../../../common/constants/project.constant';
 import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../../../common/constants/user.constant';
@@ -174,7 +175,7 @@ export class ExaminerCouncilSetupComponent {
     }
 
     onSearchUser(groupIndex: number) {
-        if (this.groups[groupIndex].users.length >= 5) {
+        if (this.groups[groupIndex].users.length >= 6) {
             return;
         }
         this.currentGroupIndex = groupIndex;
@@ -187,7 +188,7 @@ export class ExaminerCouncilSetupComponent {
         }
         const newUsers = users
             .map(u => ( { user: u, userId: u.id, position: ExaminerCouncilPosition.MEMBER } ));
-        this.groups[this.currentGroupIndex].users = ( uniqBy([ ...this.groups[this.currentGroupIndex].users, ...newUsers ], 'userId') ).slice(0, 5);
+        this.groups[this.currentGroupIndex].users = ( uniqBy([ ...this.groups[this.currentGroupIndex].users, ...newUsers ], 'userId') ).slice(0, 6);
     }
 
     onSearchProject(groupIndex: number) {
@@ -234,32 +235,40 @@ export class ExaminerCouncilSetupComponent {
             && departmentId.value && semesterId.value
             && ( this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value )) {
-            this.modal.confirm({
-                nzTitle: '',
-                nzContent: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn thiết lập lại danh sách?',
-                nzOkText: 'Có',
+            const ref = this.modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
                 nzCentered: true,
-                nzMaskClosable: false,
-                nzOkType: 'primary',
-                nzOkDanger: true,
-                nzOnOk: () => {
-                    this.groups = [];
-                    this.currentDepartment = departmentId.value;
-                    this.currentSemester = semesterId.value;
-                    this.getAllProjects();
-                },
-                nzCancelText: 'Không',
-                nzOnCancel: () => {
-                    departmentId.setValue(this.currentDepartment);
-                    semesterId.setValue(this.currentSemester);
+                nzAutofocus: null,
+                nzData: {
+                    title: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn chọn lại danh sách?',
+                    okText: 'Đồng ý',
+                    okDanger: false
                 }
             });
+            ref.afterClose
+                .pipe(first())
+                .subscribe(confirm => {
+                    if (confirm) {
+                        this.groups = [];
+                        this.currentDepartment = departmentId.value;
+                        this.currentSemester = semesterId.value;
+                        this.getAllProjects();
+                        form.markAsPristine();
+                        return;
+                    }
+                    departmentId.setValue(this.currentDepartment);
+                    semesterId.setValue(this.currentSemester);
+                });
             return;
         }
         if (departmentId.value && semesterId.value) {
             this.currentDepartment = departmentId.value;
             this.currentSemester = semesterId.value;
             this.getAllProjects();
+            form.markAsPristine();
         }
     }
 
@@ -296,6 +305,10 @@ export class ExaminerCouncilSetupComponent {
             ref.afterClose
                 .pipe(take(1))
                 .subscribe(params => {
+                    if (!params) {
+                        this.formComponent?.markAsDirty();
+                        return;
+                    }
                     if (!params.type) {
                         this.onRandomCouncil(params.projectPerGroup);
                         return;
@@ -322,4 +335,5 @@ export class ExaminerCouncilSetupComponent {
     }
 
     protected readonly RO_REVIEWER_STAFF = RO_REVIEWER_STAFF;
+    protected readonly RO_MANAGER_STAFF = RO_MANAGER_STAFF;
 }

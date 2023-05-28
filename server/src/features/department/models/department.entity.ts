@@ -6,7 +6,6 @@ import { StudentEntity } from '../../student/models';
 import { ProjectEntity } from '../../project/models';
 import { ExaminerCouncilEntity } from '../../examiner-council/models';
 import { ManagerStaffEntity } from '../../manager-staff/models';
-import { ProgressEntity } from '../../progress/models';
 
 @Entity({ name: 'departments' })
 @UseDto(DepartmentDto)
@@ -20,17 +19,11 @@ export class DepartmentEntity extends AbstractEntity<DepartmentDto> {
   @Column({ nullable: true })
   description?: string;
 
-  @VirtualColumn()
-  userCount: number;
-
   @OneToMany(() => StudentEntity, (student) => student.department)
   students: StudentEntity[];
 
   @OneToMany(() => ProjectEntity, (project) => project.department)
   projects: ProjectEntity[];
-
-  @OneToMany(() => ProgressEntity, (progress) => progress.department)
-  progresses: ProgressEntity[];
 
   @OneToMany(
     () => ExaminerCouncilEntity,
@@ -45,5 +38,8 @@ export class DepartmentEntity extends AbstractEntity<DepartmentDto> {
   managerCouncils: ManagerStaffEntity[];
 
   @VirtualColumn()
-  studentCount: number;
+  studentCount?: number;
+
+  @VirtualColumn()
+  projectCount?: number;
 }

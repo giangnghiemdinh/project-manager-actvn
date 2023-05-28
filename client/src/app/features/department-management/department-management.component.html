@@ -5,7 +5,9 @@
                     { title: title }
                  ]">
         <div class="flex justify-end items-center gap-2">
-            <button class="w-full sm:w-fit" nz-button nzType="primary" nzSize="large" (click)="onAdd()">
+            <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" (click)="onAdd()">
+                <i class='bx bx-plus text-lg'></i>
                 Thêm mới
             </button>
         </div>
@@ -30,7 +32,7 @@
                     <button nz-button nzType="primary" nzSize="large" (click)="onEdit(department.id!)">
                         Chỉnh sửa
                     </button>
-                    <button nz-button nzType="default" nzDanger nzSize="large">
+                    <button nz-button nzType="default" nzDanger nzSize="large" (click)="onDelete(department.id!)">
                         Xoá
                     </button>
                 </div>

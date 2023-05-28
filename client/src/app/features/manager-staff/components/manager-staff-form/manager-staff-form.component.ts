@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, SimpleChanges, ViewChil
 import { NotificationService } from '../../../../common/services';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     FormTextComponent,
@@ -19,6 +20,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NgForOf } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { ProjectStatus } from '../../../../common/constants/project.constant';
+import { first, lastValueFrom, timer } from 'rxjs';
 
 @Component({
     selector: 'app-manager-staff-form',
@@ -63,55 +65,62 @@ export class ManagerStaffFormComponent {
     data: any;
 
     ngOnChanges(changes: SimpleChanges): void {
-        const { managerStaff } = changes;
-        if (managerStaff) {
-            if (this.managerStaff) {
-                this.currentDepartment = this.managerStaff.departmentId!;
-                this.currentSemester = this.managerStaff.semesterId!;
-                this.selectedUser = this.managerStaff.user || null;
-                this.selectedProjects = this.managerStaff.projects || [];
-                this.data = {
-                    departmentId: this.currentDepartment,
-                    semesterId: this.currentSemester,
-                    instructorName: this.managerStaff.user?.fullName || '',
-                };
-                Promise.resolve().then(_ => this.reloadProject());
-            } else {
+        const { managerStaff, isVisible } = changes;
+        if (isVisible && !this.isVisible) {
+            timer(200).subscribe(_ => {
                 this.data = null;
                 this.currentDepartment = 0;
                 this.currentSemester = 0;
                 this.selectedUser = null;
                 this.selectedProjects = [];
-            }
+            });
+        }
+        if (managerStaff && this.managerStaff) {
+            this.currentDepartment = this.managerStaff.departmentId!;
+            this.currentSemester = this.managerStaff.semesterId!;
+            this.selectedUser = this.managerStaff.user || null;
+            this.selectedProjects = this.managerStaff.projects || [];
+            this.data = {
+                departmentId: this.currentDepartment,
+                semesterId: this.currentSemester,
+                instructorName: this.managerStaff.user?.fullName || '',
+            };
+            Promise.resolve().then(_ => this.reloadProject());
         }
     }
 
-    onDepartmentOrSemesterChanges(event: { form: FormGroup }) {
+    async onDepartmentOrSemesterChanges(event: { form: FormGroup }) {
         const { departmentId, semesterId } = event.form.controls;
         if (this.selectedProjects.length && this.currentDepartment && this.currentSemester
             && departmentId.value && semesterId.value
             && (this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value)) {
-            this.modal.confirm({
-                nzTitle: '',
-                nzContent: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn chọn lại danh sách?',
-                nzOkText: 'Có',
+            const ref = this.modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
                 nzCentered: true,
-                nzMaskClosable: false,
-                nzOkType: 'primary',
-                nzOkDanger: true,
-                nzOnOk: () => {
-                    this.selectedProjects = [];
-                    this.currentDepartment = departmentId.value;
-                    this.currentSemester = semesterId.value;
-                    this.reloadProject();
-                },
-                nzCancelText: 'Không',
-                nzOnCancel: () => {
-                    departmentId.setValue(this.currentDepartment);
-                    semesterId.setValue(this.currentSemester);
+                nzAutofocus: null,
+                nzData: {
+                    title: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn chọn lại danh sách?',
+                    okText: 'Đồng ý',
+                    okDanger: false
                 }
             });
+            ref.afterClose
+                .pipe(first())
+                .subscribe(confirm => {
+                    if (confirm) {
+                        this.selectedProjects = [];
+                        this.currentDepartment = departmentId.value;
+                        this.currentSemester = semesterId.value;
+                        this.reloadProject();
+                        return;
+                    }
+                    departmentId.setValue(this.currentDepartment, { emitViewToModelChange: false });
+                    semesterId.setValue(this.currentSemester, { emitViewToModelChange: false });
+                });
             return;
         }
         if (departmentId.value && semesterId.value) {
@@ -154,8 +163,28 @@ export class ManagerStaffFormComponent {
         this.selectedProjects = [...this.selectedProjects, ...projects];
     }
 
-    onRemoveProject(id: number) {
-        this.selectedProjects = this.selectedProjects.filter(p => p.id !== id);
+    async onRemoveProject(project: Project) {
+        if (project.status === ProjectStatus.IN_REVIEW) {
+            this.notification.error('Không thể xoá đề tài đang chấm phản biện khỏi nhóm!');
+            return;
+        }
+        if (project.reportedCount) {
+            const confirm = await lastValueFrom(this.modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
+                nzCentered: true,
+                nzAutofocus: null,
+                nzData: {
+                    title: `Đề tài đã thực hiện báo cáo tiến độ. Bạn có chắc chắn muốn xoá đề tài khỏi nhóm không?`,
+                    okText: 'Xoá',
+                    okDanger: true
+                }
+            }).afterClose);
+            if (!confirm) { return; }
+        }
+        this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id!);
     }
 
     onSelectUser(users: User[]) {
@@ -170,11 +199,30 @@ export class ManagerStaffFormComponent {
         this.cancel.emit(false);
     }
 
-    onSave() {
+    async onSave() {
         if (!this.formComponent.isValid || !this.selectedUser) { return; }
         if (!this.selectedProjects.length) {
             this.notification.error('Vui lòng chọn danh sách đề tài!');
             return;
+        }
+        if (this.selectedProjects.some(p => p.reportedCount) && this.managerStaff && this.managerStaff.userId !== this.selectedUser?.id) {
+            const confirm = await lastValueFrom(this.modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
+                nzCentered: true,
+                nzAutofocus: null,
+                nzData: {
+                    title: `Có đề tài đã thực hiện báo cáo tiến độ. Bạn có chắc chắn muốn thay đổi người hướng dẫn không?`,
+                    okText: 'Đồng ý',
+                    okDanger: false
+                }
+            }).afterClose);
+            if (!confirm) {
+                this.onSelectUser([ this.managerStaff.user! ]);
+                return;
+            }
         }
         const value: any = this.formComponent.value;
         this.ok.emit({

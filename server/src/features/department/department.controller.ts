@@ -13,7 +13,7 @@ import {
 import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../../common/decorators';
 import { DepartmentService } from './department.service';
-import { DepartmentDto, DepartmentPayloadDto } from './dtos';
+import { DepartmentDto, DepartmentRequestDto } from './dtos';
 import { Role } from '../../common/constants';
 
 @Controller('department')
@@ -37,9 +37,9 @@ export class DepartmentController {
   @Auth(Role.ADMINISTRATOR)
   @ApiOkResponse({ type: DepartmentDto, description: 'Thêm mới khoa' })
   async createDepartment(
-    @Body() departmentDto: DepartmentPayloadDto,
+    @Body() request: DepartmentRequestDto,
   ): Promise<DepartmentDto> {
-    return this.departmentService.createDepartment(departmentDto);
+    return this.departmentService.createDepartment(request);
   }
 
   @Put(':id')
@@ -48,9 +48,9 @@ export class DepartmentController {
   @ApiOkResponse({ type: DepartmentDto, description: 'Cập nhật khoa' })
   async updateDepartment(
     @Param('id', ParseIntPipe) id: number,
-    @Body() departmentDto: DepartmentPayloadDto,
+    @Body() request: DepartmentRequestDto,
   ): Promise<void> {
-    return this.departmentService.updateDepartment(id, departmentDto);
+    return this.departmentService.updateDepartment(id, request);
   }
 
   @Get(':id')

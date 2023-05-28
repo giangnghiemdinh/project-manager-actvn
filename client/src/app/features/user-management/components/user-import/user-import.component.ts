@@ -47,25 +47,26 @@ export class UserImportComponent implements OnChanges {
     };
 
     onDownloadSample() {
-        this.excelService.export({
-            columns: [
-                { title: 'Họ và tên', width: 25 },
-                { title: 'Email', width: 25, numFmt: '@' },
-                { title: 'Số điện thoại', width: 20, numFmt: '@' },
-                { title: 'Giới tính', width: 10 },
-                { title: 'Ngày sinh', width: 25, numFmt: 'dd/mm/yyyy' },
-                { title: 'Địa chỉ', width: 30 },
-                { title: 'Đơn vị', width: 30 }
-            ],
-            notes: [
-                { cell: 'A1', text: 'Đây là trường bắt buộc.' },
-                { cell: 'B1', text: 'Đây là trường bắt buộc.' },
-                { cell: 'D1', text: 'Nữ: 0 \nNam: 1' },
-                { cell: 'E1', text: 'Định dạng dd/mm/yyyy' }
-            ],
-            sheetName: 'Danh sách người dùng',
-            fileName: 'Nhập danh sách người dùng'
-        });
+        this.excelService.export('Nhập danh sách người dùng', [
+            {
+                columns: [
+                    { title: 'Họ và tên', width: 25 },
+                    { title: 'Email', width: 25, numFmt: '@' },
+                    { title: 'Số điện thoại', width: 20, numFmt: '@' },
+                    { title: 'Giới tính', width: 10 },
+                    { title: 'Ngày sinh', width: 25, numFmt: 'dd/mm/yyyy' },
+                    { title: 'Địa chỉ', width: 30 },
+                    { title: 'Đơn vị', width: 30 }
+                ],
+                notes: [
+                    { cell: 'A1', text: 'Đây là trường bắt buộc.' },
+                    { cell: 'B1', text: 'Đây là trường bắt buộc.' },
+                    { cell: 'D1', text: 'Nữ: 0 \nNam: 1' },
+                    { cell: 'E1', text: 'Định dạng dd/mm/yyyy' }
+                ],
+                sheetName: 'Danh sách người dùng',
+            }
+        ]);
     }
 
     onFileChanges(event: NzUploadChangeParam) {

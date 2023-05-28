@@ -15,6 +15,7 @@
                                      (valueChange)="onDepartmentOrSemesterChanges($event)"/>
                     <app-form-select control="semesterId" label="Học kì"
                                      selectValue="id" selectLabel="name"
+                                     selectDisabled="isLocked"
                                      [options]="semesters"
                                      [allowClear]="false"
                                      [validators]="{ required: true }"
@@ -39,14 +40,16 @@
                                         </nz-select>
                                     </ng-template>
                                 </app-table-column>
-                                <app-table-column key="action" title="Hành động" align="center" width="50px" [right]="true">
+                                <app-table-column key="action" title="" align="center" width="50px" [right]="true">
                                     <ng-template table-cell let-row>
                                         <i (click)="onRemoveUser(row.userId!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
                                     </ng-template>
                                 </app-table-column>
                             </app-table>
                             <div class="w-full flex justify-end mt-2">
-                                <button [disabled]="selectedUsers.length >= 5" nzSize="default" nz-button nzType="primary" (click)="onSearchUser()">
+                                <button class="flex items-center justify-center gap-1"
+                                        [disabled]="selectedUsers.length >= 6" nzSize="default" nz-button nzType="primary" (click)="onSearchUser()">
+                                    <i class='bx bx-plus text-base'></i>
                                     Thêm thành viên
                                 </button>
                             </div>
@@ -68,12 +71,14 @@
                                 <app-table-column key="reviewerStaff.user.fullName" title="GV phản biện" width="200px"/>
                                 <app-table-column key="action" title="" align="center" width="50px" [right]="true">
                                     <ng-template table-cell let-row>
-                                        <i (click)="onRemoveProject(row.id!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
+                                        <i (click)="onRemoveProject(row)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
                                     </ng-template>
                                 </app-table-column>
                             </app-table>
                             <div class="w-full flex justify-end mt-2">
-                                <button nzSize="default" nz-button nzType="primary" (click)="onSearchProject()">
+                                <button class="flex items-center justify-center gap-1"
+                                        nzSize="default" nz-button nzType="primary" (click)="onSearchProject()">
+                                    <i class='bx bx-plus text-base'></i>
                                     Thêm đề tài
                                 </button>
                             </div>
@@ -84,12 +89,16 @@
         </nz-spin>
     </ng-container>
     <ng-container *nzModalFooter>
-        <div class="flex justify-between gap-2">
-            <button class="w-[80px]" nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
-                Trở về
+        <div class="flex items-center justify-between">
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
             </button>
-            <button class="w-[80px]" nzSize="large" nz-button nzType="primary" [disabled]="isLoading" (click)="onSave()">
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
+                <i class='bx bx-save text-lg'></i>
             </button>
         </div>
     </ng-container>

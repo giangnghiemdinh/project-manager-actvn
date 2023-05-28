@@ -10,7 +10,7 @@ import { AuthActions, AuthState, selectProfile } from '../../../common/stores';
 import { Store } from '@ngrx/store';
 import { selectRouteParams, selectRouterParam } from '../../../common/stores/router';
 import { clearToken, getDeviceId } from '../../../common/utilities';
-import { RO_LOGIN_FULL } from '../../../common/constants';
+import { RO_LOGIN_FULL, RO_USER_MANAGER } from '../../../common/constants';
 import { Router } from '@angular/router';
 import { UserProfileState } from './user-profile.reducer';
 
@@ -38,6 +38,16 @@ export class UserProfileEffects extends AbstractEffects {
                 )
             })
         )
+    );
+
+    loadUserFailure = createEffect(() =>
+            this.actions$.pipe(
+                ofType(UserProfileActions.loadUserFailure),
+                tap((res) => {
+                    this.router.navigate([RO_USER_MANAGER]).then();
+                })
+            ),
+        { dispatch: false }
     );
 
     updateUser$ = createEffect(() =>

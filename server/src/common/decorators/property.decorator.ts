@@ -20,6 +20,7 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import {
   ToArray,
@@ -34,6 +35,7 @@ interface IPropertyOptions {
   each?: boolean;
   swagger?: boolean;
   required?: boolean;
+  validateIf?: (object: any, value: any) => boolean;
   groups?: string[];
 }
 
@@ -63,6 +65,10 @@ export function NumberProperty(
   options: Omit<ApiPropertyOptions, 'type'> & INumberPropertyOptions = {},
 ): PropertyDecorator {
   const decorators = [Type(() => Number)];
+
+  if (options.validateIf) {
+    decorators.push(ValidateIf(options.validateIf, { each: options.each }));
+  }
 
   if (options.required) {
     decorators.push(
@@ -140,6 +146,10 @@ export function StringProperty(
 ): PropertyDecorator {
   const decorators = [];
 
+  if (options.validateIf) {
+    decorators.push(ValidateIf(options.validateIf, { each: options.each }));
+  }
+
   if (options.required) {
     decorators.push(
       IsNotEmpty({
@@ -210,6 +220,10 @@ export function BooleanProperty(
 ): PropertyDecorator {
   const decorators = [];
 
+  if (options.validateIf) {
+    decorators.push(ValidateIf(options.validateIf, { each: options.each }));
+  }
+
   if (options.required) {
     decorators.push(
       IsNotEmpty({
@@ -239,6 +253,10 @@ export function EnumProperty(
   options: Omit<ApiPropertyOptions, 'type'> & IEnumPropertyOptions = {},
 ): PropertyDecorator {
   const decorators = [];
+
+  if (options.validateIf) {
+    decorators.push(ValidateIf(options.validateIf, { each: options.each }));
+  }
 
   if (options.required) {
     decorators.push(
@@ -275,6 +293,10 @@ export function DateProperty(
   options: Omit<ApiPropertyOptions, 'type'> & IPropertyOptions = {},
 ): PropertyDecorator {
   const decorators = [];
+
+  if (options.validateIf) {
+    decorators.push(ValidateIf(options.validateIf, { each: options.each }));
+  }
 
   if (options.required) {
     decorators.push(

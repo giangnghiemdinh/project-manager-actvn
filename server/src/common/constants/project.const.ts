@@ -1,6 +1,7 @@
 export enum ProjectStatus {
   PROPOSE = 'PROPOSE', // Đề xuất
   REFUSE = 'REFUSE', // Từ chối
+  EXPIRED = 'EXPIRED', // Hết hạn
 
   PENDING = 'PENDING', // Chờ đăng kí
   IN_PROGRESS = 'IN_PROGRESS', // Đang thực hiện
@@ -8,6 +9,11 @@ export enum ProjectStatus {
   IN_PRESENTATION = 'IN_PRESENTATION', // Bảo vệ
   COMPLETED = 'COMPLETED', // Đã bảo vệ
   NOT_COMPLETED = 'NOT_COMPLETED', // Không bảo vệ
+}
+
+export enum ProjectApproveStatus {
+  REFUSE = 'REFUSE',
+  ACCEPT = 'ACCEPT',
 }
 
 export enum ProjectProgressType {
@@ -18,6 +24,7 @@ export enum ProjectProgressType {
   REPORT_4 = 'rp4',
   INSTRUCTOR_REVIEW = 'instr',
   REVIEWER_REVIEW = 'rvr',
+  COUNCIL_REVIEW = 'ccl',
   COMPLETED = 'cpt',
 }
 

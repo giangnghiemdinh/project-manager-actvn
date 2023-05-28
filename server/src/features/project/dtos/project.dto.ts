@@ -6,10 +6,10 @@ import { DepartmentDto } from '../../department/dtos';
 import { UserDto } from '../../user/dtos';
 import { StudentDto } from '../../student/dtos';
 import { ManagerStaffDto } from '../../manager-staff/dtos';
-import { ProgressDto } from '../../progress/dtos';
 import { SemesterDto } from '../../semester/dtos';
 import { ReviewerStaffDto } from '../../reviewer-staff/dtos';
 import { ExaminerCouncilDto } from '../../examiner-council/dtos';
+import { ProjectProgressDto } from './project-progress.dto';
 
 export class ProjectDto extends AbstractDto {
   @ApiProperty()
@@ -43,6 +43,9 @@ export class ProjectDto extends AbstractDto {
   instructor?: UserDto;
 
   @ApiPropertyOptional()
+  proposeBy?: UserDto;
+
+  @ApiPropertyOptional()
   students?: StudentDto[];
 
   @ApiPropertyOptional()
@@ -70,9 +73,6 @@ export class ProjectDto extends AbstractDto {
   reason: string;
 
   @ApiPropertyOptional()
-  progresses: ProgressDto[];
-
-  @ApiPropertyOptional()
   formScore: number;
 
   @ApiPropertyOptional()
@@ -86,6 +86,12 @@ export class ProjectDto extends AbstractDto {
 
   @ApiPropertyOptional()
   conclusionScore: number;
+
+  @ApiPropertyOptional()
+  reportedCount: number;
+
+  @ApiPropertyOptional()
+  progresses: ProjectProgressDto[];
 
   constructor(project: ProjectEntity) {
     super(project);
@@ -108,11 +114,13 @@ export class ProjectDto extends AbstractDto {
     this.examinerCouncilId = project.examinerCouncilId;
     this.examinerCouncil = project.examinerCouncil?.toDto();
     this.reviewedBy = project.reviewedBy?.toDto();
-    this.progresses = project.progresses?.map((p) => p.toDto());
+    this.proposeBy = project.proposeBy?.toDto();
     this.formScore = project.formScore;
     this.contentScore = project.contentScore;
     this.summarizeScore = project.summarizeScore;
     this.answerScore = project.answerScore;
     this.conclusionScore = project.conclusionScore;
+    this.reportedCount = project.reportedCount;
+    this.progresses = project.progresses?.map((p) => p.toDto());
   }
 }

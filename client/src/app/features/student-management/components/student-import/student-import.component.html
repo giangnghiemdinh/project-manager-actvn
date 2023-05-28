@@ -6,10 +6,10 @@
     <ng-container *nzModalContent>
         <div class="flex flex-wrap items-center gap-x-1">
             <div class="text-base font-bold">
-                Nhập sinh viên từ file dữ liệu
+                Nhập sinh viên từ file Excel
             </div>
             <div class="">
-                (Tải về file mẫu: <a class="text-blue-500">Excel file</a>)
+                (Tải về file mẫu: <a class="text-blue-500" (click)="onDownloadSample()">Excel file</a>)
             </div>
         </div>
         <div class="mt-4">
@@ -17,9 +17,13 @@
                 Xử lý <span class="italic">trùng</span> mã sinh viên, khác thông tin sinh viên?
             </div>
             <div class="mt-1">
-                <nz-radio-group>
-                    <label class="block" nz-radio nzValue="A">Báo lỗi và dừng import</label>
-                    <label class="block" nz-radio nzValue="B">Thay thế bằng thông tin sinh viên mới</label>
+                <nz-radio-group [(ngModel)]="duplicateCode">
+                    <label class="block" nz-radio [nzValue]="0">
+                        Báo lỗi và dừng import
+                    </label>
+                    <label class="block" nz-radio [nzValue]="1">
+                        Thay thế bằng thông tin sinh viên mới
+                    </label>
                 </nz-radio-group>
             </div>
         </div>
@@ -43,8 +47,16 @@
             </nz-upload>
         </div>
         <div class="mt-6 flex justify-between gap-2">
-            <button nz-button nzSize="large" nzType="default">Trở về</button>
-            <button nz-button nzSize="large" nzType="primary">Nhập danh sách</button>
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default" (click)="onCancel()" [disabled]="isLoading">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
+            </button>
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onImport()">
+                Nhập dữ liệu
+                <i class='bx bx-save text-lg'></i>
+            </button>
         </div>
     </ng-container>
 </nz-modal>

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import {
+    ConfirmComponent,
     FormComponent,
     FormSelectComponent,
     FormTextComponent,
@@ -23,6 +24,7 @@ import { ProjectStatus } from '../../../../common/constants/project.constant';
 import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../../../common/constants/user.constant';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { CouncilPositionPipe } from '../../council-position.pipe';
+import { first, timer } from 'rxjs';
 
 @Component({
     selector: 'app-manager-council-form',
@@ -74,26 +76,27 @@ export class ExaminerCouncilFormComponent implements OnChanges {
     positions = ExaminerCouncilPositions;
 
     ngOnChanges(changes: SimpleChanges): void {
-        const { examinerCouncil } = changes;
-        if (examinerCouncil) {
-            if (this.examinerCouncil) {
-                this.currentDepartment = this.examinerCouncil.departmentId!;
-                this.currentSemester = this.examinerCouncil.semesterId!;
-                this.selectedUsers = this.examinerCouncil.users || [];
-                this.selectedProjects = this.examinerCouncil.projects || [];
-                this.data = {
-                    departmentId: this.currentDepartment,
-                    semesterId: this.currentSemester,
-                    location: this.examinerCouncil.location || ''
-                };
-                Promise.resolve().then(_ => this.reloadProject());
-            } else {
+        const { examinerCouncil, isVisible } = changes;
+        if (isVisible && !this.isVisible) {
+            timer(200).subscribe(_ => {
                 this.data = null;
                 this.currentDepartment = 0;
                 this.currentSemester = 0;
                 this.selectedUsers = [];
                 this.selectedProjects = [];
-            }
+            });
+        }
+        if (examinerCouncil && this.examinerCouncil) {
+            this.currentDepartment = this.examinerCouncil.departmentId!;
+            this.currentSemester = this.examinerCouncil.semesterId!;
+            this.selectedUsers = this.examinerCouncil.users || [];
+            this.selectedProjects = this.examinerCouncil.projects || [];
+            this.data = {
+                departmentId: this.currentDepartment,
+                semesterId: this.currentSemester,
+                location: this.examinerCouncil.location || ''
+            };
+            Promise.resolve().then(_ => this.reloadProject());
         }
     }
 
@@ -103,26 +106,32 @@ export class ExaminerCouncilFormComponent implements OnChanges {
             && departmentId.value && semesterId.value
             && (this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value)) {
-            this.modal.confirm({
-                nzTitle: '',
-                nzContent: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn chọn lại danh sách?',
-                nzOkText: 'Có',
+            const ref = this.modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
                 nzCentered: true,
-                nzMaskClosable: false,
-                nzOkType: 'primary',
-                nzOkDanger: true,
-                nzOnOk: () => {
-                    this.selectedProjects = [];
-                    this.currentDepartment = departmentId.value;
-                    this.currentSemester = semesterId.value;
-                    this.reloadProject();
-                },
-                nzCancelText: 'Không',
-                nzOnCancel: () => {
-                    departmentId.setValue(this.currentDepartment);
-                    semesterId.setValue(this.currentSemester);
+                nzAutofocus: null,
+                nzData: {
+                    title: 'Bạn đã thay đổi khoa hoặc học kỳ. Bạn có muốn chọn lại danh sách?',
+                    okText: 'Đồng ý',
+                    okDanger: false
                 }
             });
+            ref.afterClose
+                .pipe(first())
+                .subscribe(confirm => {
+                    if (confirm) {
+                        this.selectedProjects = [];
+                        this.currentDepartment = departmentId.value;
+                        this.currentSemester = semesterId.value;
+                        this.reloadProject();
+                        return;
+                    }
+                    departmentId.setValue(this.currentDepartment, { emitViewToModelChange: false });
+                    semesterId.setValue(this.currentSemester, { emitViewToModelChange: false });
+                });
             return;
         }
         if (departmentId.value && semesterId.value) {
@@ -142,7 +151,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
     }
 
     onSearchUser() {
-        if (this.selectedUsers.length >= 5) { return; }
+        if (this.selectedUsers.length >= 6) { return; }
         this.isVisibleSearchUser = true;
     }
 
@@ -166,8 +175,12 @@ export class ExaminerCouncilFormComponent implements OnChanges {
         this.selectedProjects = [...this.selectedProjects, ...projects];
     }
 
-    onRemoveProject(id: number) {
-        this.selectedProjects = this.selectedProjects.filter(p => p.id !== id);
+    onRemoveProject(project: Project) {
+        if (project.conclusionScore) {
+            this.notification.error('Không thể xoá đề tài đã có điểm bảo vệ khỏi nhóm!')
+            return;
+        }
+        this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id);
     }
 
     onRemoveUser(userId: number) {
@@ -178,7 +191,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
         if (!users.length) { return; }
         const newUsers = users
             .map(u => ({ user: u, userId: u.id, position: ExaminerCouncilPosition.MEMBER}));
-        this.selectedUsers = (uniqBy([...this.selectedUsers, ...newUsers], 'userId')).slice(0, 5);
+        this.selectedUsers = (uniqBy([...this.selectedUsers, ...newUsers], 'userId')).slice(0, 6);
     }
 
     onCancel() {

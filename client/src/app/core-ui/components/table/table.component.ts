@@ -43,7 +43,7 @@ export class TableComponent implements AfterContentInit, OnDestroy, OnChanges {
     @Input() paginationResponsive = true;
     @Input() paginationSize: 'default' | 'small' = 'default';
     @Input() pagination: MetaPagination | null = null;
-    @Input() pageSizeOptions = [10, 30, 50];
+    @Input() pageSizeOptions = [20, 30, 50];
     @Input() scroll?: {
         x?: string | null;
         y?: string | null;
@@ -112,7 +112,7 @@ export class TableComponent implements AfterContentInit, OnDestroy, OnChanges {
         const listOfEnabledData = this.data.filter((row: any) => !row.disabled);
         this._checked = listOfEnabledData.every((row: any) => this._setOfCheckedId.has(row.id));
         this._indeterminate = listOfEnabledData.some((row: any) => this._setOfCheckedId.has(row.id)) && !this._checked;
-        this.checkedChange.emit({ids: this._setOfCheckedId, data: this.data});
+        this.checkedChange.emit({ ids: this._setOfCheckedId, data: this.data });
     }
 
     onItemChecked(id: number, checked: boolean): void {

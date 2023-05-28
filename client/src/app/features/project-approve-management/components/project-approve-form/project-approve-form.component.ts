@@ -10,7 +10,6 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { FormsModule } from '@angular/forms';
 import { take } from 'rxjs';
-import { ProjectStatus } from '../../../../common/constants/project.constant';
 
 @Component({
     selector: 'app-project-approve-form',
@@ -56,7 +55,7 @@ export class ProjectApproveFormComponent {
             .subscribe(params => {
                 this.ok.emit({
                     id: this.project!.id,
-                    status: ProjectStatus.REFUSE,
+                    status: 'REFUSE',
                     reason: params.reason
                 });
             });
@@ -65,7 +64,7 @@ export class ProjectApproveFormComponent {
     onApprove() {
         this.ok.emit({
             id: this.project!.id,
-            status: this.project!.students?.length ? ProjectStatus.IN_PROGRESS : ProjectStatus.PENDING,
+            status: 'ACCEPT',
             reason: ''
         });
     }

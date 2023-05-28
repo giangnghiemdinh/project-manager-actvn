@@ -12,15 +12,15 @@ import { Store } from '@ngrx/store';
 
 @Injectable()
 export class SemesterEffects extends AbstractEffects {
-    private readonly semesterService = inject(SemesterService);
-    private readonly commonStore = inject(Store<CommonState>);
+    readonly #semesterService = inject(SemesterService);
+    readonly #commonStore = inject(Store<CommonState>);
 
     loadSemester$ = createEffect(() =>
         this.actions$.pipe(
             ofType(SemesterActions.loadSemester),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.semesterService.getSemester(payload.id).pipe(
+                this.#semesterService.getSemester(payload.id).pipe(
                     map((response: Semester) => SemesterActions.loadSemesterSuccess({ response })),
                     catchError(errors => of(SemesterActions.loadSemesterFailure({ errors })))
                 )
@@ -33,7 +33,7 @@ export class SemesterEffects extends AbstractEffects {
             ofType(SemesterActions.createSemester),
             map(action => action.payload),
             mergeMap((payload: Semester) =>
-                this.semesterService.createSemester(payload).pipe(
+                this.#semesterService.createSemester(payload).pipe(
                     map((response: Semester) => SemesterActions.createSemesterSuccess({ response })),
                     catchError(errors => of(SemesterActions.createSemesterFailure({ errors })))
                 )
@@ -47,7 +47,7 @@ export class SemesterEffects extends AbstractEffects {
                 ofType(SemesterActions.createSemesterSuccess),
                 tap((res) => {
                     this.raiseSuccess('Thêm mới học kỳ thành công.');
-                    this.commonStore.dispatch(CommonActions.loadSemesters());
+                    this.#commonStore.dispatch(CommonActions.loadSemesters());
                 }),
             ),
         { dispatch: false }
@@ -58,7 +58,7 @@ export class SemesterEffects extends AbstractEffects {
             ofType(SemesterActions.updateSemester),
             map(action => action.payload),
             mergeMap((payload: Semester) =>
-                this.semesterService.updateSemester(payload).pipe(
+                this.#semesterService.updateSemester(payload).pipe(
                     map(_ => SemesterActions.updateSemesterSuccess()),
                     catchError(errors => of(SemesterActions.updateSemesterFailure({ errors })))
                 )
@@ -72,7 +72,57 @@ export class SemesterEffects extends AbstractEffects {
                 ofType(SemesterActions.updateSemesterSuccess),
                 tap((res) => {
                     this.raiseSuccess('Cập nhật học kỳ thành công.');
-                    this.commonStore.dispatch(CommonActions.loadSemesters());
+                    this.#commonStore.dispatch(CommonActions.loadSemesters());
+                }),
+            ),
+        { dispatch: false }
+    );
+
+    deleteSemester$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(SemesterActions.deleteSemester),
+            map(action => action.id),
+            mergeMap((id: number) =>
+                this.#semesterService.deleteSemester(id).pipe(
+                    map(_ => SemesterActions.deleteSemesterSuccess()),
+                    catchError(errors => of(SemesterActions.deleteSemesterFailure({ errors })))
+                )
+            )
+        )
+    );
+
+    deleteSemesterSuccess$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(SemesterActions.deleteSemesterSuccess),
+                tap((res) => {
+                    this.raiseSuccess('Xoá học kỳ thành công.');
+                    this.#commonStore.dispatch(CommonActions.loadSemesters());
+                }),
+            ),
+        { dispatch: false }
+    );
+
+    lockSemester$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(SemesterActions.lockSemester),
+            map(action => action.id),
+            mergeMap((id: number) =>
+                this.#semesterService.lockSemester(id).pipe(
+                    map(_ => SemesterActions.lockSemesterSuccess()),
+                    catchError(errors => of(SemesterActions.lockSemesterFailure({ errors })))
+                )
+            )
+        )
+    );
+
+    lockSemesterSuccess$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(SemesterActions.lockSemesterSuccess),
+                tap((res) => {
+                    this.raiseSuccess('Khoá học kỳ thành công.');
+                    this.#commonStore.dispatch(CommonActions.loadSemesters());
                 }),
             ),
         { dispatch: false }

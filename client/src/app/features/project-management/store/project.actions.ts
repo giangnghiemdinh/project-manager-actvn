@@ -1,7 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { PaginationResponse, Project, ProjectImportPayload, User } from '../../../common/models';
-import { ProjectProgress } from '../../../common/models/project-progress.model';
-import { ProjectProgressType } from '../../../common/constants/project.constant';
+import { PaginationResponse, Project, ProjectImportPayload, ProjectProgress, User } from '../../../common/models';
+import { ProjectProgressType } from '../../../common/constants';
 
 export type ModalType = '' | 'form' | 'import' | 'report' | 'review' | 'council';
 
@@ -21,6 +20,10 @@ export const ProjectActions = createActionGroup({
         'Create Project': props<{ payload: Project }>(),
         'Create Project Success': props<{ response: Project }>(),
         'Create Project Failure': props<{ errors: any }>(),
+
+        'Create Propose Project': props<{ payload: Project }>(),
+        'Create Propose Project Success': props<{ response: Project }>(),
+        'Create Propose Project Failure': props<{ errors: any }>(),
 
         'Update Project': props<{ payload: Project }>(),
         'Update Project Success': emptyProps(),

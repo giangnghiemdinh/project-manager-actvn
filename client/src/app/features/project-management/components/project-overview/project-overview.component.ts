@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy } from '@angular/core';
-import { ProjectStatusPipe } from '../../../../core-ui/pipes/project-status.pipe';
+import { ProjectStatusPipe } from '../../../../core-ui/pipes';
 import { ToolbarComponent } from '../../../../core-ui/components';
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { ProjectState, selectIsLoading, selectProject } from '../../store/project.reducer';
@@ -49,9 +49,7 @@ export class ProjectOverviewComponent implements OnDestroy {
                 takeUntil(this.destroy$)
             )
             .subscribe(([_, id]) => {
-                this.store.dispatch(ProjectActions.loadProject({ payload: { id: +id, modal: '', extra: 'pg' } }));
+                this.store.dispatch(ProjectActions.loadProject({ payload: { id: +id, modal: '', extra: 'all' } }));
             });
     }
-
-    protected readonly eval = eval;
 }
