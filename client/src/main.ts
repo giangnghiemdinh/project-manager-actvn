@@ -41,7 +41,7 @@ void bootstrapApplication(AppComponent, {
         ),
         provideStore(appReducers, { metaReducers: metaReducers }),
         provideRouterStore({ serializer: CustomSerializer }),
-        provideStoreDevtools({ logOnly: !environment.production }),
+        !environment.production ? provideStoreDevtools() : [],
         provideEffects(appEffects),
         importProvidersFrom([ NzNotificationModule ]),
         { provide: NZ_I18N, useValue: vi_VN },

@@ -230,7 +230,6 @@ export class AuthService {
         throw new OtpInvalidException();
       }
       secret = `${cache}`;
-      this.cacheService.del(`${user.email}_secret_auth`).then();
     }
 
     switch (user.twoFactory) {
@@ -261,6 +260,7 @@ export class AuthService {
 
     if (!user.optSecret) {
       await this.userService.updateSecret(user.id, secret);
+      await this.cacheService.del(`${user.email}_secret_auth`);
     }
 
     return this.getTokenAndSaveSession(user, {
