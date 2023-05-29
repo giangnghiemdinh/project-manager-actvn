@@ -223,15 +223,6 @@ export class AuthService {
       throw new NotFoundException('Tài khoản không tồn tại!');
     }
 
-    let secret = user.optSecret;
-    if (!secret) {
-      const cache = await this.cacheService.get(`${user.email}_secret_auth`);
-      if (!cache) {
-        throw new OtpInvalidException();
-      }
-      secret = `${cache}`;
-    }
-
     switch (user.twoFactory) {
       case TwoFactoryMethod.EMAIL:
         if (
@@ -245,6 +236,16 @@ export class AuthService {
         }
         break;
       case TwoFactoryMethod.OTP:
+        let secret = user.optSecret;
+        if (!secret) {
+          const cache = await this.cacheService.get(
+            `${user.email}_secret_auth`,
+          );
+          if (!cache) {
+            throw new OtpInvalidException();
+          }
+          secret = `${cache}`;
+        }
         if (
           !(await this.otpService.verifyTokenOtp({
             deviceId: userVerifyDto.deviceId,
@@ -255,12 +256,11 @@ export class AuthService {
         ) {
           throw new OtpInvalidException();
         }
+        if (!user.optSecret) {
+          await this.userService.updateSecret(user.id, secret);
+          await this.cacheService.del(`${user.email}_secret_auth`);
+        }
         break;
-    }
-
-    if (!user.optSecret) {
-      await this.userService.updateSecret(user.id, secret);
-      await this.cacheService.del(`${user.email}_secret_auth`);
     }
 
     return this.getTokenAndSaveSession(user, {
