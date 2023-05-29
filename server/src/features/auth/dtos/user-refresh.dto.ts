@@ -1,6 +1,6 @@
 import { StringProperty } from '../../../common/decorators';
 
-export class UserRefreshDto {
+export class UserRefreshRequestDto {
   @StringProperty('Refresh Token', {
     required: true,
   })

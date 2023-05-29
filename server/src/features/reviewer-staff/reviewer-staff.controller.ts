@@ -12,16 +12,17 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { Auth } from '../../common/decorators';
+import { Auth, AuthUser } from '../../common/decorators';
 import { Role } from '../../common/constants';
 import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Pagination } from '../../common/dtos';
 import { ReviewerStaffService } from './reviewer-staff.service';
 import {
-  ReviewerPagePayloadDto,
-  ReviewerPayloadDto,
+  ReviewerPageRequestDto,
+  ReviewerRequestDto,
   ReviewerStaffDto,
 } from './dtos';
+import { UserEntity } from '../user/models';
 
 @Controller('reviewer-staff')
 @ApiTags('Cán bộ phản biện')
@@ -36,9 +37,13 @@ export class ReviewerStaffController {
     description: 'Thêm hội đồng quản lý',
   })
   async createReviewerStaff(
-    @Body() reviewerStaffDto: ReviewerPayloadDto,
+    @Body() reviewerStaffDto: ReviewerRequestDto,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ReviewerStaffDto> {
-    return this.reviewerStaffService.createReviewerStaff(reviewerStaffDto);
+    return this.reviewerStaffService.createReviewerStaff(
+      reviewerStaffDto,
+      currentUser,
+    );
   }
 
   @Post('/multiple')
@@ -48,11 +53,13 @@ export class ReviewerStaffController {
     description: 'Thêm danh sách hội đồng quản lý',
   })
   async createMultipleReviewerStaff(
-    @Body(new ParseArrayPipe({ items: ReviewerPayloadDto }))
-    reviewerStaffDtos: ReviewerPayloadDto[],
+    @Body(new ParseArrayPipe({ items: ReviewerRequestDto }))
+    reviewerStaffDtos: ReviewerRequestDto[],
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ReviewerStaffDto[]> {
     return this.reviewerStaffService.createMultipleReviewerStaff(
       reviewerStaffDtos,
+      currentUser,
     );
   }
 
@@ -65,9 +72,14 @@ export class ReviewerStaffController {
   })
   async updateReviewerStaff(
     @Param('id', ParseIntPipe) id: number,
-    @Body() reviewerStaffDto: ReviewerPayloadDto,
+    @Body() reviewerStaffDto: ReviewerRequestDto,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    return this.reviewerStaffService.updateReviewerStaff(id, reviewerStaffDto);
+    return this.reviewerStaffService.updateReviewerStaff(
+      id,
+      reviewerStaffDto,
+      currentUser,
+    );
   }
 
   @Get()
@@ -79,7 +91,7 @@ export class ReviewerStaffController {
   })
   async getReviewerStaffs(
     @Query()
-    pageOptionsDto: ReviewerPagePayloadDto,
+    pageOptionsDto: ReviewerPageRequestDto,
   ): Promise<Pagination<ReviewerStaffDto>> {
     return this.reviewerStaffService.getReviewerStaffs(pageOptionsDto);
   }
@@ -103,7 +115,8 @@ export class ReviewerStaffController {
   @ApiAcceptedResponse()
   async deleteReviewerStaff(
     @Param('id', ParseIntPipe) id: number,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    await this.reviewerStaffService.deleteReviewerStaff(id);
+    await this.reviewerStaffService.deleteReviewerStaff(id, currentUser);
   }
 }

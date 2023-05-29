@@ -33,8 +33,11 @@ export class StudentController {
   @HttpCode(HttpStatus.OK)
   @Auth(Role.ADMINISTRATOR)
   @ApiOkResponse({ type: StudentDto, description: 'Thêm sinh viên' })
-  async createStudent(@Body() request: StudentRequestDto): Promise<StudentDto> {
-    return this.studentService.createStudent(request);
+  async createStudent(
+    @Body() request: StudentRequestDto,
+    @AuthUser() currentUser: UserEntity,
+  ): Promise<StudentDto> {
+    return this.studentService.createStudent(request, currentUser);
   }
 
   @Put(':id')
@@ -44,8 +47,9 @@ export class StudentController {
   async updateStudent(
     @Param('id', ParseIntPipe) id: number,
     @Body() request: StudentRequestDto,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    return this.studentService.updateStudent(id, request);
+    return this.studentService.updateStudent(id, request, currentUser);
   }
 
   @Get()
@@ -77,8 +81,11 @@ export class StudentController {
   @Auth(Role.ADMINISTRATOR)
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse()
-  async deleteStudent(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.studentService.deleteStudent(id);
+  async deleteStudent(
+    @Param('id', ParseIntPipe) id: number,
+    @AuthUser() currentUser: UserEntity,
+  ): Promise<void> {
+    await this.studentService.deleteStudent(id, currentUser);
   }
 
   @Post('import')

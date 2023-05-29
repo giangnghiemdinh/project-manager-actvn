@@ -75,12 +75,12 @@ export class ProjectEntity extends AbstractEntity<ProjectDto> {
   @JoinColumn({ name: 'reviewed_by_id' })
   reviewedBy: UserEntity;
 
-  @Column({ nullable: true })
-  proposeById: number;
+  @Column({ nullable: true, name: 'created_by_id' })
+  createdById: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.proposeProjects, {})
-  @JoinColumn({ name: 'propose_by_id' })
-  proposeBy: UserEntity;
+  @ManyToOne(() => UserEntity, (user) => user.createdProjects, {})
+  @JoinColumn({ name: 'created_by_id' })
+  createdBy: UserEntity;
 
   @Column({ nullable: true })
   examinerCouncilId: number;

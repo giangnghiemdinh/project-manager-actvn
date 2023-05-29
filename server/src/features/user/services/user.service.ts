@@ -141,7 +141,6 @@ export class UserService {
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
 
-    this.logger.log(`Lấy danh sách người dùng`);
     return new UserPageResponseDto(
       entities.map((e) => e.toDto()),
       pageMetaDto,
@@ -217,6 +216,10 @@ export class UserService {
       );
     }
 
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới người dùng ${user.id} | ${user.fullName}`,
+    );
+
     return user.toDto();
   }
 
@@ -284,15 +287,30 @@ export class UserService {
         userId: currentUser.id,
       });
     }
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật thông tin người dùng ${user.id} | ${user.fullName}`,
+    );
+
     return user.toDto();
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: number, currentUser: UserEntity): Promise<void> {
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException('Người dùng không tồn tại!');
     }
-    await this.userRepository.remove(user);
+    await this.userEventService.insert({
+      message: `Xoá người dùng {userFullName}`,
+      params: JSON.stringify({
+        userFullName: user.fullName,
+      }),
+      userId: currentUser.id,
+    });
+    this.logger.log(
+      `${currentUser.fullName} đã xoá người dùng ${user.id} | ${user.fullName}`,
+    );
+    await this.userRepository.delete({ id });
   }
 
   async verifyEmail(
@@ -344,6 +362,10 @@ export class UserService {
       }),
       userId: currentUser.id,
     });
+
+    this.logger.log(
+      `${currentUser.fullName} đã thay đổi địa chỉ email thành ${request.email}`,
+    );
     await this.logoutAllSections(currentUser.id);
   }
 
@@ -351,6 +373,10 @@ export class UserService {
     await this.userRepository.update(
       { id: currentUser.id },
       { twoFactory: request.twoFactory },
+    );
+
+    this.logger.log(
+      `${currentUser.fullName} đã thay đổi 2FA thành ${request.twoFactory}`,
     );
     await this.logoutAllSections(currentUser.id);
   }
@@ -369,16 +395,33 @@ export class UserService {
       }
     }
     await this.updatePassword(currentUser.id, request.password);
+    this.logger.log(`${currentUser.fullName} đã thay đổi mật khẩu`);
     await this.logoutAllSections(currentUser.id);
   }
 
-  async changeStatus(request: UserChangeStatusRequestDto) {
+  async changeStatus(
+    request: UserChangeStatusRequestDto,
+    currentUser: UserEntity,
+  ) {
     const user = await this.findById(request.id);
     if (!user) {
       throw new NotFoundException('Người dùng không tồn tại!');
     }
     const isActive = request.status === UserStatus.ACTIVE;
     await this.userRepository.update({ id: user.id }, { isActive });
+    await this.userEventService.insert({
+      message: `${isActive ? 'Kích hoạt' : 'Khoá'} người dùng {userFullName}`,
+      params: JSON.stringify({
+        userFullName: user.fullName,
+        userId: user.id,
+      }),
+      userId: currentUser.id,
+    });
+    this.logger.log(
+      `${currentUser.fullName} đã ${
+        isActive ? 'kích hoạt' : 'khoá'
+      } người dùng ${user.fullName}`,
+    );
     await this.logoutAllSections(user.id);
   }
 

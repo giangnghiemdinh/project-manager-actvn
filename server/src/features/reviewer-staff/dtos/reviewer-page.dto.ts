@@ -1,6 +1,12 @@
+import { PaginationMetaDto, PaginationOptionsDto } from '../../../common/dtos';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationMetaDto } from '../../../common/dtos';
+import { NumberProperty } from '../../../common/decorators';
 import { ReviewerStaffDto } from './reviewer-staff.dto';
+
+export class ReviewerPageRequestDto extends PaginationOptionsDto {
+  @NumberProperty('ID khoa', { int: true, min: 1 })
+  readonly departmentId?: number;
+}
 
 export class ReviewerPageResponseDto {
   @ApiProperty({

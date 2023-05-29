@@ -1,6 +1,6 @@
 import { StringProperty } from '../../../common/decorators';
 
-export class UserResetDto {
+export class UserResetRequestDto {
   @StringProperty('Email', {
     required: true,
     email: true,

@@ -15,13 +15,14 @@ import {
 import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ExaminerCouncilService } from './examiner-council.service';
 import { Role } from '../../common/constants';
-import { Auth } from '../../common/decorators';
+import { Auth, AuthUser } from '../../common/decorators';
 import {
   ExaminerCouncilDto,
-  ExaminerPagePayloadDto,
-  ExaminerPayloadDto,
+  ExaminerPageRequestDto,
+  ExaminerRequestDto,
 } from './dtos';
 import { Pagination } from '../../common/dtos';
+import { UserEntity } from '../user/models';
 
 @Controller('examiner-council')
 @ApiTags('Hội đồng bảo vệ')
@@ -38,10 +39,12 @@ export class ExaminerCouncilController {
     description: 'Thêm hội đồng bảo vệ',
   })
   async createExaminerCouncil(
-    @Body() examinerCouncilDto: ExaminerPayloadDto,
+    @Body() examinerCouncilDto: ExaminerRequestDto,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ExaminerCouncilDto> {
     return this.examinerCouncilService.createExaminerCouncil(
       examinerCouncilDto,
+      currentUser,
     );
   }
 
@@ -52,11 +55,13 @@ export class ExaminerCouncilController {
     description: 'Thêm danh sách hội đồng bảo vệ',
   })
   async createMultipleExaminerCouncil(
-    @Body(new ParseArrayPipe({ items: ExaminerPayloadDto }))
-    examinerCouncilDto: ExaminerPayloadDto[],
+    @Body(new ParseArrayPipe({ items: ExaminerRequestDto }))
+    examinerCouncilDto: ExaminerRequestDto[],
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ExaminerCouncilDto[]> {
     return this.examinerCouncilService.createMultipleExaminerCouncil(
       examinerCouncilDto,
+      currentUser,
     );
   }
 
@@ -69,11 +74,13 @@ export class ExaminerCouncilController {
   })
   async updateExaminerCouncil(
     @Param('id', ParseIntPipe) id: number,
-    @Body() examinerCouncilDto: ExaminerPayloadDto,
+    @Body() examinerCouncilDto: ExaminerRequestDto,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
     return this.examinerCouncilService.updateExaminerCouncil(
       id,
       examinerCouncilDto,
+      currentUser,
     );
   }
 
@@ -86,7 +93,7 @@ export class ExaminerCouncilController {
   })
   async getExaminerCouncils(
     @Query()
-    pageOptionsDto: ExaminerPagePayloadDto,
+    pageOptionsDto: ExaminerPageRequestDto,
   ): Promise<Pagination<ExaminerCouncilDto>> {
     return this.examinerCouncilService.getExaminerCouncils(pageOptionsDto);
   }
@@ -110,7 +117,8 @@ export class ExaminerCouncilController {
   @ApiAcceptedResponse()
   async deleteExaminerCouncil(
     @Param('id', ParseIntPipe) id: number,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    await this.examinerCouncilService.deleteExaminerCouncil(id);
+    await this.examinerCouncilService.deleteExaminerCouncil(id, currentUser);
   }
 }

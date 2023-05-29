@@ -12,15 +12,17 @@ import { Pagination, PaginationMetaDto } from '../../common/dtos';
 import { ExaminerCouncilEntity } from './models';
 import {
   ExaminerCouncilDto,
-  ExaminerPagePayloadDto,
+  ExaminerPageRequestDto,
   ExaminerPageResponseDto,
-  ExaminerPayloadDto,
+  ExaminerRequestDto,
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
 import { ProjectService } from '../project/project.service';
 import { ExaminerCouncilUserEntity } from './models/examiner-council-user.entity';
 import { ProjectStatus } from '../../common/constants';
 import { SemesterService } from '../semester/semester.service';
+import { UserEventService } from '../user/services';
+import { UserEntity } from '../user/models';
 
 @Injectable()
 export class ExaminerCouncilService {
@@ -36,10 +38,12 @@ export class ExaminerCouncilService {
     private readonly projectService: ProjectService,
 
     private readonly semesterService: SemesterService,
+
+    private readonly userEventService: UserEventService,
   ) {}
 
   async getExaminerCouncils(
-    pageOptionsDto: ExaminerPagePayloadDto,
+    pageOptionsDto: ExaminerPageRequestDto,
   ): Promise<Pagination<ExaminerCouncilDto>> {
     const queryBuilder =
       this.examinerCouncilRepository.createQueryBuilder('examinerCouncil');
@@ -101,7 +105,6 @@ export class ExaminerCouncilService {
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
-    this.logger.log(`Lấy danh sách quản lý`);
     return new ExaminerPageResponseDto(
       entities.map((e) => e.toDto()),
       pageMetaDto,
@@ -110,11 +113,15 @@ export class ExaminerCouncilService {
 
   @Transactional()
   async createMultipleExaminerCouncil(
-    examinerCouncilDto: ExaminerPayloadDto[],
+    examinerCouncilDto: ExaminerRequestDto[],
+    currentUser: UserEntity,
   ): Promise<ExaminerCouncilDto[]> {
     const results = [];
     for (const council of examinerCouncilDto) {
-      const examinerCouncil = await this.createExaminerCouncil(council);
+      const examinerCouncil = await this.createExaminerCouncil(
+        council,
+        currentUser,
+      );
       results.push(examinerCouncil);
     }
     return results;
@@ -122,7 +129,8 @@ export class ExaminerCouncilService {
 
   @Transactional()
   async createExaminerCouncil(
-    examinerCouncilDto: ExaminerPayloadDto,
+    examinerCouncilDto: ExaminerRequestDto,
+    currentUser: UserEntity,
   ): Promise<ExaminerCouncilDto> {
     await this.semesterService.validateLockedSemester(
       examinerCouncilDto.semesterId,
@@ -140,8 +148,20 @@ export class ExaminerCouncilService {
         );
       }),
     );
-
-    this.logger.log(`Thêm mới nhóm quản lý ${examinerCouncil.id}`);
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Thêm mới hội đồng {councilLocation}`,
+        params: JSON.stringify({
+          councilLocation: `${examinerCouncil.location}_${examinerCouncil.semester?.name}`,
+          councilId: examinerCouncil.id,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới hội đồng ${examinerCouncil.id}`,
+    );
     return examinerCouncil.toDto();
   }
 
@@ -189,7 +209,8 @@ export class ExaminerCouncilService {
   @Transactional()
   async updateExaminerCouncil(
     id: number,
-    examinerCouncilDto: ExaminerPayloadDto,
+    examinerCouncilDto: ExaminerRequestDto,
+    currentUser: UserEntity,
   ): Promise<void> {
     await this.semesterService.validateLockedSemester(
       examinerCouncilDto.semesterId,
@@ -246,10 +267,28 @@ export class ExaminerCouncilService {
     this.examinerCouncilRepository.merge(examinerCouncil, examinerCouncilDto);
 
     await this.examinerCouncilRepository.save(examinerCouncil);
+
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Cập nhật hội đồng {councilLocation}`,
+        params: JSON.stringify({
+          councilLocation: `${examinerCouncil.location}_${examinerCouncil.semester?.name}`,
+          councilId: examinerCouncil.id,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật hội đồng ${examinerCouncil.id}`,
+    );
   }
 
   @Transactional()
-  async deleteExaminerCouncil(id: number): Promise<void> {
+  async deleteExaminerCouncil(
+    id: number,
+    currentUser: UserEntity,
+  ): Promise<void> {
     const queryBuilder = this.examinerCouncilRepository
       .createQueryBuilder('examinerCouncil')
       .leftJoin('examinerCouncil.projects', 'project')
@@ -292,6 +331,21 @@ export class ExaminerCouncilService {
       examinerCouncil.projects.map(async (p) => {
         await this.projectService.updateStatus(p.id, ProjectStatus.IN_REVIEW);
       }),
+    );
+
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Xoá hội đồng {councilLocation}`,
+        params: JSON.stringify({
+          councilLocation: `${examinerCouncil.location}_${examinerCouncil.semester?.name}`,
+          councilId: examinerCouncil.id,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+    this.logger.log(
+      `${currentUser.fullName} đã xoá hội đồng ${examinerCouncil.id}`,
     );
   }
 }

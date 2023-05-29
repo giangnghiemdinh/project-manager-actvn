@@ -30,7 +30,7 @@ export class ProjectRequestDto {
 
   status: ProjectStatus;
 
-  proposeById?: number;
+  createdById?: number;
 }
 
 export class ProjectStudentRequestDto {

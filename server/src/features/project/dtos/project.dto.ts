@@ -43,7 +43,7 @@ export class ProjectDto extends AbstractDto {
   instructor?: UserDto;
 
   @ApiPropertyOptional()
-  proposeBy?: UserDto;
+  createdBy?: UserDto;
 
   @ApiPropertyOptional()
   students?: StudentDto[];
@@ -114,7 +114,7 @@ export class ProjectDto extends AbstractDto {
     this.examinerCouncilId = project.examinerCouncilId;
     this.examinerCouncil = project.examinerCouncil?.toDto();
     this.reviewedBy = project.reviewedBy?.toDto();
-    this.proposeBy = project.proposeBy?.toDto();
+    this.createdBy = project.createdBy?.toDto();
     this.formScore = project.formScore;
     this.contentScore = project.contentScore;
     this.summarizeScore = project.summarizeScore;

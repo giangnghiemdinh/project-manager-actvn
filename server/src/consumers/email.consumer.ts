@@ -36,7 +36,7 @@ export class EmailConsumer {
           otp,
         },
       });
-      this.logger.log(`Send email verification for ${email} success`);
+      this.logger.log(`Đã gửi email xác thực đến ${email}`);
     } catch (e) {
       this.logger.error(e);
     }
@@ -57,7 +57,7 @@ export class EmailConsumer {
           url,
         },
       });
-      this.logger.log(`Send email reset password for ${email} success`);
+      this.logger.log(`Đã gửi email đặt lại mật khẩu đến ${email}`);
     } catch (e) {
       this.logger.error(e);
     }
@@ -77,7 +77,7 @@ export class EmailConsumer {
           otp,
         },
       });
-      this.logger.log(`Send verify email for ${email} success`);
+      this.logger.log(`Đã gửi email thay đổi địa chỉ đến ${email}`);
     } catch (e) {
       this.logger.error(e);
     }
@@ -96,7 +96,7 @@ export class EmailConsumer {
           password,
         },
       });
-      this.logger.log(`Send email notification for ${email} success`);
+      this.logger.log(`Đã gửi email thông tin tài khoản đến ${email}`);
     } catch (e) {
       this.logger.error(e);
     }
@@ -137,7 +137,7 @@ export class EmailConsumer {
           isRefuse,
         },
       });
-      this.logger.log(`Send email project approve for ${email} success`);
+      this.logger.log(`Đã gửi email kết quả phê duyệt đề tài đến ${email}`);
     } catch (e) {
       this.logger.error(e);
     }

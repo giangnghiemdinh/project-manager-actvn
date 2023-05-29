@@ -117,8 +117,9 @@ export class UserController {
   @Auth(Role.ADMINISTRATOR)
   async changeStatus(
     @Body() request: UserChangeStatusRequestDto,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    await this.userService.changeStatus(request);
+    await this.userService.changeStatus(request, currentUser);
   }
 
   @Put('profile')
@@ -276,13 +277,13 @@ export class UserController {
     return this.userService.updateUser(id, request, currentUser);
   }
 
-  @Delete(':id')
-  @Auth(Role.ADMINISTRATOR)
-  @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse()
-  async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.userService.deleteUser(id);
-  }
+  // @Delete(':id')
+  // @Auth(Role.ADMINISTRATOR)
+  // @HttpCode(HttpStatus.ACCEPTED)
+  // @ApiAcceptedResponse()
+  // async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  //   await this.userService.deleteUser(id);
+  // }
 
   @Delete('session/:id')
   @Auth()

@@ -63,17 +63,21 @@ export class StudentService {
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
-    this.logger.log(`Lấy danh sách sinh viên`);
     return new StudentPageResponseDto(
       entities.map((e) => e.toDto()),
       pageMetaDto,
     );
   }
 
-  async createStudent(request: StudentRequestDto): Promise<StudentDto> {
+  async createStudent(
+    request: StudentRequestDto,
+    currentUser: UserEntity,
+  ): Promise<StudentDto> {
     const student = this.studentRepository.create(request);
     await this.studentRepository.insert(student);
-    this.logger.log(`Thêm mới sinh viên ${student.id}`);
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới sinh viên ${student.code} | ${student.fullName}`,
+    );
     return student.toDto();
   }
 
@@ -87,7 +91,11 @@ export class StudentService {
     return student.toDto();
   }
 
-  async updateStudent(id: number, request: StudentRequestDto): Promise<void> {
+  async updateStudent(
+    id: number,
+    request: StudentRequestDto,
+    currentUser: UserEntity,
+  ): Promise<void> {
     const student = await this.studentRepository.findOne({
       where: { id },
     });
@@ -107,9 +115,13 @@ export class StudentService {
         departmentId: request.departmentId,
       },
     );
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật thông tin sinh viên ${student.code} | ${student.fullName}`,
+    );
   }
 
-  async deleteStudent(id: number): Promise<void> {
+  async deleteStudent(id: number, currentUser: UserEntity): Promise<void> {
     const student = await this.studentRepository
       .createQueryBuilder('student')
       .where('student.id = :id', { id })
@@ -131,6 +143,10 @@ export class StudentService {
     }
 
     await this.studentRepository.delete({ id });
+
+    this.logger.log(
+      `${currentUser.fullName} đã xoá sinh viên ${student.code} | ${student.fullName}`,
+    );
   }
 
   @Transactional()
@@ -143,7 +159,7 @@ export class StudentService {
         where: { code: student.code },
       });
       if (!isExist) {
-        await this.createStudent(student);
+        await this.createStudent(student, currentUser);
         continue;
       }
       switch (request.duplicateCode) {

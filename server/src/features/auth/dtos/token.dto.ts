@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { TwoFactoryMethod } from '../../../common/constants';
 
-export class TokenPayloadDto {
+export class TokenResponseDto {
   @ApiPropertyOptional()
   twoFactoryMethod?: TwoFactoryMethod;
 

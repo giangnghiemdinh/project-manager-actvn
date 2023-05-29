@@ -1,24 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { Trim } from '../../../common/decorators';
+import { IsArray } from 'class-validator';
+import { NumberProperty, StringProperty } from '../../../common/decorators';
 import { ProjectDto } from '../../project/dtos';
 import { ExaminerCouncilUserDto } from './examiner-council-user.dto';
 
-export class ExaminerPayloadDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @Trim()
+export class ExaminerRequestDto {
+  @StringProperty('Địa điểm', { required: true })
   location: string;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
+  @NumberProperty('ID học kỳ', { required: true, int: true, min: 1 })
   semesterId: number;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
+  @NumberProperty('ID khoa', { required: true, int: true, min: 1 })
   departmentId: number;
 
   @ApiProperty()

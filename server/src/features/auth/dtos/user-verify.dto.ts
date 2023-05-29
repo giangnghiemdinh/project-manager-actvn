@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BooleanProperty, StringProperty } from '../../../common/decorators';
 
-export class UserVerifyDto {
+export class UserVerifyRequestDto {
   @StringProperty('ID thiết bị', {
     required: true,
   })

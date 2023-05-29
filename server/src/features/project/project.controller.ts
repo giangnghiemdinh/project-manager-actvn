@@ -91,12 +91,13 @@ export class ProjectController {
   @ApiOkResponse({ type: ProjectDto, description: 'Thêm đồ án' })
   async createProject(
     @Body() request: ProjectRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ProjectDto> {
     request.status = request.students?.length
       ? ProjectStatus.IN_PROGRESS
       : ProjectStatus.PENDING;
-    return this.projectService.createProject(request, user);
+    request.createdById = currentUser.id;
+    return this.projectService.createProject(request, currentUser);
   }
 
   @Post('/propose')
@@ -105,11 +106,11 @@ export class ProjectController {
   @ApiOkResponse({ type: ProjectDto, description: 'Đề xuất đồ án' })
   async createProposeProject(
     @Body() request: ProjectRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ProjectDto> {
     request.status = ProjectStatus.PROPOSE;
-    request.proposeById = user.id;
-    return this.projectService.createProject(request, user);
+    request.createdById = currentUser.id;
+    return this.projectService.createProject(request, currentUser);
   }
 
   @Post('/approve')
@@ -118,9 +119,9 @@ export class ProjectController {
   @ApiOkResponse({ type: ProjectDto, description: 'Phê duyệt đồ án' })
   async approveProject(
     @Body() request: ProjectApproveRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<ProjectDto> {
-    return this.projectService.approveProject(request, user);
+    return this.projectService.approveProject(request, currentUser);
   }
 
   @Put(':id')
@@ -130,12 +131,12 @@ export class ProjectController {
   async updateProject(
     @Param('id', ParseIntPipe) id: number,
     @Body() request: ProjectRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
     request.status = request.students?.length
       ? ProjectStatus.IN_PROGRESS
       : ProjectStatus.PENDING;
-    return this.projectService.updateProject(id, request, user);
+    return this.projectService.updateProject(id, request, currentUser);
   }
 
   @Delete(':id')
@@ -144,18 +145,18 @@ export class ProjectController {
   @ApiAcceptedResponse()
   async deleteProject(
     @Param('id', ParseIntPipe) id: number,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    await this.projectService.deleteProject(id, user);
+    await this.projectService.deleteProject(id, currentUser);
   }
 
   @Post('import')
   @Auth(Role.ADMINISTRATOR)
   async importProject(
     @Body() request: ProjectImportRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
-    await this.projectService.importProject(request, user);
+    await this.projectService.importProject(request, currentUser);
   }
 
   @Get(':id/:type')
@@ -164,9 +165,9 @@ export class ProjectController {
     @Param('id', new ParseIntPipe()) id: number,
     @Param('type', new ParseEnumPipe(ProjectProgressType))
     type: ProjectProgressType,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ) {
-    return this.projectService.getReport(id, type, user);
+    return this.projectService.getReport(id, type, currentUser);
   }
 
   @Post(':id/report')
@@ -201,9 +202,9 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @UploadedFiles() files: { wordFile; reportFile; otherFile },
     @Body() request: { type: ProjectProgressType },
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ) {
-    return this.projectService.report(id, request, files, user);
+    return this.projectService.report(id, request, files, currentUser);
   }
 
   @Post(':id/review')
@@ -211,9 +212,9 @@ export class ProjectController {
   async reviewProject(
     @Param('id', ParseIntPipe) id: number,
     @Body() request: ProjectReviewRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ) {
-    return this.projectService.review(id, request, user);
+    return this.projectService.review(id, request, currentUser);
   }
 
   @Post(':id/council-review')
@@ -221,8 +222,8 @@ export class ProjectController {
   async councilReviewProject(
     @Param('id', ParseIntPipe) id: number,
     @Body() request: ProjectCouncilReviewRequestDto,
-    @AuthUser() user: UserEntity,
+    @AuthUser() currentUser: UserEntity,
   ) {
-    return this.projectService.councilReview(id, request, user);
+    return this.projectService.councilReview(id, request, currentUser);
   }
 }

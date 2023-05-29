@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class OtpTokenPayloadDto {
+export class OtpTokenResponseDto {
   @ApiProperty()
   secret: string;
 

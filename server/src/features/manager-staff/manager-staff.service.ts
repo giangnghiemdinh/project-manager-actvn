@@ -9,14 +9,16 @@ import { Repository } from 'typeorm';
 import { Pagination, PaginationMetaDto } from '../../common/dtos';
 import { ManagerStaffEntity } from './models';
 import {
-  ManagerPagePayloadDto,
+  ManagerPageRequestDto,
   ManagerPageResponseDto,
-  ManagerPayloadDto,
+  ManagerRequestDto,
   ManagerStaffDto,
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
 import { ProjectProgressType, ProjectStatus } from '../../common/constants';
 import { SemesterService } from '../semester/semester.service';
+import { UserEntity } from '../user/models';
+import { UserEventService } from '../user/services';
 
 @Injectable()
 export class ManagerStaffService {
@@ -27,10 +29,12 @@ export class ManagerStaffService {
     private readonly managerStaffRepository: Repository<ManagerStaffEntity>,
 
     private readonly semesterService: SemesterService,
+
+    private readonly userEventService: UserEventService,
   ) {}
 
   async getManagerStaffs(
-    pageOptionsDto: ManagerPagePayloadDto,
+    pageOptionsDto: ManagerPageRequestDto,
   ): Promise<Pagination<ManagerStaffDto>> {
     const queryBuilder = this.managerStaffRepository
       .createQueryBuilder('managerStaff')
@@ -93,7 +97,6 @@ export class ManagerStaffService {
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
-    this.logger.log(`Lấy danh sách quản lý`);
     return new ManagerPageResponseDto(
       entities.map((e) => e.toDto()),
       pageMetaDto,
@@ -102,26 +105,40 @@ export class ManagerStaffService {
 
   @Transactional()
   async createMultipleManagerStaff(
-    managerStaffDto: ManagerPayloadDto[],
+    managerStaffDto: ManagerRequestDto[],
+    currentUser: UserEntity,
   ): Promise<ManagerStaffDto[]> {
     const results = [];
     for (const council of managerStaffDto) {
-      const managerStaff = await this.createManagerStaff(council);
-      this.logger.log(`Thêm mới nhóm quản lý ${managerStaff.id}`);
+      const managerStaff = await this.createManagerStaff(council, currentUser);
       results.push(managerStaff);
     }
     return results;
   }
 
   async createManagerStaff(
-    managerStaffDto: ManagerPayloadDto,
+    managerStaffDto: ManagerRequestDto,
+    currentUser: UserEntity,
   ): Promise<ManagerStaffDto> {
     await this.semesterService.validateLockedSemester(
       managerStaffDto.semesterId,
     );
     const managerStaff = this.managerStaffRepository.create(managerStaffDto);
     await this.managerStaffRepository.save(managerStaff);
-    this.logger.log(`Thêm mới nhóm quản lý ${managerStaff.id}`);
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Thêm mới nhóm quản lý {managerFullName}`,
+        params: JSON.stringify({
+          managerFullName: managerStaff.user?.fullName,
+          managerId: managerStaff.id,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới nhóm quản lý ${managerStaff.id}`,
+    );
     return managerStaff.toDto();
   }
 
@@ -166,7 +183,8 @@ export class ManagerStaffService {
 
   async updateManagerStaff(
     id: number,
-    managerStaffDto: ManagerPayloadDto,
+    managerStaffDto: ManagerRequestDto,
+    currentUser: UserEntity,
   ): Promise<void> {
     const managerStaff = await this.managerStaffRepository.findOne({
       where: { id },
@@ -183,9 +201,25 @@ export class ManagerStaffService {
     this.managerStaffRepository.merge(managerStaff, managerStaffDto);
 
     await this.managerStaffRepository.save(managerStaff);
+
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Cập nhật nhóm quản lý {managerFullName}`,
+        params: JSON.stringify({
+          managerFullName: managerStaff.user?.fullName,
+          managerId: managerStaff.id,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật nhóm quản lý ${managerStaff.id}`,
+    );
   }
 
-  async deleteManagerStaff(id: number): Promise<void> {
+  async deleteManagerStaff(id: number, currentUser: UserEntity): Promise<void> {
     const managerStaff = await this.managerStaffRepository
       .createQueryBuilder('managerStaff')
       .where('managerStaff.id = :id', { id })
@@ -216,5 +250,21 @@ export class ManagerStaffService {
     }
 
     await this.managerStaffRepository.delete({ id });
+
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Xoá nhóm quản lý {managerFullName}`,
+        params: JSON.stringify({
+          managerFullName: managerStaff.user?.fullName,
+          managerId: managerStaff.id,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+
+    this.logger.log(
+      `${currentUser.fullName} đã xoá nhóm quản lý ${managerStaff.id}`,
+    );
   }
 }

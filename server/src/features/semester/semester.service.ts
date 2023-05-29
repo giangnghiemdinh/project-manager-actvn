@@ -16,6 +16,7 @@ import {
   ProjectProgressType,
   ProjectStatus,
 } from '../../common/constants';
+import { UserEntity } from '../user/models';
 
 @Injectable()
 export class SemesterService {
@@ -64,15 +65,24 @@ export class SemesterService {
     return semester.toDto();
   }
 
-  async createSemester(request: SemesterRequestDto): Promise<SemesterDto> {
+  async createSemester(
+    request: SemesterRequestDto,
+    currentUser: UserEntity,
+  ): Promise<SemesterDto> {
     await this.validateDate(request.start, request.end);
     const semester = this.semesterRepository.create(request);
     await this.semesterRepository.insert(semester);
-    this.logger.log(`Thêm mới học kỳ ${semester.id}`);
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới học kỳ ${semester.name}`,
+    );
     return semester.toDto();
   }
 
-  async updateSemester(id: number, request: SemesterRequestDto): Promise<void> {
+  async updateSemester(
+    id: number,
+    request: SemesterRequestDto,
+    currentUser: UserEntity,
+  ): Promise<void> {
     const semester = await this.findById(id);
     if (!semester) {
       throw new NotFoundException('Học kỳ không tồn tại!');
@@ -90,9 +100,13 @@ export class SemesterService {
         end: request.end,
       },
     );
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật học kỳ ${semester.name}`,
+    );
   }
 
-  async deleteSemester(id: number): Promise<void> {
+  async deleteSemester(id: number, currentUser: UserEntity): Promise<void> {
     const semester = await this.semesterRepository
       .createQueryBuilder('semester')
       .where({ id })
@@ -117,10 +131,12 @@ export class SemesterService {
       );
     }
 
+    this.logger.log(`${currentUser.fullName} đã xoá học kỳ ${semester.name}`);
+
     await this.semesterRepository.delete({ id });
   }
 
-  async lockSemester(id: number): Promise<void> {
+  async lockSemester(id: number, currentUser: UserEntity): Promise<void> {
     const semester = await this.semesterRepository
       .createQueryBuilder('semester')
       .where({ id })
@@ -158,6 +174,8 @@ export class SemesterService {
             : ProjectStatus.EXPIRED,
       });
     }
+
+    this.logger.log(`${currentUser.fullName} đã khoá học kỳ ${semester.name}`);
 
     await this.semesterRepository.update({ id }, { isLocked: true });
   }

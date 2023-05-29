@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DepartmentEntity } from './models';
 import { DepartmentDto, DepartmentRequestDto } from './dtos';
+import { UserEntity } from '../user/models';
 
 @Injectable()
 export class DepartmentService {
@@ -42,16 +43,20 @@ export class DepartmentService {
 
   async createDepartment(
     request: DepartmentRequestDto,
+    currentUser: UserEntity,
   ): Promise<DepartmentDto> {
     const department = this.departmentRepository.create(request);
     await this.departmentRepository.insert(department);
-    this.logger.log(`Thêm mới khoa ${department.id}`);
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới khoa ${department.name}`,
+    );
     return department.toDto();
   }
 
   async updateDepartment(
     id: number,
     request: DepartmentRequestDto,
+    currentUser: UserEntity,
   ): Promise<void> {
     const department = await this.departmentRepository.findOne({
       where: { id },
@@ -68,9 +73,13 @@ export class DepartmentService {
         description: request.description,
       },
     );
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật khoa ${department.name}`,
+    );
   }
 
-  async deleteDepartment(id: number): Promise<void> {
+  async deleteDepartment(id: number, currentUser: UserEntity): Promise<void> {
     const department = await this.departmentRepository
       .createQueryBuilder('department')
       .where('department.id = :id', { id })
@@ -97,5 +106,7 @@ export class DepartmentService {
     }
 
     await this.departmentRepository.delete({ id });
+
+    this.logger.log(`${currentUser.fullName} đã xoá khoa ${department.name}`);
   }
 }

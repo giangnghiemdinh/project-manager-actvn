@@ -1,6 +1,6 @@
 import { StringProperty } from '../../../common/decorators';
 
-export class UserResendDto {
+export class UserResendRequestDto {
   @StringProperty('ID thiết bị', {
     required: true,
   })

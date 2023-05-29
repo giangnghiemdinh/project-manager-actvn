@@ -20,23 +20,23 @@ import {
 import { reverseString, validateHash } from '../../common/utilities';
 import { UserEntity } from '../user/models';
 import moment from 'moment';
-import {
-  TokenPayloadDto,
-  UserForgotDto,
-  UserLoginDto,
-  UserRefreshDto,
-  UserResendDto,
-  UserResetDto,
-  UserVerifyDto,
-} from './dtos';
 import { isEmpty } from 'lodash';
-import { OtpTokenPayloadDto } from './dtos/otp-token-payload.dto';
-import { UserLogoutDto } from './dtos/user-logout.dto';
 import { v4 } from 'uuid';
 import {
   JwtInvalidException,
   OtpInvalidException,
 } from '../../common/exceptions';
+import {
+  OtpTokenResponseDto,
+  TokenResponseDto,
+  UserForgotRequestDto,
+  UserLoginRequestDto,
+  UserLogoutRequestDto,
+  UserRefreshRequestDto,
+  UserResendRequestDto,
+  UserResetRequestDto,
+  UserVerifyRequestDto,
+} from './dtos';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +51,7 @@ export class AuthService {
     private readonly userSessionService: UserSessionService,
   ) {}
 
-  async login(userLoginDto: UserLoginDto): Promise<TokenPayloadDto> {
+  async login(userLoginDto: UserLoginRequestDto): Promise<TokenResponseDto> {
     const user = await this.userService.findByEmail(userLoginDto.email);
     if (!user) {
       throw new NotFoundException('Tài khoản hoặc mật khẩu không chính xác!');
@@ -102,11 +102,11 @@ export class AuthService {
           { removeOnComplete: true },
         );
 
-        return new TokenPayloadDto({
+        return new TokenResponseDto({
           twoFactoryMethod: user.twoFactory,
         });
       case TwoFactoryMethod.OTP:
-        return new TokenPayloadDto({
+        return new TokenResponseDto({
           twoFactoryMethod: user.twoFactory,
           requiredOtpToken: isEmpty(user.optSecret),
         });
@@ -120,7 +120,7 @@ export class AuthService {
     }
   }
 
-  async logout(user: UserEntity, userLogoutDto: UserLogoutDto) {
+  async logout(user: UserEntity, userLogoutDto: UserLogoutRequestDto) {
     const session = await this.userSessionService.find(
       userLogoutDto.deviceId,
       user.id,
@@ -139,7 +139,7 @@ export class AuthService {
     await this.userSessionService.save(session);
   }
 
-  async resend(userResendDto: UserResendDto) {
+  async resend(userResendDto: UserResendRequestDto) {
     const user = await this.userService.findByEmail(userResendDto.email);
     if (!user) {
       throw new NotFoundException('Tài khoản không tồn tại');
@@ -161,7 +161,7 @@ export class AuthService {
     );
   }
 
-  async forgotPassword(userForgotDto: UserForgotDto) {
+  async forgotPassword(userForgotDto: UserForgotRequestDto) {
     const user = await this.userService.findByEmail(userForgotDto.email);
     const expireTime = this.configService.authConfig.forgotPassExpirationTime;
     if (!user) {
@@ -186,7 +186,7 @@ export class AuthService {
     });
   }
 
-  async resetPassword(userResetDto: UserResetDto) {
+  async resetPassword(userResetDto: UserResetRequestDto) {
     const verify = await this.jwtService.verifyAsync(userResetDto.code);
     const cache = await this.cacheService.get(
       `Forgot_Pass_${userResetDto.code}`,
@@ -210,13 +210,13 @@ export class AuthService {
     await this.cacheService.del(`Forgot_Pass_${userResetDto.code}`);
   }
 
-  generateOtpToken(email: string): OtpTokenPayloadDto {
+  generateOtpToken(email: string): OtpTokenResponseDto {
     return this.otpService.generateTokenOtp(email);
   }
 
   async twoFactoryVerify(
-    userVerifyDto: UserVerifyDto,
-  ): Promise<TokenPayloadDto> {
+    userVerifyDto: UserVerifyRequestDto,
+  ): Promise<TokenResponseDto> {
     const user = await this.userService.findByEmail(userVerifyDto.email);
     if (!user || user.twoFactory === TwoFactoryMethod.DISABLED) {
       throw new NotFoundException('Tài khoản không tồn tại!');
@@ -260,7 +260,9 @@ export class AuthService {
     });
   }
 
-  async refreshToken(userRefreshDto: UserRefreshDto): Promise<TokenPayloadDto> {
+  async refreshToken(
+    userRefreshDto: UserRefreshRequestDto,
+  ): Promise<TokenResponseDto> {
     if (!userRefreshDto.refreshToken) {
       throw new JwtInvalidException();
     }
@@ -289,7 +291,7 @@ export class AuthService {
     session.refreshJwt = refreshToken;
     session.expired = expiresIn;
     this.userSessionService.save(session).then();
-    return new TokenPayloadDto({
+    return new TokenResponseDto({
       expiresIn,
       accessToken,
       refreshToken,
@@ -315,7 +317,7 @@ export class AuthService {
       userId: user.id,
     });
     await this.userService.updateLastLogin(user.id);
-    return new TokenPayloadDto({
+    return new TokenResponseDto({
       ...token,
       twoFactoryMethod: user.twoFactory,
     });

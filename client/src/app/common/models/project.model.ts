@@ -22,8 +22,8 @@ export interface Project {
     department?: Department;
     instructorId?: number;
     instructor?: User;
-    proposeBy?: User;
-    proposeById?: number;
+    createdBy?: User;
+    createdById?: number;
     students?: Student[];
     instructorName?: string;
     studentCodes?: string;

@@ -1,6 +1,6 @@
 import { StringProperty } from '../../../common/decorators';
 
-export class UserGenerateOtpDto {
+export class UserGenerateOtpRequestDto {
   @StringProperty('Email', {
     required: true,
     email: true,

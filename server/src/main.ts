@@ -18,6 +18,13 @@ import { ApiConfigService } from './shared/services';
 import { setupSwagger } from './setup-swagger';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import { HttpExceptionFilter, QueryFailedFilter } from './common/filters';
+import {
+  utilities as nestWinstonModuleUtilities,
+  WinstonModule,
+} from 'nest-winston';
+import { format, transports } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import { Cluster } from './cluster';
 
 async function bootstrap(): Promise<NestExpressApplication> {
   initializeTransactionalContext();
@@ -25,6 +32,38 @@ async function bootstrap(): Promise<NestExpressApplication> {
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     new ExpressAdapter(),
+    {
+      logger: WinstonModule.createLogger({
+        transports: [
+          // file on daily rotation (error only)
+          new DailyRotateFile({
+            // %DATE will be replaced by the current date
+            filename: `logs/%DATE%_error.log`,
+            level: 'error',
+            format: format.combine(format.timestamp(), format.json()),
+            datePattern: 'DD-MM-YYYY',
+            zippedArchive: false, // don't want to zip our logs
+            maxSize: '20m', // 20MB
+            maxFiles: '30d', // will keep log until they are older than 31 days
+          }),
+          // same for all levels
+          new DailyRotateFile({
+            filename: `logs/%DATE%_combined.log`,
+            format: format.combine(format.timestamp(), format.json()),
+            datePattern: 'DD-MM-YYYY',
+            zippedArchive: false,
+            maxSize: '20m',
+            maxFiles: '30d',
+          }),
+          new transports.Console({
+            format: format.combine(
+              format.timestamp(),
+              nestWinstonModuleUtilities.format.nestLike(),
+            ),
+          }),
+        ],
+      }),
+    },
   );
 
   app.use(helmet());
@@ -76,4 +115,12 @@ async function bootstrap(): Promise<NestExpressApplication> {
   return app;
 }
 
-void bootstrap();
+function start() {
+  if (process.env.NODE_ENV === 'development') {
+    void bootstrap();
+  } else {
+    Cluster.register(bootstrap);
+  }
+}
+
+start();

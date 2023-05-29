@@ -4,9 +4,14 @@ import { ManagerStaffService } from './manager-staff.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ManagerStaffEntity } from './models';
 import { SemesterModule } from '../semester/semester.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [SemesterModule, TypeOrmModule.forFeature([ManagerStaffEntity])],
+  imports: [
+    UserModule,
+    SemesterModule,
+    TypeOrmModule.forFeature([ManagerStaffEntity]),
+  ],
   controllers: [ManagerStaffController],
   providers: [ManagerStaffService],
 })

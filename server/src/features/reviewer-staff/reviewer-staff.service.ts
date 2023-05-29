@@ -9,14 +9,16 @@ import { Repository } from 'typeorm';
 import { Pagination, PaginationMetaDto } from '../../common/dtos';
 import { ReviewerStaffEntity } from './models';
 import {
-  ReviewerPagePayloadDto,
+  ReviewerPageRequestDto,
   ReviewerPageResponseDto,
-  ReviewerPayloadDto,
+  ReviewerRequestDto,
   ReviewerStaffDto,
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
 import { ProjectService } from '../project/project.service';
 import { ProjectProgressType, ProjectStatus } from 'src/common/constants';
+import { UserEntity } from '../user/models';
+import { UserEventService } from '../user/services';
 
 @Injectable()
 export class ReviewerStaffService {
@@ -27,10 +29,12 @@ export class ReviewerStaffService {
     private reviewerStaffRepository: Repository<ReviewerStaffEntity>,
 
     private readonly projectService: ProjectService,
+
+    private readonly userEventService: UserEventService,
   ) {}
 
   async getReviewerStaffs(
-    pageOptionsDto: ReviewerPagePayloadDto,
+    pageOptionsDto: ReviewerPageRequestDto,
   ): Promise<Pagination<ReviewerStaffDto>> {
     const queryBuilder = this.reviewerStaffRepository
       .createQueryBuilder('reviewerStaff')
@@ -90,7 +94,6 @@ export class ReviewerStaffService {
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
-    this.logger.log(`Lấy danh sách quản lý`);
     return new ReviewerPageResponseDto(
       entities.map((e) => e.toDto()),
       pageMetaDto,
@@ -99,13 +102,12 @@ export class ReviewerStaffService {
 
   @Transactional()
   async createMultipleReviewerStaff(
-    reviewerStaffDto: ReviewerPayloadDto[],
+    reviewerStaffDto: ReviewerRequestDto[],
+    currentUser: UserEntity,
   ): Promise<ReviewerStaffDto[]> {
     const results = [];
     for (const staff of reviewerStaffDto) {
-      const reviewerStaff = await this.createReviewerStaff(staff);
-      await this.reviewerStaffRepository.save(reviewerStaff);
-      this.logger.log(`Thêm mới nhóm quản lý ${reviewerStaff.id}`);
+      const reviewerStaff = await this.createReviewerStaff(staff, currentUser);
       results.push(reviewerStaff);
     }
     return results;
@@ -113,7 +115,8 @@ export class ReviewerStaffService {
 
   @Transactional()
   async createReviewerStaff(
-    reviewerStaffDto: ReviewerPayloadDto,
+    reviewerStaffDto: ReviewerRequestDto,
+    currentUser: UserEntity,
   ): Promise<ReviewerStaffDto> {
     const reviewerStaff = this.reviewerStaffRepository.create(reviewerStaffDto);
     await this.reviewerStaffRepository.save(reviewerStaff);
@@ -123,7 +126,20 @@ export class ReviewerStaffService {
         await this.projectService.updateStatus(p.id, ProjectStatus.IN_REVIEW);
       }),
     );
-    this.logger.log(`Thêm mới nhóm quản lý ${reviewerStaff.id}`);
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Thêm mới nhóm phản biện {reviewerFullName}`,
+        params: JSON.stringify({
+          reviewerFullName: reviewerStaff.user?.fullName,
+          reviewerId: reviewerStaff.userId,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+    this.logger.log(
+      `${currentUser.fullName} đã thêm mới nhóm phản biện ${reviewerStaff.id}`,
+    );
     return reviewerStaff.toDto();
   }
 
@@ -166,7 +182,8 @@ export class ReviewerStaffService {
   @Transactional()
   async updateReviewerStaff(
     id: number,
-    reviewerStaffDto: ReviewerPayloadDto,
+    reviewerStaffDto: ReviewerRequestDto,
+    currentUser: UserEntity,
   ): Promise<void> {
     const reviewerStaff = await this.reviewerStaffRepository.findOne({
       where: { id },
@@ -200,10 +217,29 @@ export class ReviewerStaffService {
     this.reviewerStaffRepository.merge(reviewerStaff, reviewerStaffDto);
 
     await this.reviewerStaffRepository.save(reviewerStaff);
+
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Cập nhật nhóm phản biện {reviewerFullName}`,
+        params: JSON.stringify({
+          reviewerFullName: reviewerStaff.user?.fullName,
+          reviewerId: reviewerStaff.userId,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật nhóm phản biện ${reviewerStaff.id}`,
+    );
   }
 
   @Transactional()
-  async deleteReviewerStaff(id: number): Promise<void> {
+  async deleteReviewerStaff(
+    id: number,
+    currentUser: UserEntity,
+  ): Promise<void> {
     const reviewerStaff = await this.reviewerStaffRepository
       .createQueryBuilder('reviewerStaff')
       .where('reviewerStaff.id = :id', { id })
@@ -234,6 +270,22 @@ export class ReviewerStaffService {
       reviewerStaff.projects.map(async (p) => {
         await this.projectService.updateStatus(p.id, ProjectStatus.IN_PROGRESS);
       }),
+    );
+
+    // Create event
+    this.userEventService
+      .insert({
+        message: `Xoá nhóm phản biện {reviewerFullName}`,
+        params: JSON.stringify({
+          reviewerFullName: reviewerStaff.user?.fullName,
+          reviewerId: reviewerStaff.userId,
+        }),
+        userId: currentUser.id,
+      })
+      .then();
+
+    this.logger.log(
+      `${currentUser.fullName} đã xoá nhóm phản biện ${reviewerStaff.id}`,
     );
   }
 }

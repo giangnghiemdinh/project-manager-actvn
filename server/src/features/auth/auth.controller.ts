@@ -10,20 +10,20 @@ import {
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Auth, AuthUser, ReqExtra } from '../../common/decorators';
-import {
-  TokenPayloadDto,
-  UserForgotDto,
-  UserLoginDto,
-  UserRefreshDto,
-  UserResendDto,
-  UserResetDto,
-  UserVerifyDto,
-} from './dtos';
-import { UserGenerateOtpDto } from './dtos/user-generate-otp.dto';
-import { OtpTokenPayloadDto } from './dtos/otp-token-payload.dto';
 import { UserEntity } from '../user/models';
-import { UserLogoutDto } from './dtos/user-logout.dto';
 import { SkipThrottle } from '@nestjs/throttler';
+import {
+  OtpTokenResponseDto,
+  TokenResponseDto,
+  UserForgotRequestDto,
+  UserGenerateOtpRequestDto,
+  UserLoginRequestDto,
+  UserLogoutRequestDto,
+  UserRefreshRequestDto,
+  UserResendRequestDto,
+  UserResetRequestDto,
+  UserVerifyRequestDto,
+} from './dtos';
 
 @Controller('auth')
 @ApiTags('Bảo mật')
@@ -33,12 +33,12 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
-    type: TokenPayloadDto,
+    type: TokenResponseDto,
   })
   async login(
-    @Body() userLoginDto: UserLoginDto,
+    @Body() userLoginDto: UserLoginRequestDto,
     @ReqExtra() reqExtra: { ip: string; deviceName: string },
-  ): Promise<TokenPayloadDto> {
+  ): Promise<TokenResponseDto> {
     userLoginDto.deviceName = reqExtra.deviceName;
     userLoginDto.ipAddress = reqExtra.ip;
     return this.authService.login(userLoginDto);
@@ -47,12 +47,12 @@ export class AuthController {
   @Post('verify')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
-    type: TokenPayloadDto,
+    type: TokenResponseDto,
   })
   async verify(
-    @Body() userVerifyDto: UserVerifyDto,
+    @Body() userVerifyDto: UserVerifyRequestDto,
     @ReqExtra() reqExtra: { ip: string; deviceName: string },
-  ): Promise<TokenPayloadDto> {
+  ): Promise<TokenResponseDto> {
     userVerifyDto.deviceName = reqExtra.deviceName;
     userVerifyDto.ipAddress = reqExtra.ip;
     return this.authService.twoFactoryVerify(userVerifyDto);
@@ -62,7 +62,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   async resend(
-    @Body() userResendDto: UserResendDto,
+    @Body() userResendDto: UserResendRequestDto,
     @ReqExtra() reqExtra: { deviceName: string },
   ): Promise<void> {
     userResendDto.deviceName = reqExtra.deviceName;
@@ -72,12 +72,12 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
-    type: TokenPayloadDto,
+    type: TokenResponseDto,
   })
   @SkipThrottle()
   async refreshToken(
-    @Body() userRefreshDto: UserRefreshDto,
-  ): Promise<TokenPayloadDto> {
+    @Body() userRefreshDto: UserRefreshRequestDto,
+  ): Promise<TokenResponseDto> {
     return this.authService.refreshToken(userRefreshDto);
   }
 
@@ -85,7 +85,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   async forgotPassword(
-    @Body() userForgotDto: UserForgotDto,
+    @Body() userForgotDto: UserForgotRequestDto,
     @ReqExtra() reqExtra: { deviceName: string },
   ): Promise<void> {
     userForgotDto.deviceName = reqExtra.deviceName;
@@ -95,14 +95,16 @@ export class AuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
-  async resetPassword(@Body() userResetDto: UserResetDto): Promise<void> {
+  async resetPassword(
+    @Body() userResetDto: UserResetRequestDto,
+  ): Promise<void> {
     return this.authService.resetPassword(userResetDto);
   }
 
   @Get('generate-otp/:email')
   async generateOtpToken(
-    @Param() param: UserGenerateOtpDto,
-  ): Promise<OtpTokenPayloadDto> {
+    @Param() param: UserGenerateOtpRequestDto,
+  ): Promise<OtpTokenResponseDto> {
     return this.authService.generateOtpToken(param.email);
   }
 
@@ -110,7 +112,7 @@ export class AuthController {
   @Auth()
   @HttpCode(HttpStatus.OK)
   async logout(
-    @Body() userLogoutDto: UserLogoutDto,
+    @Body() userLogoutDto: UserLogoutRequestDto,
     @AuthUser() user: UserEntity,
   ): Promise<void> {
     await this.authService.logout(user, userLogoutDto);

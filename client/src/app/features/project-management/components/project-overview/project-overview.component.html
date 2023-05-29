@@ -47,8 +47,8 @@
                             Người đề xuất
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
-                             [class.invisible]="!project.proposeBy?.fullName">
-                            {{ project.proposeBy?.fullName || '#' }}
+                             [class.invisible]="!project.createdBy?.fullName">
+                            {{ project.createdBy?.fullName || '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
@@ -112,7 +112,7 @@
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
                              [class.invisible]="!project.instructor?.fullName">
-                            {{ project.instructor?.fullName }}
+                            {{ project.instructor?.fullName || '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
@@ -121,7 +121,7 @@
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
                              [class.invisible]="!project.managerStaff?.user?.fullName">
-                            {{ project.managerStaff?.user?.fullName }}
+                            {{ project.managerStaff?.user?.fullName || '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
@@ -130,7 +130,7 @@
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
                              [class.invisible]="!project.reviewerStaff?.user?.fullName">
-                            {{ project.reviewerStaff?.user?.fullName }}
+                            {{ project.reviewerStaff?.user?.fullName || '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">
@@ -139,7 +139,7 @@
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
                              [class.invisible]="!project.examinerCouncil?.location">
-                            {{ project.examinerCouncil?.location }}
+                            {{ project.examinerCouncil?.location || '#' }}
                         </div>
                     </div>
                 </div>

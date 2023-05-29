@@ -102,7 +102,7 @@ export class ProjectService {
       .leftJoinAndSelect('project.students', 'student')
       .leftJoin('project.semester', 'semester')
       .leftJoin('project.reviewedBy', 'reviewedBy')
-      .leftJoin('project.proposeBy', 'proposeBy')
+      .leftJoin('project.createdBy', 'createdBy')
       .leftJoin('project.managerStaff', 'managerStaff')
       .leftJoin('project.reviewerStaff', 'reviewerStaff')
       .leftJoin('reviewerStaff.user', 'reviewerStaffUser')
@@ -123,8 +123,8 @@ export class ProjectService {
         'semester.name',
         'reviewedBy.id',
         'reviewedBy.fullName',
-        'proposeBy.id',
-        'proposeBy.fullName',
+        'createdBy.id',
+        'createdBy.fullName',
         'managerStaff.id',
         'managerStaff.userId',
         'reviewerStaff.id',
@@ -216,7 +216,6 @@ export class ProjectService {
       .getManyAndCount();
 
     const pageMetaDto = new PaginationMetaDto({ itemCount, pageOptionsDto });
-    this.logger.log(`Lấy danh sách đề tài`);
     return new ProjectPageResponseDto(
       entities.map((e) => e.toDto()),
       pageMetaDto,
@@ -225,13 +224,14 @@ export class ProjectService {
 
   async createProject(
     request: ProjectRequestDto,
-    user: UserEntity,
+    currentUser: UserEntity,
   ): Promise<ProjectDto> {
     await this.validateProject(request);
 
     const project = this.projectRepository.create(request);
-    this.logger.log(`Thêm mới đề tài ${project.id}`);
     await this.projectRepository.save(project);
+
+    this.logger.log(`${currentUser.fullName} đã mới đề tài ${project.name}`);
 
     // Nếu không phải đề xuất thì sẽ tạo folder
     if (project.status !== ProjectStatus.PROPOSE) {
@@ -255,7 +255,7 @@ export class ProjectService {
           projectName: project.name,
           projectId: project.id,
         }),
-        userId: user.id,
+        userId: currentUser.id,
       })
       .then();
     return project.toDto();
@@ -277,7 +277,7 @@ export class ProjectService {
       .leftJoin('project.students', 'student')
       .leftJoin('project.department', 'department')
       .leftJoin('project.semester', 'semester')
-      .leftJoin('project.proposeBy', 'proposeBy')
+      .leftJoin('project.createdBy', 'createdBy')
       .addSelect([
         'instructor.id',
         'instructor.fullName',
@@ -290,8 +290,8 @@ export class ProjectService {
         'student.fullName',
         'student.email',
         'student.phone',
-        'proposeBy.id',
-        'proposeBy.fullName',
+        'createdBy.id',
+        'createdBy.fullName',
       ]);
 
     if (query && query.extra?.includes('all')) {
@@ -335,10 +335,13 @@ export class ProjectService {
     return project.toDto();
   }
 
-  async approveProject(request: ProjectApproveRequestDto, user: UserEntity) {
+  async approveProject(
+    request: ProjectApproveRequestDto,
+    currentUser: UserEntity,
+  ) {
     const project = await this.projectRepository.findOne({
       where: { id: request.id },
-      relations: ['students', 'instructor', 'proposeBy'],
+      relations: ['students', 'instructor', 'createdBy'],
     });
     if (!project) {
       throw new NotFoundException('Đề tài không tồn tại');
@@ -359,7 +362,7 @@ export class ProjectService {
       {
         status,
         reason: status === ProjectStatus.REFUSE ? request.reason : '',
-        reviewedBy: user,
+        reviewedBy: currentUser,
       },
     );
 
@@ -375,7 +378,7 @@ export class ProjectService {
     }
 
     await this.emailQueueService.add(PROJECT_APPROVE_PROCESS, {
-      email: project.proposeBy.email,
+      email: project.createdBy.email,
       title: `Đề tài đã ${
         request.status === ProjectApproveStatus.REFUSE
           ? 'bị từ chối'
@@ -411,9 +414,15 @@ export class ProjectService {
           projectName: project.name,
           projectId: project.id,
         }),
-        userId: user.id,
+        userId: currentUser.id,
       })
       .then();
+
+    this.logger.log(
+      `${currentUser.fullName} đã ${
+        request.status === ProjectApproveStatus.REFUSE ? 'từ chối' : 'phê duyệt'
+      } đề tài ${project.name}`,
+    );
 
     return project.toDto();
   }
@@ -421,7 +430,7 @@ export class ProjectService {
   async updateProject(
     id: number,
     request: ProjectRequestDto,
-    user: UserEntity,
+    currentUser: UserEntity,
   ): Promise<void> {
     const project = await this.projectRepository.findOne({
       where: { id },
@@ -435,6 +444,10 @@ export class ProjectService {
     this.projectRepository.merge(project, request);
     await this.projectRepository.save(project);
 
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật đề tài ${project.name}`,
+    );
+
     // Create event
     this.userEventService
       .insert({
@@ -443,12 +456,12 @@ export class ProjectService {
           projectName: project.name,
           projectId: project.id,
         }),
-        userId: user.id,
+        userId: currentUser.id,
       })
       .then();
   }
 
-  async deleteProject(id: number, user: UserEntity): Promise<void> {
+  async deleteProject(id: number, currentUser: UserEntity): Promise<void> {
     const project = await this.projectRepository.findOne({
       where: { id },
       relations: ['semester'],
@@ -470,18 +483,23 @@ export class ProjectService {
 
     await this.projectRepository.delete({ id });
 
+    this.logger.log(`${currentUser.fullName} đã xoá đề tài ${project.name}`);
+
     // Create event
     this.userEventService
       .insert({
         message: `Xoá đề tài {projectName}`,
         params: JSON.stringify({ projectName: project.name }),
-        userId: user.id,
+        userId: currentUser.id,
       })
       .then();
   }
 
   @Transactional()
-  async importProject(request: ProjectImportRequestDto, user: UserEntity) {
+  async importProject(
+    request: ProjectImportRequestDto,
+    currentUser: UserEntity,
+  ) {
     for (let i = 0; i < request.projects.length; i++) {
       const project = request.projects[i];
       const existProject = await this.projectRepository.findOne({
@@ -506,13 +524,16 @@ export class ProjectService {
           if (!student) {
             switch (request.studentNotExist) {
               case PROJECT_STUDENT_NOT_EXIST.INSERT:
-                const newStudent = await this.studentService.createStudent({
-                  fullName: (fullName || '').trim(),
-                  code: (code || '').trim(),
-                  email: (email || '').trim().toLowerCase(),
-                  phone: (phone || '').trim(),
-                  departmentId: request.departmentId,
-                });
+                const newStudent = await this.studentService.createStudent(
+                  {
+                    fullName: (fullName || '').trim(),
+                    code: (code || '').trim(),
+                    email: (email || '').trim().toLowerCase(),
+                    phone: (phone || '').trim(),
+                    departmentId: request.departmentId,
+                  },
+                  currentUser,
+                );
                 students.push(newStudent);
                 break;
               default:
@@ -574,7 +595,7 @@ export class ProjectService {
               : ProjectStatus.PENDING,
             students: students.map((s) => ({ id: s.id, fullName: s.fullName })),
           },
-          user,
+          currentUser,
         );
         continue;
       }
@@ -607,9 +628,13 @@ export class ProjectService {
     id: number,
     request: { type: ProjectProgressType },
     files: { wordFile; reportFile; otherFile },
-    user: UserEntity,
+    currentUser: UserEntity,
   ) {
-    const project = await this.validateReportPermission(id, request.type, user);
+    const project = await this.validateReportPermission(
+      id,
+      request.type,
+      currentUser,
+    );
 
     const progress = await this.projectProgressRepository.findOne({
       where: { projectId: id, type: request.type },
@@ -658,7 +683,7 @@ export class ProjectService {
             projectName: project.name,
             projectId: project.id,
           }),
-          userId: user.id,
+          userId: currentUser.id,
         })
         .then();
 
@@ -669,14 +694,27 @@ export class ProjectService {
         type: request.type,
       });
     }
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật ${
+        ProjectProgress[request.type]
+      } cho đề tài ${project.name}`,
+    );
     return await this.projectProgressRepository.update(
       { id: progress.id },
       uploadedFile,
     );
   }
 
-  async review(id: number, request: ProjectReviewRequestDto, user: UserEntity) {
-    const project = await this.validateReportPermission(id, request.type, user);
+  async review(
+    id: number,
+    request: ProjectReviewRequestDto,
+    currentUser: UserEntity,
+  ) {
+    const project = await this.validateReportPermission(
+      id,
+      request.type,
+      currentUser,
+    );
 
     const progress = await this.projectProgressRepository.findOne({
       where: { projectId: project.id, type: request.type },
@@ -693,7 +731,7 @@ export class ProjectService {
             projectName: project.name,
             projectId: project.id,
           }),
-          userId: user.id,
+          userId: currentUser.id,
         })
         .then();
       return this.projectProgressRepository.insert({
@@ -701,6 +739,11 @@ export class ProjectService {
         projectId: project.id,
       });
     }
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật ${
+        ProjectProgress[request.type]
+      } cho đề tài ${project.name}`,
+    );
     return await this.projectProgressRepository.update(
       { id: progress.id },
       request,
@@ -710,12 +753,12 @@ export class ProjectService {
   async councilReview(
     id: number,
     request: ProjectCouncilReviewRequestDto,
-    user: UserEntity,
+    currentUser: UserEntity,
   ) {
     const project = await this.validateReportPermission(
       id,
       ProjectProgressType.COUNCIL_REVIEW,
-      user,
+      currentUser,
     );
 
     // Create event
@@ -726,9 +769,13 @@ export class ProjectService {
           projectName: project.name,
           projectId: project.id,
         }),
-        userId: user.id,
+        userId: currentUser.id,
       })
       .then();
+
+    this.logger.log(
+      `${currentUser.fullName} đã cập nhật điểm hội đồng cho đề tài ${project.name}`,
+    );
     return this.projectRepository.update({ id: project.id }, request);
   }
 
