@@ -2,7 +2,14 @@ import { Routes } from '@angular/router';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 import { canActivateVerify } from './features/security/tfa-verify/tfa-verify.guard';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { authGuard, publicGuard, resetPasswordGuard, roleGuard } from './common/guards';
+import {
+    authGuard,
+    projectOverviewGuard,
+    publicGuard,
+    resetPasswordGuard,
+    roleGuard,
+    userProfileGuard
+} from './common/guards';
 import { provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { StudentEffects } from './features/student-management/store/student.effects';
@@ -107,6 +114,7 @@ export const appRoutes: Routes = [
                     },
                     {
                         path: ':id',
+                        canActivate: [ userProfileGuard ],
                         providers: [
                             provideState(userProfileFeature),
                             provideEffects(UserProfileEffects)
@@ -146,6 +154,7 @@ export const appRoutes: Routes = [
                     },
                     {
                         path: ':id',
+                        canActivate: [ projectOverviewGuard ],
                         loadComponent: () => import('./features/project-management/components/project-overview/project-overview.component').then(c => c.ProjectOverviewComponent)
                     }
                 ]

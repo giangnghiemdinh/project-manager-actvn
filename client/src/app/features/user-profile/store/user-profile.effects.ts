@@ -143,7 +143,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.change2FA),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.change2FA(payload.twoFactory).pipe(
+                this.userService.change2FA(payload).pipe(
                     map(response => UserProfileActions.change2FASuccess({ isSelf: payload.isSelf })),
                     catchError(errors => of(UserProfileActions.change2FAFailure({ errors })))
                 )
@@ -161,6 +161,7 @@ export class UserProfileEffects extends AbstractEffects {
                         return;
                     }
                     this.raiseSuccess('Thay đổi phương thức xác thành công!');
+                    this.store.dispatch(UserProfileActions.loadUser());
                 })
             ),
         { dispatch: false }

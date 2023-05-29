@@ -51,12 +51,12 @@ export class UserService extends AbstractService {
         return this.post<void>(`user/change-status`, { payload: { id, status } });
     }
 
-    getEvents(payload: PaginationPayload) {
-        return this.get<PaginationResponse<UserEvent>>('user/events', { payload })
+    getEvents(params: PaginationPayload) {
+        return this.get<PaginationResponse<UserEvent>>('user/events', { params })
     }
 
-    getSessions(payload: PaginationPayload) {
-        return this.get<PaginationResponse<UserSession>>('user/sessions', { payload })
+    getSessions(params: PaginationPayload) {
+        return this.get<PaginationResponse<UserSession>>('user/sessions', { params })
     }
 
     verifyNewEmail(payload: UserChangeEmail) {
@@ -71,8 +71,8 @@ export class UserService extends AbstractService {
         return this.post<void>('user/change-password', { payload });
     }
 
-    change2FA(twoFactory: TwoFactorMethod) {
-        return this.post<void>('user/change-2fa', { payload: { twoFactory } });
+    change2FA(payload: { id?: number, twoFactory: TwoFactorMethod }) {
+        return this.post<void>('user/change-2fa', { payload });
     }
 
     deleteSession(id: number) {

@@ -147,7 +147,8 @@ export class UserProfileComponent implements OnDestroy {
         this.profileStore.dispatch(UserProfileActions.changePassword({ payload }));
     }
 
-    onChange2FA(payload: { twoFactory: TwoFactorMethod, isSelf: boolean }) {
+    onChange2FA(payload: { id?: number, twoFactory: TwoFactorMethod, isSelf: boolean }) {
+        if (this.id) { payload.id = +this.id; }
         this.profileStore.dispatch(UserProfileActions.change2FA({ payload }));
     }
 }

@@ -91,6 +91,9 @@ export class UserController {
     @Body() request: UserChange2faRequestDto,
     @AuthUser() currentUser: UserEntity,
   ): Promise<void> {
+    if (!request.id || currentUser.role !== Role.ADMINISTRATOR) {
+      request.id = currentUser.id;
+    }
     await this.userService.change2FA(request, currentUser);
   }
 

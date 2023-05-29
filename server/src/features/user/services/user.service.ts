@@ -371,14 +371,14 @@ export class UserService {
 
   async change2FA(request: UserChange2faRequestDto, currentUser: UserEntity) {
     await this.userRepository.update(
-      { id: currentUser.id },
-      { twoFactory: request.twoFactory },
+      { id: request.id },
+      { twoFactory: request.twoFactory, optSecret: null },
     );
 
     this.logger.log(
-      `${currentUser.fullName} đã thay đổi 2FA thành ${request.twoFactory}`,
+      `${currentUser.fullName} đã thay đổi 2FA người dùng ${request.id} thành ${request.twoFactory}`,
     );
-    await this.logoutAllSections(currentUser.id);
+    await this.logoutAllSections(request.id);
   }
 
   async changePassword(

@@ -49,7 +49,7 @@ export const UserProfileActions = createActionGroup({
         'Change Password Success': emptyProps(),
         'Change Password Failure': props<{ errors: any }>(),
 
-        'Change 2FA': props<{ payload: { twoFactory: TwoFactorMethod, isSelf: boolean } }>(),
+        'Change 2FA': props<{ payload: { id?: number, twoFactory: TwoFactorMethod, isSelf: boolean } }>(),
         'Change 2FA Success': props<{ isSelf: boolean }>(),
         'Change 2FA Failure': props<{ errors: any }>(),
 
