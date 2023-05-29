@@ -49,6 +49,7 @@ export class OtpService {
       encrypt(secret, this.apiConfigService.encodeSecret.tfa),
       this.apiConfigService.otpConfig.expirationTime * 1000,
     );
+    console.log(await this.cacheService.get(`${email}_secret_auth`));
     return toFileStream(response, url);
   }
 
