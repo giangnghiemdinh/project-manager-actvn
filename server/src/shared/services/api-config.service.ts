@@ -161,6 +161,7 @@ export class ApiConfigService {
 
   get redisConfig() {
     return {
+      url: this.get('REDIS_URL'),
       host: this.get('REDIS_HOST'),
       port: this.getNumber('REDIS_PORT'),
       username: this.get('REDIS_USERNAME'),
