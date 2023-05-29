@@ -22,6 +22,7 @@ import { ReviewerStaffModule } from './features/reviewer-staff/reviewer-staff.mo
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerMiddleware } from './common/middlewares';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -69,8 +70,9 @@ import { LoggerMiddleware } from './common/middlewares';
       isGlobal: true,
       imports: [SharedModule],
       inject: [ApiConfigService],
-      useFactory: (configService: ApiConfigService) =>
-        configService.redisConfig,
+      useFactory: async (configService: ApiConfigService) => ({
+        store: await redisStore(configService.redisConfig),
+      }),
     }),
     BullModule.forRootAsync({
       imports: [SharedModule],

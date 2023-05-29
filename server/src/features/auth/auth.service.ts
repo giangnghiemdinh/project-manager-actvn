@@ -226,7 +226,6 @@ export class AuthService {
     let secret = user.optSecret;
     if (!secret) {
       const cache = await this.cacheService.get(`${user.email}_secret_auth`);
-      console.log(cache);
       if (!cache) {
         throw new OtpInvalidException();
       }
