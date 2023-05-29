@@ -24,7 +24,6 @@ import {
 } from 'nest-winston';
 import { format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { Cluster } from './cluster';
 
 async function bootstrap(): Promise<NestExpressApplication> {
   initializeTransactionalContext();
@@ -115,12 +114,14 @@ async function bootstrap(): Promise<NestExpressApplication> {
   return app;
 }
 
-function start() {
-  if (process.env.NODE_ENV === 'development') {
-    void bootstrap();
-  } else {
-    Cluster.register(bootstrap);
-  }
-}
+void bootstrap();
 
-start();
+// function start() {
+//   if (process.env.NODE_ENV === 'development') {
+//     void bootstrap();
+//   } else {
+//     Cluster.register(bootstrap);
+//   }
+// }
+//
+// start();
