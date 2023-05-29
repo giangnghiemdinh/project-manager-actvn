@@ -124,7 +124,7 @@ export class ApiConfigService {
       autoLoadEntities: true,
       migrationsRun: true,
       synchronize: true,
-      logging: true,
+      logging: this.isDevelopment,
     };
   }
 
