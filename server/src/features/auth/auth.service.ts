@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  StreamableFile,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -27,7 +28,6 @@ import {
   OtpInvalidException,
 } from '../../common/exceptions';
 import {
-  OtpTokenResponseDto,
   TokenResponseDto,
   UserForgotRequestDto,
   UserLoginRequestDto,
@@ -37,6 +37,7 @@ import {
   UserResetRequestDto,
   UserVerifyRequestDto,
 } from './dtos';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -210,8 +211,8 @@ export class AuthService {
     await this.cacheService.del(`Forgot_Pass_${userResetDto.code}`);
   }
 
-  generateOtpToken(email: string): OtpTokenResponseDto {
-    return this.otpService.generateTokenOtp(email);
+  generateOtpToken(email: string, response: Response): Promise<StreamableFile> {
+    return this.otpService.generateTokenOtp(email, response);
   }
 
   async twoFactoryVerify(
@@ -220,6 +221,16 @@ export class AuthService {
     const user = await this.userService.findByEmail(userVerifyDto.email);
     if (!user || user.twoFactory === TwoFactoryMethod.DISABLED) {
       throw new NotFoundException('Tài khoản không tồn tại!');
+    }
+
+    let secret = user.optSecret;
+    if (!secret) {
+      const cache = await this.cacheService.get(`${user.email}_secret_auth`);
+      if (!cache) {
+        throw new OtpInvalidException();
+      }
+      secret = `${cache}`;
+      this.cacheService.del(`${user.email}_secret_auth`).then();
     }
 
     switch (user.twoFactory) {
@@ -240,7 +251,7 @@ export class AuthService {
             deviceId: userVerifyDto.deviceId,
             userEmail: user.email,
             token: userVerifyDto.otp,
-            secret: userVerifyDto.secret || user.optSecret,
+            secret: secret,
           }))
         ) {
           throw new OtpInvalidException();
@@ -248,8 +259,8 @@ export class AuthService {
         break;
     }
 
-    if (!isEmpty(userVerifyDto.secret)) {
-      await this.userService.updateSecret(user.id, userVerifyDto.secret);
+    if (!user.optSecret) {
+      await this.userService.updateSecret(user.id, secret);
     }
 
     return this.getTokenAndSaveSession(user, {

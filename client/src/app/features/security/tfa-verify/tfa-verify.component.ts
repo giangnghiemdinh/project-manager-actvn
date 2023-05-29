@@ -5,7 +5,7 @@ import { getDeviceId, numberParser, setTitle } from '../../../common/utilities';
 import { AuthActions, AuthState, selectAuthErrors, selectCredentials, selectOtpToken, } from '../../../common/stores';
 import { Store } from '@ngrx/store';
 import { RO_LOGIN_FULL, TwoFactorMethod } from '../../../common/constants';
-import { InputParserDirective, QrCodeDirective } from '../../../core-ui/directives';
+import { InputParserDirective } from '../../../core-ui/directives';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormErrorComponent } from '../../../core-ui/components';
 import { combineLatest, interval, map, take } from 'rxjs';
@@ -21,7 +21,6 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
     imports: [
         NzButtonModule,
         NzInputModule,
-        QrCodeDirective,
         InputParserDirective,
         ReactiveFormsModule,
         NgIf,
@@ -68,8 +67,7 @@ export class TfaVerifyComponent {
             deviceId: getDeviceId(),
             email: auth.credentials.email || '',
             otp: this.otp.value || '',
-            isTrusted: this.isTrusted.value || false,
-            secret: auth.otpToken?.secret || ''
+            isTrusted: this.isTrusted.value || false
         };
         this.store.dispatch(AuthActions.twoFactorVerify({ payload }));
     }

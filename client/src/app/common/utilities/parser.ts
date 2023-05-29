@@ -32,3 +32,13 @@ export function getBase64(file: File): Promise<string | ArrayBuffer | null> {
         reader.onerror = error => reject(error);
     });
 }
+
+export function arrayBufferToBase64(buffer: any, contentType?: string) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return (contentType ? `data:${contentType};base64,` : '') + window.btoa(binary);
+}

@@ -4,6 +4,9 @@ import { ApiConfigService } from './api-config.service';
 import { isEqual } from 'lodash';
 import { CacheService } from './cache.service';
 import { OtpInvalidException } from '../../common/exceptions';
+import { Response } from 'express';
+import { toFileStream } from 'qrcode';
+import { decrypt, encrypt } from '../../common/utilities';
 
 @Injectable()
 export class OtpService {
@@ -34,15 +37,19 @@ export class OtpService {
     return otp;
   }
 
-  generateTokenOtp(
+  async generateTokenOtp(
     email: string,
+    response: Response,
     serviceName = this.apiConfigService.twoFactorAuthAppName,
   ) {
     const secret = authenticator.generateSecret();
-    return {
-      secret,
-      url: authenticator.keyuri(email, serviceName, secret),
-    };
+    const url = authenticator.keyuri(email, serviceName, secret);
+    await this.cacheService.set(
+      `${email}_secret_auth`,
+      encrypt(secret, this.apiConfigService.encodeSecret.tfa),
+      this.apiConfigService.otpConfig.expirationTime * 1000,
+    );
+    return toFileStream(response, url);
   }
 
   async generateVerifyEmailOtp(userEmail: string) {
@@ -96,7 +103,10 @@ export class OtpService {
     const fn = () =>
       authenticator.verify({
         token: verification.token,
-        secret: verification.secret,
+        secret: decrypt(
+          verification.secret,
+          this.apiConfigService.encodeSecret.tfa,
+        ),
       });
     return this.verify(verification.userEmail, verification.deviceId, fn);
   }

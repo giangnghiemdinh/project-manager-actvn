@@ -22,7 +22,7 @@ export const AuthActions = createActionGroup({
         'Resend Email Failure': props<{ errors: any }>(),
 
         'Load OTP Token': props<{ payload: { email: string } }>(),
-        'Load OTP Token Success': props<{ response: { secret: string, url: string } }>(),
+        'Load OTP Token Success': props<{ response: string }>(),
         'Load OTP Token Failure': props<{ errors: any }>(),
 
         'Two Factor Verify': props<{ payload: UserVerifyPayload }>(),

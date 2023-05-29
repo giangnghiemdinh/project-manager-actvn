@@ -1,4 +1,3 @@
-export * from './qr-code.directive';
 export * from './input-parser.directive';
 export * from './let.directive';
 export * from './menu-link-active.directive';

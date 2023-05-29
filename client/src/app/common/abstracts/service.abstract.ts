@@ -1,10 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import { catchError, map, throwError } from 'rxjs';
 import { IGNORE_BASE_URL, IGNORE_TOKEN } from '../intercepters';
 import { DEFAULT_ERROR_MESSAGE } from '../constants';
 import { NotificationService } from '../services';
 import { values } from 'lodash';
+import { arrayBufferToBase64 } from '../utilities';
 
 export interface HttpOptions {
     params?: HttpParams | {
@@ -35,6 +36,20 @@ export class AbstractService {
             .pipe(catchError((err: HttpErrorResponse) => {
                 return this.handleError(err, options?.ignoreAlert);
             }));
+    }
+
+    protected getFile(url: string, contentType?: string, options?: HttpOptions) {
+        return this.#http.get(url, {
+            headers: options?.headers,
+            params: options?.params,
+            responseType: 'arraybuffer',
+            context: this.buildContext(options)
+        })
+            .pipe(
+                map(buffer => arrayBufferToBase64(buffer, contentType)),
+                catchError((err: HttpErrorResponse) => {
+                    return this.handleError(err, options?.ignoreAlert);
+                }));
     }
 
     protected post<T>(url: string, options?: HttpOptions) {

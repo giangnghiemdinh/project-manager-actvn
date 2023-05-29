@@ -37,7 +37,7 @@ export class AuthService extends AbstractService {
     }
 
     generateToken(payload: { email: string }) {
-        return this.get<{ secret: string, url: string }>(`auth/generate-otp/${ payload.email }`, { ignoreAlert: true });
+        return this.getFile(`auth/generate-otp/${ payload.email }`, 'png', { ignoreAlert: true });
     }
 
     verify(payload: UserVerifyPayload) {

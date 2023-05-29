@@ -1,5 +1,10 @@
 import bcrypt from 'bcrypt';
-import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from 'crypto';
 
 /**
  * generate hash from password or string
@@ -35,6 +40,10 @@ export function validateHash(
 const IV_LENGTH = 16; // Với AES, IV gồm 16 ký tự
 
 export function encrypt(text: string, encryptionKey: string): string {
+  encryptionKey = createHash('sha256')
+    .update(String(encryptionKey))
+    .digest('base64')
+    .slice(0, 32);
   const iv = Buffer.from(randomBytes(IV_LENGTH))
     .toString('hex')
     .slice(0, IV_LENGTH);
@@ -46,6 +55,10 @@ export function encrypt(text: string, encryptionKey: string): string {
 }
 
 export function decrypt(text: string, encryptionKey: string): string {
+  encryptionKey = createHash('sha256')
+    .update(String(encryptionKey))
+    .digest('base64')
+    .slice(0, 32);
   const textParts: string[] = text.includes(':') ? text.split(':') : [];
   const iv = Buffer.from(textParts.shift() || '', 'binary');
   const encryptedText = Buffer.from(textParts.join(':'), 'hex');

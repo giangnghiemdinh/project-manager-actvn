@@ -6,14 +6,15 @@ import {
   HttpStatus,
   Param,
   Post,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Auth, AuthUser, ReqExtra } from '../../common/decorators';
 import { UserEntity } from '../user/models';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import {
-  OtpTokenResponseDto,
   TokenResponseDto,
   UserForgotRequestDto,
   UserGenerateOtpRequestDto,
@@ -24,6 +25,7 @@ import {
   UserResetRequestDto,
   UserVerifyRequestDto,
 } from './dtos';
+import { Response } from 'express';
 
 @Controller('auth')
 @ApiTags('Bảo mật')
@@ -61,6 +63,7 @@ export class AuthController {
   @Post('resend')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
+  @Throttle(1, 40)
   async resend(
     @Body() userResendDto: UserResendRequestDto,
     @ReqExtra() reqExtra: { deviceName: string },
@@ -102,10 +105,12 @@ export class AuthController {
   }
 
   @Get('generate-otp/:email')
+  @Throttle(1, 40)
   async generateOtpToken(
     @Param() param: UserGenerateOtpRequestDto,
-  ): Promise<OtpTokenResponseDto> {
-    return this.authService.generateOtpToken(param.email);
+    @Res() response: Response,
+  ): Promise<StreamableFile> {
+    return this.authService.generateOtpToken(param.email, response);
   }
 
   @Post('logout')

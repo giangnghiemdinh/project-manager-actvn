@@ -19,14 +19,14 @@
         </div>
     </div>
     <form (keydown.enter)="onVerify(auth)">
-        <ng-container *ngIf="auth.credentials!.requireOtpToken && auth.otpToken; else normalDescTmpl">
+        <ng-container *ngIf="auth.credentials!.requireOtpToken; else normalDescTmpl">
             <div class="text-gray-500 mb-2">
                 Bước 1: Cài đặt ứng dụng Google Authentication trên điện thoại di động.
             </div>
             <div class="text-gray-500 mb-2">
                 Bước 2: Mở ứng dụng và quét mã vạch
                 <div class="w-full flex justify-center mt-2">
-                    <img qrCode [url]="auth.otpToken.url" class="w-[128px] h-[128px]" alt="" src=""/>
+                    <img [src]="auth.otpToken" class="w-[128px] h-[128px]" alt="" src=""/>
                 </div>
                 <div class="w-full flex justify-end mt-2">
                     <a [class]="countdown > 0 ? 'text-gray-300 pointer-events-none' : 'text-[#009ef7]'"

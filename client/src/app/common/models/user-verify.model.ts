@@ -4,7 +4,6 @@ export interface UserVerifyPayload {
     deviceId: string;
     email: string;
     otp: string;
-    secret: string;
     isTrusted: boolean;
 }
 

@@ -10,13 +10,13 @@ export interface AuthState extends AbstractState {
         twoFactorMethod?: TwoFactorMethod,
         requireOtpToken?: boolean
     } | null;
-    otpToken: { secret: string, url: string } | null;
+    otpToken: string;
     profile: User | null;
 }
 
 export const initialAuthState: AuthState = {
     credentials: null,
-    otpToken: null,
+    otpToken: '',
     profile: null,
     isLoading: false,
     errors: null
@@ -53,7 +53,7 @@ export const authFeature = createFeature({
 
         on(AuthActions.loadOTPToken, (state) => ({
             ...state,
-            otpToken: null,
+            otpToken: '',
             errors: null,
             isLoading: true,
         })),
@@ -153,7 +153,7 @@ export const authFeature = createFeature({
         on(AuthActions.loadProfileSuccess, (state, { response }) => ({
             ...state,
             credentials: null,
-            otpToken: null,
+            otpToken: '',
             profile: response,
             errors: null,
             isLoading: false,

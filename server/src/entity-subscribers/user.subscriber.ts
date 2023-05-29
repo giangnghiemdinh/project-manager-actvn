@@ -21,9 +21,5 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     }
   }
 
-  async afterInsert(event: InsertEvent<UserEntity>) {
-    // TODO: send email password
-  }
-
   beforeUpdate(event: UpdateEvent<UserEntity>): void {}
 }

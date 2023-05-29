@@ -20,9 +20,6 @@ export class UserVerifyRequestDto {
   })
   readonly otp: string;
 
-  @StringProperty('Mã ứng dụng')
-  readonly secret?: string;
-
   @BooleanProperty('Lưu thiết bị')
   readonly isTrusted: boolean;
 
