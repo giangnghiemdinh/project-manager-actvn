@@ -36,33 +36,39 @@
                             </div>
                             <div class="mt-2 flex flex-col gap-2">
                                 <div>
+                                    <div class="font-semibold text-gray-600">Giới tính</div>
+                                    <div class="text-gray-400 truncate">
+                                        {{ user.gender | gender }}
+                                    </div>
+                                </div>
+                                <div>
                                     <div class="font-semibold text-gray-600">Số điện thoại</div>
                                     <div class="text-gray-400 truncate" [class.invisible]="!user.phone">
-                                        {{ user.phone || 'Phone' }}
+                                        {{ user.phone || '#' }}
                                     </div>
                                 </div>
                                 <div>
                                     <div class="font-semibold text-gray-600">Ngày sinh</div>
                                     <div class="text-gray-400 truncate" [class.invisible]="!user.birthday">
-                                        {{ user.birthday ? (user.birthday | date: 'dd/MM/yyyy') : 'Birthday' }}
+                                        {{ user.birthday ? (user.birthday | date: 'dd/MM/yyyy') : '#' }}
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-gray-600">Đơn vị</div>
+                                    <div class="font-semibold text-gray-600">Đơn vị công tác</div>
                                     <div class="text-gray-400 truncate" [class.invisible]="!user.workPlace">
-                                        {{ user.workPlace || 'WorkPlace' }}
+                                        {{ user.workPlace || '#' }}
                                     </div>
                                 </div>
                                 <div>
                                     <div class="font-semibold text-gray-600">Địa chỉ</div>
                                     <div class="text-gray-400 truncate" [class.invisible]="!user.address">
-                                        {{ user.address || 'Address' }}
+                                        {{ user.address || '#' }}
                                     </div>
                                 </div>
                                 <div>
                                     <div class="font-semibold text-gray-600">Đăng nhập lần cuối</div>
                                     <div class="text-gray-400 truncate" [class.invisible]="!user.lastLogin">
-                                        {{ user.lastLogin ? (user.lastLogin | date: 'dd/MM/yyyy HH:mm') : 'Last Login' }}
+                                        {{ user.lastLogin ? (user.lastLogin | date: 'dd/MM/yyyy HH:mm') : '#' }}
                                     </div>
                                 </div>
                             </div>

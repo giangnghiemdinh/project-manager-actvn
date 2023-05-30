@@ -11,7 +11,7 @@ import { RouterReducerState } from '@ngrx/router-store';
 import { combineLatest, filter, map, ReplaySubject, takeUntil } from 'rxjs';
 import { User, UserChangeEmail, UserChangePassword } from '../../common/models';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { DriverUrlPipe } from '../../core-ui/pipes';
+import { DriverUrlPipe, GenderPipe } from '../../core-ui/pipes';
 import { selectRouterParam } from '../../common/stores/router';
 import {
     selectEventPagination,
@@ -37,7 +37,7 @@ import { ChangeTwoFactorComponent } from './components/change-two-factor/change-
 @Component({
     selector: 'app-user-profile',
     standalone: true,
-    imports: [ NgForOf, NgClass, NgIf, NzButtonModule, ToolbarComponent, UserSecurityComponent, UserSessionsComponent, UserEventsComponent, AsyncPipe, JsonPipe, NzSpinModule, DriverUrlPipe, UserFormComponent, DatePipe, RouterLink, ChangeEmailComponent, ChangePasswordComponent, ChangeTwoFactorComponent ],
+    imports: [ NgForOf, NgClass, NgIf, NzButtonModule, ToolbarComponent, UserSecurityComponent, UserSessionsComponent, UserEventsComponent, AsyncPipe, JsonPipe, NzSpinModule, DriverUrlPipe, UserFormComponent, DatePipe, RouterLink, ChangeEmailComponent, ChangePasswordComponent, ChangeTwoFactorComponent, GenderPipe ],
     templateUrl: './user-profile.component.html',
 })
 export class UserProfileComponent implements OnDestroy {

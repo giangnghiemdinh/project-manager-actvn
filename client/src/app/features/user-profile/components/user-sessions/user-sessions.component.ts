@@ -11,6 +11,7 @@ import { CurrentDevicePipe } from './current-device.pipe';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { first } from 'rxjs';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 @Component({
     selector: 'app-user-sessions',
@@ -23,7 +24,8 @@ import { NzModalService } from 'ng-zorro-antd/modal';
         DatePipe,
         NgIf,
         CurrentDevicePipe,
-        NzButtonModule
+        NzButtonModule,
+        NzToolTipModule
     ],
     templateUrl: './user-sessions.component.html',
 })
