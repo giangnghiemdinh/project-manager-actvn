@@ -5,13 +5,13 @@
                     { title: 'Trang cá nhân' }
                  ] : [
                     { title: 'Trang chủ' },
-                    { title: 'Danh sách người dùng', url: '/user-management' },
+                    { title: 'Danh sách người dùng', url: id ? '/user-management' : '/' },
                     { title: (user$ | async)?.fullName || '' }
                  ]">
         <div class="flex justify-end items-center gap-2">
             <button class="flex items-center justify-center w-[100px]"
                     nzSize="large" nz-button nzType="default"
-                    routerLink="/user-management">
+                    [routerLink]="id ? '/user-management' : '/'">
                 <i class='bx bx-chevron-left text-lg'></i>
                 <span class="mr-1.5">Quay lại</span>
             </button>
