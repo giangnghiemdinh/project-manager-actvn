@@ -44,7 +44,7 @@ export class UserService extends AbstractService {
     }
 
     updateProfile(payload: User) {
-        return this.put<User>(`profile`, { payload: this.parsePayload(payload) });
+        return this.put<User>(`user/profile`, { payload: this.parsePayload(payload) });
     }
 
     changeStatus(id: number, status: UserStatus) {
