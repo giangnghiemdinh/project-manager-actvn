@@ -40,7 +40,7 @@ export class UserFormComponent implements OnChanges {
     @Input() isVisible: boolean | null = false;
     @Input() user: User | null = null;
     @Input() departments: Department[] | null = [];
-    @Input() isAdministrator: boolean | null = true;
+    @Input() isAdministrator: boolean | null = false;
     @Output() ok = new EventEmitter();
     @Output() cancel = new EventEmitter();
 

@@ -73,6 +73,26 @@ export const userProfileFeature = createFeature({
             isLoading: false,
         })),
 
+        on(UserProfileActions.updateProfile, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(UserProfileActions.updateProfileSuccess, (state, { response }) => ({
+            ...state,
+            user: response,
+            errors: null,
+            isVisible: false,
+            isLoading: false,
+        })),
+
+        on(UserProfileActions.updateUserFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
         on(UserProfileActions.loadSessions, (state) => ({
             ...state,
             sessions: [],

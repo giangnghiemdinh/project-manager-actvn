@@ -10,7 +10,7 @@
                (pageChanges)="pageChange.emit($event)">
         <app-table-column key="deviceName" title="Thiết bị" width="200px"/>
         <app-table-column key="ipAddress" title="IP" width="120px"/>
-        <app-table-column key="updatedAt" title="Thời gian" width="120px">
+        <app-table-column key="updatedAt" title="Hoạt động gần nhất" width="120px">
             <ng-template table-cell let-row>
                 {{ row.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
             </ng-template>

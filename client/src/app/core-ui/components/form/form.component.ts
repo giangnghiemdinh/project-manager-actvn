@@ -89,7 +89,6 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
                 ? this.form.setValidators(this.validators)
                 : this.form.clearValidators();
             this.form.updateValueAndValidity();
-            this.form[this.disabled ? 'disable' : 'enable']();
             !isEmpty(this.data)
                 ? this.patchValue(this.data)
                 : this.valueChangesListener();
