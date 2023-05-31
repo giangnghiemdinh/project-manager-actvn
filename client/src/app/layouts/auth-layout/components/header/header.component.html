@@ -73,7 +73,7 @@
            [nzTitle]="menuTitle"
            [nzContent]="drawerContent"
            [(nzVisible)]="isOpenDrawer"
-           (nzonCancel)="isOpenDrawer = false">
+           (nzOnClose)="isOpenDrawer = false">
     <ng-template #menuTitle>
         <div class="w-full flex justify-between">
             <img class="h-[40px] object-cover" src="assets/images/logos/logo-1.png" alt="">
