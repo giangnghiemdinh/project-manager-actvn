@@ -22,16 +22,16 @@ export class ProjectConsumer {
   async createProjectFolder(job: Job<any>) {
     try {
       const { id, folderName } = job.data;
-      const project = await this.projectService.getProject(id);
-      if (!project) {
-        return;
-      }
-      const folder = await this.driverService.createFolder(
-        folderName,
-        this.driverService.defaultFolderIds.projects,
-      );
-      await this.projectService.updateFolderId(id, folder.id);
-      this.logger.log(`Đã tạo thư mục cho đề tài ${folderName}`);
+      // const project = await this.projectService.getProject(id);
+      // if (!project) {
+      //   return;
+      // }
+      // const folder = await this.driverService.createFolder(
+      //   folderName,
+      //   this.driverService.defaultFolderIds.projects,
+      // );
+      // await this.projectService.updateFolderId(id, folder.id);
+      // this.logger.log(`Đã tạo thư mục cho đề tài ${folderName}`);
     } catch (e) {
       this.logger.error(e);
     }
