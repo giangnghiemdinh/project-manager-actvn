@@ -145,14 +145,18 @@ export class ExaminerCouncilService {
         );
       }),
     );
-    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
-      message: `Thêm mới hội đồng {councilLocation}`,
-      params: {
-        councilLocation: examinerCouncil.location,
-        councilId: examinerCouncil.id,
+    await this.queueService.addEvent(
+      CREATE_EVENT_PROCESS,
+      {
+        message: `Thêm mới hội đồng {councilLocation}`,
+        params: {
+          councilLocation: examinerCouncil.location,
+          councilId: examinerCouncil.id,
+        },
+        userId: currentUser.id,
       },
-      userId: currentUser.id,
-    });
+      { delay: 1000, removeOnComplete: true },
+    );
     this.logger.log(
       `${currentUser.fullName} đã thêm mới hội đồng ${examinerCouncil.id}`,
     );

@@ -367,7 +367,7 @@ export class ProjectService {
           id: project.id,
           folderName: project.name,
         },
-        { delay: 2000 },
+        { delay: 2000, removeOnComplete: true },
       );
     }
 

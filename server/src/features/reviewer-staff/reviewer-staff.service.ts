@@ -129,11 +129,15 @@ export class ReviewerStaffService {
       }),
     );
 
-    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
-      message: `Thêm mới nhóm phản biện {reviewerFullName}`,
-      params: { reviewerId: reviewerStaff.id },
-      userId: currentUser.id,
-    });
+    await this.queueService.addEvent(
+      CREATE_EVENT_PROCESS,
+      {
+        message: `Thêm mới nhóm phản biện {reviewerFullName}`,
+        params: { reviewerId: reviewerStaff.id },
+        userId: currentUser.id,
+      },
+      { delay: 1000, removeOnComplete: true },
+    );
     this.logger.log(
       `${currentUser.fullName} đã thêm mới nhóm phản biện ${reviewerStaff.id}`,
     );

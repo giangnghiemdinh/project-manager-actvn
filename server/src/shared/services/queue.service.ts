@@ -23,7 +23,7 @@ export class QueueService {
   addEvent(
     process: string,
     data: unknown,
-    options = { removeOnComplete: true },
+    options: any = { removeOnComplete: true },
   ) {
     return this.eventQueue.add(process, data, options);
   }
@@ -31,7 +31,7 @@ export class QueueService {
   addMail(
     process: string,
     data: unknown,
-    options = { removeOnComplete: true },
+    options: any = { removeOnComplete: true },
   ) {
     return this.emailQueue.add(process, data, options);
   }

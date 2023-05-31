@@ -129,11 +129,15 @@ export class ManagerStaffService {
     const managerStaff = this.managerStaffRepository.create(managerStaffDto);
     await this.managerStaffRepository.save(managerStaff);
 
-    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
-      message: `Thêm mới nhóm quản lý {managerFullName}`,
-      params: { managerId: managerStaff.id },
-      userId: currentUser.id,
-    });
+    await this.queueService.addEvent(
+      CREATE_EVENT_PROCESS,
+      {
+        message: `Thêm mới nhóm quản lý {managerFullName}`,
+        params: { managerId: managerStaff.id },
+        userId: currentUser.id,
+      },
+      { delay: 1000, removeOnComplete: true },
+    );
     this.logger.log(
       `${currentUser.fullName} đã thêm mới nhóm quản lý ${managerStaff.id}`,
     );
