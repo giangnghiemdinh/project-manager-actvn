@@ -212,6 +212,14 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
         this.patchValue(this.initialData).then();
     }
 
+    disable() {
+        this.form.disable();
+    }
+
+    enable() {
+        this.form.enable();
+    }
+
     async patchValue(data: any) {
         if (!this.initialized || isEmpty(data)) { return; }
 

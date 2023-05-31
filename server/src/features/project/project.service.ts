@@ -26,6 +26,7 @@ import {
 import { UserEntity } from '../user/models';
 import { ProjectProgressEntity } from './models/project-progress.entity';
 import {
+  CREATE_EVENT_PROCESS,
   ExaminerCouncilPosition,
   PROJECT_APPROVE_PROCESS,
   PROJECT_DUPLICATE_NAME,
@@ -42,13 +43,12 @@ import {
 import {
   ApiConfigService,
   DriverService,
-  EmailQueueService,
-  ProjectQueueService,
+  QueueService,
 } from '../../shared/services';
 import { StudentService } from '../student/student.service';
 import { Transactional } from 'typeorm-transactional';
 import { StudentDto } from '../student/dtos';
-import { UserEventService, UserService } from '../user/services';
+import { UserService } from '../user/services';
 import { SemesterService } from '../semester/semester.service';
 import moment from 'moment';
 
@@ -62,22 +62,12 @@ export class ProjectService {
 
     @InjectRepository(ProjectProgressEntity)
     private readonly projectProgressRepository: Repository<ProjectProgressEntity>,
-
     private readonly userService: UserService,
-
     private readonly studentService: StudentService,
-
-    private readonly userEventService: UserEventService,
-
-    private readonly projectQueueService: ProjectQueueService,
-
     private readonly driverService: DriverService,
-
     private readonly semesterService: SemesterService,
-
     private readonly apiConfigService: ApiConfigService,
-
-    private readonly emailQueueService: EmailQueueService,
+    private readonly queueService: QueueService,
   ) {}
 
   async getProjects(
@@ -136,7 +126,7 @@ export class ProjectService {
 
     if (pageOptionsDto.q) {
       queryBuilder.where('UCASE(project.name) LIKE :q', {
-        q: `${pageOptionsDto.q.toUpperCase()}`,
+        q: `%${pageOptionsDto.q.toUpperCase()}%`,
       });
     }
 
@@ -235,7 +225,7 @@ export class ProjectService {
 
     // Nếu không phải đề xuất thì sẽ tạo folder
     if (project.status !== ProjectStatus.PROPOSE) {
-      await this.projectQueueService.add(
+      await this.queueService.addProject(
         PROJECT_FOLDER_PROCESS,
         {
           id: project.id,
@@ -245,19 +235,17 @@ export class ProjectService {
       );
     }
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `${
-          project.status === ProjectStatus.PROPOSE ? 'Đề xuất' : 'Thêm mới'
-        } đề tài {projectName}`,
-        params: JSON.stringify({
-          projectName: project.name,
-          projectId: project.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `${
+        project.status === ProjectStatus.PROPOSE ? 'Đề xuất' : 'Thêm mới'
+      } đề tài {projectName}`,
+      params: {
+        projectName: project.name,
+        projectId: project.id,
+      },
+      userId: currentUser.id,
+    });
+
     return project.toDto();
   }
 
@@ -341,7 +329,13 @@ export class ProjectService {
   ) {
     const project = await this.projectRepository.findOne({
       where: { id: request.id },
-      relations: ['students', 'instructor', 'createdBy'],
+      relations: [
+        'semester',
+        'department',
+        'students',
+        'instructor',
+        'createdBy',
+      ],
     });
     if (!project) {
       throw new NotFoundException('Đề tài không tồn tại');
@@ -367,7 +361,7 @@ export class ProjectService {
     );
 
     if (request.status !== ProjectApproveStatus.ACCEPT) {
-      await this.projectQueueService.add(
+      await this.queueService.addProject(
         PROJECT_FOLDER_PROCESS,
         {
           id: project.id,
@@ -377,7 +371,7 @@ export class ProjectService {
       );
     }
 
-    await this.emailQueueService.add(PROJECT_APPROVE_PROCESS, {
+    await this.queueService.addMail(PROJECT_APPROVE_PROCESS, {
       email: project.createdBy.email,
       title: `Đề tài đã ${
         request.status === ProjectApproveStatus.REFUSE
@@ -402,21 +396,21 @@ export class ProjectService {
       isRefuse: request.status === ProjectApproveStatus.REFUSE,
     });
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `${
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message:
+        request.status === ProjectApproveStatus.REFUSE
+          ? `Từ chối đề tài {projectName} | ${request.reason} | ${project.semester?.name} | ${project.department?.name}`
+          : `Phê duyệt đề tài {projectName} | ${project.semester?.name} | ${project.department?.name}`,
+      params: {
+        projectName: project.name,
+        projectId:
           request.status === ProjectApproveStatus.REFUSE
-            ? 'Từ chối'
-            : 'Phê duyệt'
-        } đề tài {projectName}`,
-        params: JSON.stringify({
-          projectName: project.name,
-          projectId: project.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+            ? undefined
+            : project.id,
+      },
+      userId: currentUser.id,
+      shouldLoad: false,
+    });
 
     this.logger.log(
       `${currentUser.fullName} đã ${
@@ -448,23 +442,20 @@ export class ProjectService {
       `${currentUser.fullName} đã cập nhật đề tài ${project.name}`,
     );
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Cập nhật đề tài {projectName}`,
-        params: JSON.stringify({
-          projectName: project.name,
-          projectId: project.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Cập nhật thông tin đề tài {projectName}`,
+      params: {
+        projectName: project.name,
+        projectId: project.id,
+      },
+      userId: currentUser.id,
+    });
   }
 
   async deleteProject(id: number, currentUser: UserEntity): Promise<void> {
     const project = await this.projectRepository.findOne({
       where: { id },
-      relations: ['semester'],
+      relations: ['semester', 'department'],
     });
 
     if (!project) {
@@ -485,14 +476,11 @@ export class ProjectService {
 
     this.logger.log(`${currentUser.fullName} đã xoá đề tài ${project.name}`);
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Xoá đề tài {projectName}`,
-        params: JSON.stringify({ projectName: project.name }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Xoá đề tài {projectName} | ${project.semester?.name} | ${project.department?.name}`,
+      params: { projectName: project.name },
+      userId: currentUser.id,
+    });
   }
 
   @Transactional()
@@ -562,13 +550,16 @@ export class ProjectService {
         if (!instructor) {
           switch (request.instrNotExist) {
             case PROJECT_INSTR_NOT_EXIST.INSERT:
-              const newInstr = await this.userService.createUser({
-                email: (email || '').trim().toLowerCase(),
-                fullName: (fullName || '').trim(),
-                workPlace: (workPlace || '').trim(),
-                phone: (phone || '').trim(),
-                role: Role.LECTURER,
-              });
+              const newInstr = await this.userService.createUser(
+                {
+                  email: (email || '').trim().toLowerCase(),
+                  fullName: (fullName || '').trim(),
+                  workPlace: (workPlace || '').trim(),
+                  phone: (phone || '').trim(),
+                  role: Role.LECTURER,
+                },
+                currentUser,
+              );
               instructorId = newInstr.id;
               break;
             default:
@@ -673,19 +664,19 @@ export class ProjectService {
     }
 
     if (!progress) {
-      // Create event
-      this.userEventService
-        .insert({
-          message: `Cập nhật ${
-            ProjectProgress[request.type]
-          } cho đề tài {projectName}`,
-          params: JSON.stringify({
-            projectName: project.name,
-            projectId: project.id,
-          }),
-          userId: currentUser.id,
-        })
-        .then();
+      await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+        message: `Cập nhật ${
+          ProjectProgress[request.type]
+        } cho đề tài {projectName} | ${project.semester?.name} | ${
+          project.department?.name
+        }`,
+        params: {
+          projectName: project.name,
+          projectId: project.id,
+        },
+        userId: currentUser.id,
+        shouldLoad: false,
+      });
 
       return this.projectProgressRepository.insert({
         folderId,
@@ -721,19 +712,19 @@ export class ProjectService {
     });
 
     if (!progress) {
-      // Create event
-      this.userEventService
-        .insert({
-          message: `Cập nhật ${
-            ProjectProgress[request.type]
-          } cho đề tài {projectName}`,
-          params: JSON.stringify({
-            projectName: project.name,
-            projectId: project.id,
-          }),
-          userId: currentUser.id,
-        })
-        .then();
+      await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+        message: `Cập nhật ${
+          ProjectProgress[request.type]
+        } cho đề tài {projectName} | ${project.semester?.name} | ${
+          project.department?.name
+        }`,
+        params: {
+          projectName: project.name,
+          projectId: project.id,
+        },
+        userId: currentUser.id,
+        shouldLoad: false,
+      });
       return this.projectProgressRepository.insert({
         ...request,
         projectId: project.id,
@@ -761,17 +752,15 @@ export class ProjectService {
       currentUser,
     );
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Cập nhật Điểm hội đồng cho đề tài {projectName}`,
-        params: JSON.stringify({
-          projectName: project.name,
-          projectId: project.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Cập nhật Điểm hội đồng cho đề tài {projectName} | ${project.semester?.name} | ${project.department?.name}`,
+      params: {
+        projectName: project.name,
+        projectId: project.id,
+      },
+      userId: currentUser.id,
+      shouldLoad: false,
+    });
 
     this.logger.log(
       `${currentUser.fullName} đã cập nhật điểm hội đồng cho đề tài ${project.name}`,
@@ -798,10 +787,17 @@ export class ProjectService {
     const queryBuilder = this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.semester', 'semester')
+      .leftJoin('project.department', 'department')
       .where('project.id = :id', {
         id: projectId,
       })
-      .andWhere('semester.isLocked = :isLocked', { isLocked: false });
+      .andWhere('semester.isLocked = :isLocked', { isLocked: false })
+      .addSelect([
+        'semester.id',
+        'semester.name',
+        'department.id',
+        'department.name',
+      ]);
 
     if (user.role !== Role.ADMINISTRATOR) {
       switch (type) {
@@ -857,9 +853,9 @@ export class ProjectService {
     projectId?: number,
   ) {
     // Kiểm tra học kỳ có bị khoá không
-    if (request.semesterId) {
-      await this.semesterService.validateLockedSemester(request.semesterId);
-    }
+    const semester = await this.semesterService.validateLockedSemester(
+      request.semesterId,
+    );
 
     // Kiểm tra người hướng dẫn đã nhận tối đa đồ án
     if (request.instructorId) {
@@ -917,6 +913,8 @@ export class ProjectService {
         );
       }
     }
+
+    return semester;
   }
 
   async getStatistical(request: ProjectStatisticalRequestDto) {

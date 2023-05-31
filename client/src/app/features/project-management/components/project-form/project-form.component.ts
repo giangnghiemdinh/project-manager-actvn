@@ -10,7 +10,7 @@ import {
     SearchUserComponent
 } from '../../../../core-ui/components';
 import { Department, Project, Semester, Student, User } from '../../../../common/models';
-import { ProjectStatuses } from '../../../../common/constants/project.constant';
+import { ProjectStatuses } from '../../../../common/constants';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { cloneDeep } from 'lodash';
 import { FormGroup } from '@angular/forms';
@@ -47,6 +47,7 @@ export class ProjectFormComponent implements OnChanges {
             timer(200).subscribe(_ => {
                 this.instructor = null;
                 this.students = [];
+                this.formComponent.enable();
             });
         }
         if (project && this.project) {
@@ -58,6 +59,7 @@ export class ProjectFormComponent implements OnChanges {
             this.instructor = this.project.instructor || null;
             this.students = this.project.students || [];
             this.project = { ...project };
+            !!(project && project.managerStaffId) && timer(0).subscribe(_ => this.formComponent.disable());
         }
     }
 

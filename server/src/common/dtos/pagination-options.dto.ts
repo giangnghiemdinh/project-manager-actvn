@@ -1,39 +1,24 @@
 import { Order } from '../constants';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { EnumProperty, NumberProperty, StringProperty } from '../decorators';
 
 export class PaginationOptionsDto {
-  @ApiPropertyOptional({ enum: Order, default: Order.ASC })
-  @IsEnum(Order)
-  @IsOptional()
+  @EnumProperty('Sắp xếp', Order, { default: Order.ASC })
   readonly order: Order = Order.ASC;
 
-  @ApiPropertyOptional({
-    minimum: 1,
-    default: 1,
-  })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @IsOptional()
+  @NumberProperty('Trang', { int: true, min: 1, minimum: 1, default: 1 })
   readonly page: number = 1;
 
-  @ApiPropertyOptional({
+  @NumberProperty('Giới hạn', {
+    int: true,
+    min: 1,
+    max: 50,
     minimum: 1,
-    maximum: 50,
     default: 20,
+    maximum: 50,
   })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(50)
-  @IsOptional()
   readonly limit: number = 20;
 
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
+  @StringProperty('Tìm kiếm')
   readonly q?: string;
 
   get skip(): number {

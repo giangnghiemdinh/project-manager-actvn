@@ -124,6 +124,7 @@
                [isLoading]="isLoading$ | async"
                [user]="user$ | async"
                [departments]="departments$ | async"
+               [isAdministrator]="true"
                (ok)="onSave($event)"
                (cancel)="onCancel()"/>
 

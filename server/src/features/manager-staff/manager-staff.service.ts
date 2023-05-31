@@ -15,10 +15,14 @@ import {
   ManagerStaffDto,
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
-import { ProjectProgressType, ProjectStatus } from '../../common/constants';
+import {
+  CREATE_EVENT_PROCESS,
+  ProjectProgressType,
+  ProjectStatus,
+} from '../../common/constants';
 import { SemesterService } from '../semester/semester.service';
 import { UserEntity } from '../user/models';
-import { UserEventService } from '../user/services';
+import { QueueService } from '../../shared/services';
 
 @Injectable()
 export class ManagerStaffService {
@@ -27,10 +31,8 @@ export class ManagerStaffService {
   constructor(
     @InjectRepository(ManagerStaffEntity)
     private readonly managerStaffRepository: Repository<ManagerStaffEntity>,
-
     private readonly semesterService: SemesterService,
-
-    private readonly userEventService: UserEventService,
+    private readonly queueService: QueueService,
   ) {}
 
   async getManagerStaffs(
@@ -42,7 +44,7 @@ export class ManagerStaffService {
 
     if (pageOptionsDto.q) {
       queryBuilder.where('UCASE(user.fullName) LIKE :q ', {
-        q: `${pageOptionsDto.q.toUpperCase()}`,
+        q: `%${pageOptionsDto.q.toUpperCase()}%`,
       });
     }
 
@@ -116,6 +118,7 @@ export class ManagerStaffService {
     return results;
   }
 
+  @Transactional()
   async createManagerStaff(
     managerStaffDto: ManagerRequestDto,
     currentUser: UserEntity,
@@ -125,17 +128,12 @@ export class ManagerStaffService {
     );
     const managerStaff = this.managerStaffRepository.create(managerStaffDto);
     await this.managerStaffRepository.save(managerStaff);
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Thêm mới nhóm quản lý {managerFullName}`,
-        params: JSON.stringify({
-          managerFullName: managerStaff.user?.fullName,
-          managerId: managerStaff.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Thêm mới nhóm quản lý {managerFullName}`,
+      params: { managerId: managerStaff.id },
+      userId: currentUser.id,
+    });
     this.logger.log(
       `${currentUser.fullName} đã thêm mới nhóm quản lý ${managerStaff.id}`,
     );
@@ -150,6 +148,8 @@ export class ManagerStaffService {
       .leftJoin('managerStaff.projects', 'project')
       .leftJoin('project.instructor', 'instructor')
       .leftJoin('project.students', 'student')
+      .leftJoin('managerStaff.semester', 'semester')
+      .leftJoin('managerStaff.department', 'department')
       .loadRelationCountAndMap(
         'project.reportedCount',
         'project.progresses',
@@ -173,6 +173,8 @@ export class ManagerStaffService {
         'student.id',
         'student.code',
         'student.fullName',
+        'semester.name',
+        'department.name',
       ])
       .getOne();
     if (!managerStaff) {
@@ -202,17 +204,13 @@ export class ManagerStaffService {
 
     await this.managerStaffRepository.save(managerStaff);
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Cập nhật nhóm quản lý {managerFullName}`,
-        params: JSON.stringify({
-          managerFullName: managerStaff.user?.fullName,
-          managerId: managerStaff.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Cập nhật nhóm quản lý {managerFullName}`,
+      params: {
+        managerId: managerStaff.id,
+      },
+      userId: currentUser.id,
+    });
 
     this.logger.log(
       `${currentUser.fullName} đã cập nhật nhóm quản lý ${managerStaff.id}`,
@@ -223,9 +221,19 @@ export class ManagerStaffService {
     const managerStaff = await this.managerStaffRepository
       .createQueryBuilder('managerStaff')
       .where('managerStaff.id = :id', { id })
+      .leftJoin('managerStaff.user', 'user')
       .leftJoin('managerStaff.semester', 'semester')
+      .leftJoin('managerStaff.department', 'department')
       .leftJoin('managerStaff.projects', 'project')
-      .addSelect(['semester.isLocked', 'project.id', 'project.status'])
+      .addSelect([
+        'user.id',
+        'user.fullName',
+        'semester.isLocked',
+        'semester.name',
+        'department.name',
+        'project.id',
+        'project.status',
+      ])
       .getOne();
 
     if (!managerStaff) {
@@ -251,17 +259,13 @@ export class ManagerStaffService {
 
     await this.managerStaffRepository.delete({ id });
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Xoá nhóm quản lý {managerFullName}`,
-        params: JSON.stringify({
-          managerFullName: managerStaff.user?.fullName,
-          managerId: managerStaff.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Xoá nhóm quản lý {managerFullName} | ${managerStaff.semester?.name} | ${managerStaff.department?.name}`,
+      params: {
+        managerFullName: managerStaff.user?.fullName,
+      },
+      userId: currentUser.id,
+    });
 
     this.logger.log(
       `${currentUser.fullName} đã xoá nhóm quản lý ${managerStaff.id}`,

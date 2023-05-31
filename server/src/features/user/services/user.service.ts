@@ -25,12 +25,14 @@ import {
   ApiConfigService,
   CacheService,
   DriverService,
-  EmailQueueService,
   OtpService,
+  QueueService,
 } from '../../../shared/services';
 import {
+  CREATE_EVENT_PROCESS,
   EMAIL_CRE_PROCESS,
   Role,
+  RoleName,
   USER_DUPLICATE_EMAIL,
   UserStatus,
   VERIFY_EMAIL_PROCESS,
@@ -67,8 +69,8 @@ export class UserService {
     private readonly otpService: OtpService,
     private readonly cacheService: CacheService,
     private readonly configService: ApiConfigService,
-    private readonly emailQueueService: EmailQueueService,
     private readonly driverService: DriverService,
+    private readonly queueService: QueueService,
   ) {}
 
   findByEmail(email: string): Promise<UserEntity | null> {
@@ -176,7 +178,7 @@ export class UserService {
 
   async createUser(
     request: UserRequestDto,
-    currentUser?: UserEntity,
+    currentUser: UserEntity,
   ): Promise<UserDto> {
     try {
       if (request.avatarFile) {
@@ -195,25 +197,21 @@ export class UserService {
 
     const user = this.userRepository.create(request);
     await this.userRepository.insert(user);
-    currentUser &&
-      (await this.userEventService.insert({
-        message: `Thêm mới người dùng {userFullName}`,
-        params: JSON.stringify({
-          userFullName: user.fullName,
-          userId: user.id,
-        }),
-        userId: currentUser.id,
-      }));
+
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Thêm mới người dùng {userFullName}`,
+      params: {
+        userFullName: user.fullName,
+        userId: user.id,
+      },
+      userId: currentUser.id,
+    });
 
     if (this.configService.isEmailCreNotification) {
-      await this.emailQueueService.add(
-        EMAIL_CRE_PROCESS,
-        {
-          email: request.email,
-          password: request.password,
-        },
-        { removeOnComplete: true },
-      );
+      await this.queueService.addMail(EMAIL_CRE_PROCESS, {
+        email: request.email,
+        password: request.password,
+      });
     }
 
     this.logger.log(
@@ -275,15 +273,33 @@ export class UserService {
       throw new BadRequestException('Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
     delete request.avatarFile;
-    await this.userRepository.update({ id }, request);
-    this.userRepository.merge(user, request);
+    await this.userRepository.update({ id }, { ...request });
     if (user.id !== currentUser.id) {
-      await this.userEventService.insert({
-        message: `Cập nhật người dùng {userFullName}`,
-        params: JSON.stringify({
+      const changedDesc: string[] = [];
+      if (request.fullName != user.fullName) {
+        changedDesc.push(
+          `Họ và tên ${user.fullName} thành ${request.fullName}`,
+        );
+      }
+      if (request.email != user.email) {
+        changedDesc.push(`Email ${user.email} thành ${request.email}`);
+      }
+      if (request.role != user.role) {
+        changedDesc.push(
+          `Vai trò ${RoleName[user.role]} thành ${RoleName[request.role]}`,
+        );
+      }
+      if (!changedDesc.length) {
+        changedDesc.push('Thông tin');
+      }
+      await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+        message: `Cập nhật ${changedDesc.join(
+          ', ',
+        )} cho người dùng {userFullName}`,
+        params: {
           userFullName: user.fullName,
           userId: user.id,
-        }),
+        },
         userId: currentUser.id,
       });
     }
@@ -292,25 +308,9 @@ export class UserService {
       `${currentUser.fullName} đã cập nhật thông tin người dùng ${user.id} | ${user.fullName}`,
     );
 
-    return user.toDto();
-  }
+    this.userRepository.merge(user, request);
 
-  async deleteUser(id: number, currentUser: UserEntity): Promise<void> {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException('Người dùng không tồn tại!');
-    }
-    await this.userEventService.insert({
-      message: `Xoá người dùng {userFullName}`,
-      params: JSON.stringify({
-        userFullName: user.fullName,
-      }),
-      userId: currentUser.id,
-    });
-    this.logger.log(
-      `${currentUser.fullName} đã xoá người dùng ${user.id} | ${user.fullName}`,
-    );
-    await this.userRepository.delete({ id });
+    return user.toDto();
   }
 
   async verifyEmail(
@@ -327,16 +327,12 @@ export class UserService {
       throw new ConflictException('Địa chỉ email đã tồn tại!');
     }
     const otp = await this.otpService.generateVerifyEmailOtp(request.email);
-    await this.emailQueueService.add(
-      VERIFY_EMAIL_PROCESS,
-      {
-        otp,
-        email: request.email,
-        requestDate: moment().format('DD/MM/YYYY HH:mm'),
-        deviceName: request.deviceName,
-      },
-      { removeOnComplete: true },
-    );
+    await this.queueService.addMail(VERIFY_EMAIL_PROCESS, {
+      otp,
+      email: request.email,
+      requestDate: moment().format('DD/MM/YYYY HH:mm'),
+      deviceName: request.deviceName,
+    });
   }
 
   async changeEmail(
@@ -354,14 +350,6 @@ export class UserService {
       { id: currentUser.id },
       { email: request.email },
     );
-    await this.userEventService.insert({
-      message: `Cập nhật email {userEmail}`,
-      params: JSON.stringify({
-        userEmail: request.email,
-        userId: currentUser.id,
-      }),
-      userId: currentUser.id,
-    });
 
     this.logger.log(
       `${currentUser.fullName} đã thay đổi địa chỉ email thành ${request.email}`,
@@ -409,12 +397,12 @@ export class UserService {
     }
     const isActive = request.status === UserStatus.ACTIVE;
     await this.userRepository.update({ id: user.id }, { isActive });
-    await this.userEventService.insert({
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
       message: `${isActive ? 'Kích hoạt' : 'Khoá'} người dùng {userFullName}`,
-      params: JSON.stringify({
+      params: {
         userFullName: user.fullName,
         userId: user.id,
-      }),
+      },
       userId: currentUser.id,
     });
     this.logger.log(

@@ -4,6 +4,12 @@ export enum Role {
   LECTURER = 'Lecturer',
 }
 
+export const RoleName = {
+  Administrator: 'Quản trị viên',
+  Censor: 'Kiểm duyệt viên',
+  Lecturer: 'Giảng viên',
+};
+
 export enum Gender {
   Male,
   Female,
@@ -13,5 +19,3 @@ export enum UserStatus {
   DE_ACTIVE = 'de_active',
   ACTIVE = 'active',
 }
-
-export const MAX_PROJECT_INSTRUCTOR = 10;

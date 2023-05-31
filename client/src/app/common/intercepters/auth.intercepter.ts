@@ -36,8 +36,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     }
     return next(req).pipe(catchError(error => {
         switch (error.status) {
-            case 0:
-                return EMPTY;
             case 401:
                 return logout(router);
             case 902:

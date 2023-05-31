@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import {
   ApiConfigService,
   CacheService,
-  EmailQueueService,
   OtpService,
+  QueueService,
 } from '../../shared/services';
 import { UserService, UserSessionService } from '../user/services';
 import {
@@ -47,7 +47,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly otpService: OtpService,
     private readonly cacheService: CacheService,
-    private readonly emailQueueService: EmailQueueService,
+    private readonly queueService: QueueService,
 
     private readonly userSessionService: UserSessionService,
   ) {}
@@ -92,16 +92,12 @@ export class AuthService {
           user.email,
         );
 
-        await this.emailQueueService.add(
-          TFA_VERIFY_PROCESS,
-          {
-            otp,
-            email: user.email,
-            requestDate: moment().format('DD/MM/YYYY HH:mm'),
-            deviceName: userLoginDto.deviceName,
-          },
-          { removeOnComplete: true },
-        );
+        await this.queueService.addMail(TFA_VERIFY_PROCESS, {
+          otp,
+          email: user.email,
+          requestDate: moment().format('DD/MM/YYYY HH:mm'),
+          deviceName: userLoginDto.deviceName,
+        });
 
         return new TokenResponseDto({
           twoFactoryMethod: user.twoFactory,
@@ -150,16 +146,12 @@ export class AuthService {
       user.email,
     );
 
-    await this.emailQueueService.add(
-      TFA_VERIFY_PROCESS,
-      {
-        otp,
-        email: user.email,
-        requestDate: moment().format('DD/MM/YYYY HH:mm'),
-        deviceName: userResendDto.deviceName,
-      },
-      { removeOnComplete: true },
-    );
+    await this.queueService.addMail(TFA_VERIFY_PROCESS, {
+      otp,
+      email: user.email,
+      requestDate: moment().format('DD/MM/YYYY HH:mm'),
+      deviceName: userResendDto.deviceName,
+    });
   }
 
   async forgotPassword(userForgotDto: UserForgotRequestDto) {
@@ -179,7 +171,7 @@ export class AuthService {
     // Save this code to cache
     await this.cacheService.set(`Forgot_Pass_${code}`, true, expireTime * 1000);
 
-    await this.emailQueueService.add(RESET_PASS_PROCESS, {
+    await this.queueService.addMail(RESET_PASS_PROCESS, {
       url: `${this.configService.webHost}/public/reset-password?code=${code}&email=${userForgotDto.email}`,
       email: userForgotDto.email,
       requestDate: moment().format('DD/MM/YYYY HH:mm'),

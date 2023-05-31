@@ -1,9 +1,13 @@
 import { PaginationMetaDto, PaginationOptionsDto } from '../../../common/dtos';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEventDto } from './user-event.dto';
-import { NumberProperty } from '../../../common/decorators';
+import { EnumProperty, NumberProperty } from '../../../common/decorators';
+import { Order } from '../../../common/constants';
 
 export class UserEventPageRequestDto extends PaginationOptionsDto {
+  @EnumProperty('Sắp xếp', Order, { default: Order.DESC })
+  readonly order: Order = Order.DESC;
+
   @NumberProperty('ID người dùng', {
     int: true,
     min: 1,

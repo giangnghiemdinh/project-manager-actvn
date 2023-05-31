@@ -5,9 +5,9 @@
           (nzOnCancel)="onCancel()">
     <ng-container *nzModalContent>
         <nz-spin [nzSpinning]="isLoading">
-            <app-form #form [data]="project" [disabled]="!!(project && project.managerStaffId)">
+            <app-form #form [data]="project">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <app-form-text control="name" label="Tên đồ án"
+                    <app-form-text control="name" label="Tên đề tài"
                                    class="sm:col-span-2"
                                    [validators]="{ required: true }"/>
                     <app-form-select control="departmentId" label="Khoa"

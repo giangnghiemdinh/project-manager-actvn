@@ -10,7 +10,7 @@ import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { SemesterDto, SemesterRequestDto } from './dtos';
 import { SemesterEntity } from './models';
 import moment from 'moment';
-import { ProjectQueueService } from '../../shared/services';
+import { QueueService } from '../../shared/services';
 import {
   PROJECT_STATUS_PROCESS,
   ProjectProgressType,
@@ -26,7 +26,7 @@ export class SemesterService {
     @InjectRepository(SemesterEntity)
     private readonly semesterRepository: Repository<SemesterEntity>,
 
-    private readonly projectQueueService: ProjectQueueService,
+    private readonly queueService: QueueService,
   ) {}
 
   findById(id: number) {
@@ -162,7 +162,7 @@ export class SemesterService {
     }
 
     for (const project of semester.projects) {
-      await this.projectQueueService.add(PROJECT_STATUS_PROCESS, {
+      await this.queueService.addProject(PROJECT_STATUS_PROCESS, {
         id: project.id,
         status:
           project.status !== ProjectStatus.PROPOSE

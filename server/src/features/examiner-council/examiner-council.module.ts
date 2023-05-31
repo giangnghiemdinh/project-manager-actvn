@@ -20,5 +20,6 @@ import { UserModule } from '../user/user.module';
   ],
   controllers: [ExaminerCouncilController],
   providers: [ExaminerCouncilService],
+  exports: [ExaminerCouncilService],
 })
 export class ExaminerCouncilModule {}

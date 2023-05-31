@@ -16,9 +16,13 @@ import {
 } from './dtos';
 import { Transactional } from 'typeorm-transactional';
 import { ProjectService } from '../project/project.service';
-import { ProjectProgressType, ProjectStatus } from 'src/common/constants';
+import {
+  CREATE_EVENT_PROCESS,
+  ProjectProgressType,
+  ProjectStatus,
+} from 'src/common/constants';
 import { UserEntity } from '../user/models';
-import { UserEventService } from '../user/services';
+import { QueueService } from '../../shared/services';
 
 @Injectable()
 export class ReviewerStaffService {
@@ -27,10 +31,8 @@ export class ReviewerStaffService {
   constructor(
     @InjectRepository(ReviewerStaffEntity)
     private reviewerStaffRepository: Repository<ReviewerStaffEntity>,
-
     private readonly projectService: ProjectService,
-
-    private readonly userEventService: UserEventService,
+    private readonly queueService: QueueService,
   ) {}
 
   async getReviewerStaffs(
@@ -42,7 +44,7 @@ export class ReviewerStaffService {
 
     if (pageOptionsDto.q) {
       queryBuilder.where('UCASE(user.fullName) LIKE :q ', {
-        q: `${pageOptionsDto.q.toUpperCase()}`,
+        q: `%${pageOptionsDto.q.toUpperCase()}%`,
       });
     }
 
@@ -126,17 +128,12 @@ export class ReviewerStaffService {
         await this.projectService.updateStatus(p.id, ProjectStatus.IN_REVIEW);
       }),
     );
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Thêm mới nhóm phản biện {reviewerFullName}`,
-        params: JSON.stringify({
-          reviewerFullName: reviewerStaff.user?.fullName,
-          reviewerId: reviewerStaff.userId,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Thêm mới nhóm phản biện {reviewerFullName}`,
+      params: { reviewerId: reviewerStaff.id },
+      userId: currentUser.id,
+    });
     this.logger.log(
       `${currentUser.fullName} đã thêm mới nhóm phản biện ${reviewerStaff.id}`,
     );
@@ -148,6 +145,8 @@ export class ReviewerStaffService {
       .createQueryBuilder('reviewerStaff')
       .where('reviewerStaff.id = :id', { id })
       .leftJoin('reviewerStaff.user', 'user')
+      .leftJoin('reviewerStaff.semester', 'semester')
+      .leftJoin('reviewerStaff.department', 'department')
       .leftJoin('reviewerStaff.projects', 'project')
       .leftJoin('project.instructor', 'instructor')
       .leftJoin('project.students', 'student')
@@ -171,6 +170,8 @@ export class ReviewerStaffService {
         'student.id',
         'student.code',
         'student.fullName',
+        'semester.name',
+        'department.name',
       ])
       .getOne();
     if (!reviewerStaff) {
@@ -218,17 +219,11 @@ export class ReviewerStaffService {
 
     await this.reviewerStaffRepository.save(reviewerStaff);
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Cập nhật nhóm phản biện {reviewerFullName}`,
-        params: JSON.stringify({
-          reviewerFullName: reviewerStaff.user?.fullName,
-          reviewerId: reviewerStaff.userId,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Cập nhật nhóm phản biện {reviewerFullName}`,
+      params: { reviewerId: reviewerStaff.id },
+      userId: currentUser.id,
+    });
 
     this.logger.log(
       `${currentUser.fullName} đã cập nhật nhóm phản biện ${reviewerStaff.id}`,
@@ -243,9 +238,19 @@ export class ReviewerStaffService {
     const reviewerStaff = await this.reviewerStaffRepository
       .createQueryBuilder('reviewerStaff')
       .where('reviewerStaff.id = :id', { id })
+      .leftJoin('reviewerStaff.user', 'user')
       .leftJoin('reviewerStaff.semester', 'semester')
+      .leftJoin('reviewerStaff.department', 'department')
       .leftJoin('reviewerStaff.projects', 'project')
-      .addSelect(['semester.isLocked', 'project.id', 'project.status'])
+      .addSelect([
+        'user.id',
+        'user.fullName',
+        'semester.name',
+        'department.name',
+        'semester.isLocked',
+        'project.id',
+        'project.status',
+      ])
       .getOne();
 
     if (!reviewerStaff) {
@@ -272,17 +277,11 @@ export class ReviewerStaffService {
       }),
     );
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Xoá nhóm phản biện {reviewerFullName}`,
-        params: JSON.stringify({
-          reviewerFullName: reviewerStaff.user?.fullName,
-          reviewerId: reviewerStaff.userId,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Xoá nhóm phản biện {reviewerFullName} | ${reviewerStaff.semester?.name} | ${reviewerStaff.department?.name}`,
+      params: { reviewerFullName: reviewerStaff.user?.fullName },
+      userId: currentUser.id,
+    });
 
     this.logger.log(
       `${currentUser.fullName} đã xoá nhóm phản biện ${reviewerStaff.id}`,

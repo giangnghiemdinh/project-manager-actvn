@@ -10,7 +10,16 @@
                (pageChanges)="pageChange.emit($event)">
         <app-table-column [responsive]="{ md: true }" key="message" width="400px">
             <ng-template table-cell let-row>
-                <span [innerHTML]="(row.message | parseMessage: row.params) | nzSanitizer: 'html'"></span>
+                <ng-container *ngIf="row.message | parseMessage: row.params as msg">
+                    <ng-container *ngIf="msg.routerLink; else normalMsgTmpl;">
+                        <a [routerLink]="msg.routerLink" [queryParams]="msg.queryParams || null"
+                           [innerHTML]="msg.message | nzSanitizer: 'html'">
+                        </a>
+                    </ng-container>
+                    <ng-template #normalMsgTmpl>
+                        <span [innerHTML]="msg.message | nzSanitizer: 'html'"></span>
+                    </ng-template>
+                </ng-container>
             </ng-template>
         </app-table-column>
         <app-table-column [responsive]="{ md: true }" key="createdAt" width="100px" align="right">
@@ -20,7 +29,16 @@
         </app-table-column>
         <app-table-column [responsive]="{ xs: true, md: false }" key="">
             <ng-template table-cell let-row>
-                <span [innerHTML]="(row.message | parseMessage: row.params) | nzSanitizer: 'html'"></span>
+                <ng-container *ngIf="row.message | parseMessage: row.params as msg">
+                    <ng-container *ngIf="msg.routerLink; else normalMsgTmpl;">
+                        <a [routerLink]="msg.routerLink" [queryParams]="msg.queryParams || null"
+                           [innerHTML]="msg.message | nzSanitizer: 'html'">
+                        </a>
+                    </ng-container>
+                    <ng-template #normalMsgTmpl>
+                        <span [innerHTML]="msg.message | nzSanitizer: 'html'"></span>
+                    </ng-template>
+                </ng-container>
                 <div class="w-full flex justify-end mt-1">
                     <span class="text-gray-400">{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 </div>

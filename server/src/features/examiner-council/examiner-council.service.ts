@@ -19,10 +19,10 @@ import {
 import { Transactional } from 'typeorm-transactional';
 import { ProjectService } from '../project/project.service';
 import { ExaminerCouncilUserEntity } from './models/examiner-council-user.entity';
-import { ProjectStatus } from '../../common/constants';
+import { CREATE_EVENT_PROCESS, ProjectStatus } from '../../common/constants';
 import { SemesterService } from '../semester/semester.service';
-import { UserEventService } from '../user/services';
 import { UserEntity } from '../user/models';
+import { QueueService } from '../../shared/services';
 
 @Injectable()
 export class ExaminerCouncilService {
@@ -34,12 +34,9 @@ export class ExaminerCouncilService {
 
     @InjectRepository(ExaminerCouncilUserEntity)
     private readonly examinerCouncilUserRepository: Repository<ExaminerCouncilUserEntity>,
-
     private readonly projectService: ProjectService,
-
     private readonly semesterService: SemesterService,
-
-    private readonly userEventService: UserEventService,
+    private readonly queueService: QueueService,
   ) {}
 
   async getExaminerCouncils(
@@ -50,7 +47,7 @@ export class ExaminerCouncilService {
 
     if (pageOptionsDto.q) {
       queryBuilder.where('UCASE(examinerCouncil.location) LIKE :q ', {
-        q: `${pageOptionsDto.q.toUpperCase()}`,
+        q: `%${pageOptionsDto.q.toUpperCase()}%`,
       });
     }
 
@@ -148,17 +145,14 @@ export class ExaminerCouncilService {
         );
       }),
     );
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Thêm mới hội đồng {councilLocation}`,
-        params: JSON.stringify({
-          councilLocation: `${examinerCouncil.location}_${examinerCouncil.semester?.name}`,
-          councilId: examinerCouncil.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Thêm mới hội đồng {councilLocation}`,
+      params: {
+        councilLocation: examinerCouncil.location,
+        councilId: examinerCouncil.id,
+      },
+      userId: currentUser.id,
+    });
     this.logger.log(
       `${currentUser.fullName} đã thêm mới hội đồng ${examinerCouncil.id}`,
     );
@@ -173,6 +167,8 @@ export class ExaminerCouncilService {
       .leftJoin('examinerCouncil.projects', 'project')
       .leftJoin('project.students', 'student')
       .leftJoin('project.instructor', 'instructor')
+      .leftJoin('examinerCouncil.semester', 'semester')
+      .leftJoin('examinerCouncil.department', 'department')
       .leftJoin('project.reviewerStaff', 'reviewerStaff')
       .leftJoin('reviewerStaff.user', 'reviewerStaffUser')
       .where('examinerCouncil.id = :id', { id })
@@ -198,6 +194,8 @@ export class ExaminerCouncilService {
         'reviewerStaff.id',
         'reviewerStaffUser.id',
         'reviewerStaffUser.fullName',
+        'department.name',
+        'semester.name',
       ])
       .getOne();
     if (!examinerCouncil) {
@@ -268,17 +266,15 @@ export class ExaminerCouncilService {
 
     await this.examinerCouncilRepository.save(examinerCouncil);
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Cập nhật hội đồng {councilLocation}`,
-        params: JSON.stringify({
-          councilLocation: `${examinerCouncil.location}_${examinerCouncil.semester?.name}`,
-          councilId: examinerCouncil.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Cập nhật hội đồng {councilLocation}`,
+      params: {
+        councilLocation: examinerCouncil.location,
+        councilId: examinerCouncil.id,
+      },
+      userId: currentUser.id,
+    });
+
     this.logger.log(
       `${currentUser.fullName} đã cập nhật hội đồng ${examinerCouncil.id}`,
     );
@@ -294,10 +290,13 @@ export class ExaminerCouncilService {
       .leftJoin('examinerCouncil.projects', 'project')
       .leftJoin('examinerCouncil.users', 'member')
       .leftJoin('examinerCouncil.semester', 'semester')
+      .leftJoin('examinerCouncil.department', 'department')
       .where('examinerCouncil.id = :id', { id })
       .addSelect([
         'semester.isLocked',
+        'semester.name',
         'member.id',
+        'department.name',
         'project.id',
         'project.conclusionScore',
       ]);
@@ -333,17 +332,14 @@ export class ExaminerCouncilService {
       }),
     );
 
-    // Create event
-    this.userEventService
-      .insert({
-        message: `Xoá hội đồng {councilLocation}`,
-        params: JSON.stringify({
-          councilLocation: `${examinerCouncil.location}_${examinerCouncil.semester?.name}`,
-          councilId: examinerCouncil.id,
-        }),
-        userId: currentUser.id,
-      })
-      .then();
+    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
+      message: `Xoá hội đồng {councilLocation} | ${examinerCouncil.semester?.name} | ${examinerCouncil.department?.name}`,
+      params: {
+        councilLocation: examinerCouncil.location,
+      },
+      userId: currentUser.id,
+    });
+
     this.logger.log(
       `${currentUser.fullName} đã xoá hội đồng ${examinerCouncil.id}`,
     );

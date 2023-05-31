@@ -7,11 +7,12 @@ import { NzWaveModule } from 'ng-zorro-antd/core/wave';
 import { TableCellDirective, TableColumnDirective, TableComponent } from '../../../../core-ui/components';
 import { ParseMessagePipe } from './parse-message.pipe';
 import { NzPipesModule } from 'ng-zorro-antd/pipes';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-user-events',
     standalone: true,
-    imports: [ NgForOf, CurrentDevicePipe, DatePipe, NgIf, NzButtonModule, NzWaveModule, TableCellDirective, TableColumnDirective, TableComponent, ParseMessagePipe, NzPipesModule ],
+    imports: [ NgForOf, CurrentDevicePipe, DatePipe, NgIf, NzButtonModule, NzWaveModule, TableCellDirective, TableColumnDirective, TableComponent, ParseMessagePipe, NzPipesModule, RouterLink ],
     templateUrl: './user-events.component.html',
 })
 export class UserEventsComponent {

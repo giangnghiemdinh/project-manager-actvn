@@ -4,10 +4,16 @@ import { AuthService, NotificationService, UserService } from '../../services';
 import { Router } from '@angular/router';
 import { AuthActions } from './auth.actions';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
-import { UserForgotPayload, UserLoginPayload, UserLoginResponse, UserResetPayload } from '../../models';
+import {
+    UserForgotPayload,
+    UserLoginPayload,
+    UserLoginResponse,
+    UserResetPayload,
+    UserVerifyPayload,
+    UserVerifyResponse
+} from '../../models';
 import { AuthState } from './auth.reducer';
 import { Store } from '@ngrx/store';
-import { UserVerifyPayload, UserVerifyResponse } from '../../models/user-verify.model';
 import { clearToken, saveToken } from '../../utilities';
 import { RO_LOGIN_FULL, RO_TWO_FACTOR_FULL } from '../../constants';
 
@@ -190,7 +196,7 @@ export class AuthEffects {
             this.actions$.pipe(
                 ofType(AuthActions.loadProfileFailure),
                 tap((res) => {
-
+                    clearToken();
                     this.router.navigate([RO_LOGIN_FULL]).then();
                 }),
             ),
