@@ -110,14 +110,14 @@ export class ExcelService {
                 name: 'Times New Roman',
                 family: 2,
                 bold: rowNumber === 1,
-                size: 10,
+                size: 12,
             };
         });
 
         for (let note of (options?.notes || [])) {
             worksheet.getCell(note.cell).note = {
                 texts: [
-                    {'font': {'name': 'Arial', 'family': 2, 'italic': true, 'size': 10}, 'text': note.text},
+                    {'font': {'name': 'Arial', 'family': 2, 'italic': true, 'size': 12}, 'text': note.text},
                 ],
                 margins: {
                     insetmode: 'custom',

@@ -47,7 +47,7 @@ export class ProjectFormComponent implements OnChanges {
             timer(200).subscribe(_ => {
                 this.instructor = null;
                 this.students = [];
-                this.formComponent.enable();
+                this.formComponent?.enable();
             });
         }
         if (project && this.project) {

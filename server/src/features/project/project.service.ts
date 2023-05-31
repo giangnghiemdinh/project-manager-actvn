@@ -235,16 +235,20 @@ export class ProjectService {
       );
     }
 
-    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
-      message: `${
-        project.status === ProjectStatus.PROPOSE ? 'Đề xuất' : 'Thêm mới'
-      } đề tài {projectName}`,
-      params: {
-        projectName: project.name,
-        projectId: project.id,
+    await this.queueService.addEvent(
+      CREATE_EVENT_PROCESS,
+      {
+        message: `${
+          project.status === ProjectStatus.PROPOSE ? 'Đề xuất' : 'Thêm mới'
+        } đề tài {projectName}`,
+        params: {
+          projectName: project.name,
+          projectId: project.id,
+        },
+        userId: currentUser.id,
       },
-      userId: currentUser.id,
-    });
+      { delay: 1000, removeOnComplete: true },
+    );
 
     return project.toDto();
   }

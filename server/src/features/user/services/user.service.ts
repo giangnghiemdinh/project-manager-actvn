@@ -198,14 +198,18 @@ export class UserService {
     const user = this.userRepository.create(request);
     await this.userRepository.insert(user);
 
-    await this.queueService.addEvent(CREATE_EVENT_PROCESS, {
-      message: `Thêm mới người dùng {userFullName}`,
-      params: {
-        userFullName: user.fullName,
-        userId: user.id,
+    await this.queueService.addEvent(
+      CREATE_EVENT_PROCESS,
+      {
+        message: `Thêm mới người dùng {userFullName}`,
+        params: {
+          userFullName: user.fullName,
+          userId: user.id,
+        },
+        userId: currentUser.id,
       },
-      userId: currentUser.id,
-    });
+      { delay: 1000, removeOnComplete: true },
+    );
 
     if (this.configService.isEmailCreNotification) {
       await this.queueService.addMail(EMAIL_CRE_PROCESS, {
