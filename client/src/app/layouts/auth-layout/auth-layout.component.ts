@@ -24,22 +24,22 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ]
 })
 export class AuthLayoutComponent {
-    private readonly store = inject(Store<AuthState>);
-    private readonly commonStore = inject(Store<CommonState>);
-    profile$ = this.store.select(selectProfile);
+    readonly #store = inject(Store<AuthState>);
+    readonly #commonStore = inject(Store<CommonState>);
+    profile$ = this.#store.select(selectProfile);
     isDesktop = true;
     isFixedSidebar = true;
     isCollapsedSidebar = false;
     CONFIG = LAYOUT_CONFIG;
 
     constructor() {
-        this.commonStore.dispatch(CommonActions.loadDepartments());
-        this.commonStore.dispatch(CommonActions.loadSemesters());
+        this.#commonStore.dispatch(CommonActions.loadDepartments());
+        this.#commonStore.dispatch(CommonActions.loadSemesters());
         this.mediaListener();
     }
 
     onLogout() {
-        this.store.dispatch(AuthActions.logout());
+        this.#store.dispatch(AuthActions.logout());
     }
 
     private mediaListener() {

@@ -1,5 +1,5 @@
 import { Component, inject, ViewChild } from '@angular/core';
-import { setTitle } from '../../common/utilities';
+import { rankFullName, setTitle } from '../../common/utilities';
 import {
     ConfirmComponent,
     FormComponent,
@@ -28,15 +28,6 @@ import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { selectQueryParams } from '../../common/stores/router';
 import { RO_EXAMINER_COUNCIL } from '../../common/constants';
 import { ExaminerCouncil, ReviewerStaff, Student } from '../../common/models';
-import {
-    createExaminerCouncil,
-    deleteExaminerCouncil,
-    loadAllProjects,
-    loadExaminerCouncil,
-    loadExaminerCouncils,
-    updateExaminerCouncil,
-    updateVisible
-} from './store/examiner-council.actions';
 import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { ExaminerCouncilFormComponent } from './components/examiner-council-form/examiner-council-form.component';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -44,6 +35,8 @@ import { CouncilPositionPipe } from './council-position.pipe';
 import { HasRoleDirective } from '../../core-ui/directives';
 import { first } from 'rxjs';
 import { ExcelService, MergeCell, NotificationService } from '../../common/services';
+import { RankFullNamePipe, RankPipe } from '../../core-ui/pipes';
+import { ExaminerCouncilActions } from './store/examiner-council.actions';
 
 @Component({
     selector: 'app-manager-council',
@@ -66,31 +59,37 @@ import { ExcelService, MergeCell, NotificationService } from '../../common/servi
         NzTableModule,
         CouncilPositionPipe,
         NgIf,
-        HasRoleDirective
+        HasRoleDirective,
+        RankFullNamePipe,
+        RankPipe
     ],
     templateUrl: './examiner-council.component.html',
-    providers: [ CouncilPositionPipe ]
+    providers: [ CouncilPositionPipe, RankPipe ]
 })
 export class ExaminerCouncilComponent {
+    
     @ViewChild('filterForm') filterForm!: FormComponent;
     @ViewChild('table') table!: TableComponent;
+    
     readonly #excelService = inject(ExcelService);
     readonly #positionPipe = inject(CouncilPositionPipe);
-    readonly #notificationService = inject(NotificationService);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly store = inject(Store<ExaminerCouncilState>);
-    private readonly router = inject(Router);
-    private readonly modal = inject(NzModalService);
-    queryParams$ = this.store.select(selectQueryParams);
-    examinerCouncils$ = this.store.select(selectExaminerCouncils);
-    pagination$ = this.store.select(selectPagination);
-    isLoading$ = this.store.select(selectIsLoading);
-    isVisible$ = this.store.select(selectIsVisible);
-    projects$ = this.store.select(selectProjects);
-    examinerCouncil$ = this.store.select(selectExaminerCouncil);
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
-    title = 'Quản lý hội đồng bảo vệ';
+    readonly #rankPipe = inject(RankPipe);
+    readonly #notification = inject(NotificationService);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #store = inject(Store<ExaminerCouncilState>);
+    readonly #router = inject(Router);
+    readonly #modal = inject(NzModalService);
+    
+    queryParams$ = this.#store.select(selectQueryParams);
+    examinerCouncils$ = this.#store.select(selectExaminerCouncils);
+    pagination$ = this.#store.select(selectPagination);
+    isLoading$ = this.#store.select(selectIsLoading);
+    isVisible$ = this.#store.select(selectIsVisible);
+    projects$ = this.#store.select(selectProjects);
+    examinerCouncil$ = this.#store.select(selectExaminerCouncil);
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
+    title = 'Danh sách hội đồng bảo vệ';
     url = RO_EXAMINER_COUNCIL;
     selectedItems: ExaminerCouncil[] = [];
 
@@ -101,34 +100,34 @@ export class ExaminerCouncilComponent {
 
     onSearch(value: any) {
         value.page = 1;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onPageChanges(event: { index: number, size: number }) {
         const value: any = this.filterForm.value;
         value.page = event.index;
         value.limit = event.size;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onLoad() {
-        this.store.dispatch(loadExaminerCouncils());
+        this.#store.dispatch(ExaminerCouncilActions.loadExaminerCouncils());
     }
 
     onAdd() {
-        this.store.dispatch(updateVisible({ isVisible: true }));
+        this.#store.dispatch(ExaminerCouncilActions.updateVisible({ isVisible: true }));
     }
 
     onEdit(id: number) {
-        this.store.dispatch(loadExaminerCouncil({ payload: { id } }));
+        this.#store.dispatch(ExaminerCouncilActions.loadExaminerCouncil({ payload: { id } }));
     }
 
     onDelete(row: ExaminerCouncil) {
         if (row.projects?.some(p => p.conclusionScore)) {
-            this.#notificationService.error('Không thể xoá hội đồng do có đề tài đã có điểm bảo vệ!');
+            this.#notification.error('Không thể xoá hội đồng do có đề tài đã có điểm bảo vệ!');
             return;
         }
-        const ref = this.modal.create({
+        const ref = this.#modal.create({
             nzWidth: 400,
             nzContent: ConfirmComponent,
             nzClosable: false,
@@ -144,22 +143,22 @@ export class ExaminerCouncilComponent {
         ref.afterClose
             .pipe(first())
             .subscribe(confirm => confirm
-                && this.store.dispatch(deleteExaminerCouncil({ payload: { id: row.id! } })));
+                && this.#store.dispatch(ExaminerCouncilActions.deleteExaminerCouncil({ payload: { id: row.id! } })));
     }
 
     onSave(value: Student) {
-        this.store.dispatch(value.id
-            ? updateExaminerCouncil({ payload: value })
-            : createExaminerCouncil({ payload: value })
+        this.#store.dispatch(value.id
+            ? ExaminerCouncilActions.updateExaminerCouncil({ payload: value })
+            : ExaminerCouncilActions.createExaminerCouncil({ payload: value })
         );
     }
 
     onCancel() {
-        this.store.dispatch(updateVisible({ isVisible: false }));
+        this.#store.dispatch(ExaminerCouncilActions.updateVisible({ isVisible: false }));
     }
 
     onReloadProject(event: any) {
-        this.store.dispatch(loadAllProjects({ payload: {...event} }));
+        this.#store.dispatch(ExaminerCouncilActions.loadAllProject({ payload: {...event} }));
     }
 
     onCheckedChange(event: { ids: Set<number>, data: ReviewerStaff[] }) {
@@ -184,35 +183,36 @@ export class ExaminerCouncilComponent {
         const mergeMemberCells: MergeCell[] = [];
         const mergeProjectCells: MergeCell[] = [];
         let projectRowIndex = 0;
+        let memberRowIndex = 0;
         for (let i = 0; i < this.selectedItems.length; i++) {
             const group = this.selectedItems[i];
             // Merge STT
             mergeMemberCells.push({
-                startRow: i + 2,
-                endRow: projectRowIndex + (group.users?.length || 0) + 1,
+                startRow: memberRowIndex + 2,
+                endRow: memberRowIndex + (group.users?.length || 0) + 1,
                 startCol: 1,
                 endCol: 1,
             });
 
             // Merge council name
             mergeMemberCells.push({
-                startRow: i + 2,
-                endRow: projectRowIndex + (group.users?.length || 0) + 1,
+                startRow: memberRowIndex + 2,
+                endRow: memberRowIndex + (group.users?.length || 0) + 1,
                 startCol: 2,
                 endCol: 2,
             });
 
             // Merge council location
             mergeMemberCells.push({
-                startRow: i + 2,
-                endRow: projectRowIndex + (group.users?.length || 0) + 1,
+                startRow: memberRowIndex + 2,
+                endRow: memberRowIndex + (group.users?.length || 0) + 1,
                 startCol: 3,
                 endCol: 3,
             });
 
             // Merge STT
             mergeProjectCells.push({
-                startRow: i + 2,
+                startRow: projectRowIndex + 2,
                 endRow: projectRowIndex + (group.projects?.length || 0) + 1,
                 startCol: 1,
                 endCol: 1,
@@ -220,18 +220,20 @@ export class ExaminerCouncilComponent {
 
             // Merge council name
             mergeProjectCells.push({
-                startRow: i + 2,
+                startRow: projectRowIndex + 2,
                 endRow: projectRowIndex + (group.projects?.length || 0) + 1,
                 startCol: 2,
                 endCol: 2,
             });
 
             group.users?.forEach(u => {
+                memberRowIndex++;
                 members.push([
                     i + 1,
                     `Hội đồng ${i + 1}`,
                     group.location || '',
                     u.user?.fullName || '',
+                    this.#rankPipe.transform(u.user?.rank),
                     this.#positionPipe.transform(u.position!)
                 ]);
             });
@@ -273,13 +275,12 @@ export class ExaminerCouncilComponent {
                         s.fullName || '',
                         s.code || '',
                         p.name || '',
-                        instructor ? `${instructor.fullName}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}` : '',
-                        reviewer ? `${reviewer.fullName}\n${reviewer.workPlace}\n${reviewer.email}\n${reviewer.phone}` : ''
+                        instructor ? `${rankFullName(instructor)}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}` : '',
+                        reviewer ? `${rankFullName(reviewer)}\n${reviewer.workPlace}\n${reviewer.email}\n${reviewer.phone}` : ''
                     ]);
                 });
             });
         }
-
 
         this.#excelService.export('Danh sách hội đồng', [
             {
@@ -288,6 +289,7 @@ export class ExaminerCouncilComponent {
                     { title: 'Hội đồng', width: 15, wrapText: true },
                     { title: 'Địa điểm', width: 30, wrapText: true },
                     { title: 'Họ và tên', width: 25, wrapText: true },
+                    { title: 'Học hàm, học vị', width: 25, wrapText: true },
                     { title: 'Chức vụ', width: 30, wrapText: true },
                 ],
                 sheetName: 'Danh sách thành viên',

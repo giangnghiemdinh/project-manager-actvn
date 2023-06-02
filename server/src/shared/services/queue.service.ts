@@ -20,27 +20,33 @@ export class QueueService {
     private readonly driverQueue: Queue,
   ) {}
 
-  addEvent(
-    process: string,
-    data: unknown,
-    options: any = { removeOnComplete: true },
-  ) {
-    return this.eventQueue.add(process, data, options);
+  addEvent(process: string, data: unknown, delay?: number) {
+    return this.eventQueue.add(process, data, {
+      delay,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: 'fixed', delay: 3000 },
+      removeOnFail: true,
+    });
   }
 
-  addMail(
-    process: string,
-    data: unknown,
-    options: any = { removeOnComplete: true },
-  ) {
-    return this.emailQueue.add(process, data, options);
+  addMail(process: string, data: unknown, delay?: number) {
+    return this.emailQueue.add(process, data, {
+      delay,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: 'fixed', delay: 3000 },
+      removeOnFail: true,
+    });
   }
 
-  addProject(
-    process: string,
-    data: unknown,
-    options: any = { removeOnComplete: true },
-  ) {
-    return this.driverQueue.add(process, data, options);
+  addProject(process: string, data: unknown, delay?: number) {
+    return this.driverQueue.add(process, data, {
+      delay,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: 'fixed', delay: 3000 },
+      removeOnFail: true,
+    });
   }
 }

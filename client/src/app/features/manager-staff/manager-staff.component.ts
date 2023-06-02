@@ -15,7 +15,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { selectQueryParams } from '../../common/stores/router';
 import { ProjectStatus, RO_MANAGER_STAFF } from '../../common/constants';
-import { setTitle } from '../../common/utilities';
+import { rankFullName, setTitle } from '../../common/utilities';
 import { ManagerStaff, Student } from '../../common/models';
 import {
     ManagerStaffState,
@@ -35,6 +35,7 @@ import { HasRoleDirective } from '../../core-ui/directives';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { first } from 'rxjs';
 import { ExcelService, MergeCell, NotificationService } from '../../common/services';
+import { RankFullNamePipe } from '../../core-ui/pipes';
 
 @Component({
     selector: 'app-manager-staff',
@@ -56,28 +57,32 @@ import { ExcelService, MergeCell, NotificationService } from '../../common/servi
         NgIf,
         ManagerStaffFormComponent,
         HasRoleDirective,
-        NzDropDownModule
+        NzDropDownModule,
+        RankFullNamePipe
     ],
     templateUrl: './manager-staff.component.html',
 })
 export class ManagerStaffComponent {
+    
     @ViewChild('filterForm') filterForm!: FormComponent;
     @ViewChild('table') table!: TableComponent;
+    
     readonly #excelService = inject(ExcelService);
     readonly #notificationService = inject(NotificationService);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly store = inject(Store<ManagerStaffState>);
-    private readonly router = inject(Router);
-    private readonly modal = inject(NzModalService);
-    queryParams$ = this.store.select(selectQueryParams);
-    managerStaffs$ = this.store.select(selectManagerStaffs);
-    pagination$ = this.store.select(selectPagination);
-    isLoading$ = this.store.select(selectIsLoading);
-    isVisible$ = this.store.select(selectIsVisible);
-    projects$ = this.store.select(selectProjects);
-    managerStaff$ = this.store.select(selectManagerStaff);
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #store = inject(Store<ManagerStaffState>);
+    readonly #router = inject(Router);
+    readonly #modal = inject(NzModalService);
+    
+    queryParams$ = this.#store.select(selectQueryParams);
+    managerStaffs$ = this.#store.select(selectManagerStaffs);
+    pagination$ = this.#store.select(selectPagination);
+    isLoading$ = this.#store.select(selectIsLoading);
+    isVisible$ = this.#store.select(selectIsVisible);
+    projects$ = this.#store.select(selectProjects);
+    managerStaff$ = this.#store.select(selectManagerStaff);
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
     title = 'Danh sách GV Quản lý';
     url = RO_MANAGER_STAFF;
     selectedItems: ManagerStaff[] = [];
@@ -89,26 +94,26 @@ export class ManagerStaffComponent {
 
     onSearch(value: any) {
         value.page = 1;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onPageChanges(event: { index: number, size: number }) {
         const value: any = this.filterForm.value;
         value.page = event.index;
         value.limit = event.size;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onLoad() {
-        this.store.dispatch(ManagerStaffActions.loadManagerStaffs());
+        this.#store.dispatch(ManagerStaffActions.loadManagerStaffs());
     }
 
     onAdd() {
-        this.store.dispatch(ManagerStaffActions.updateVisible({ isVisible: true }));
+        this.#store.dispatch(ManagerStaffActions.updateVisible({ isVisible: true }));
     }
 
     onEdit(id: number) {
-        this.store.dispatch(ManagerStaffActions.loadManagerStaff({ payload: { id } }));
+        this.#store.dispatch(ManagerStaffActions.loadManagerStaff({ payload: { id } }));
     }
 
     onDelete(row: ManagerStaff) {
@@ -120,7 +125,7 @@ export class ManagerStaffComponent {
         if (row.projects?.some(p => p.reportedCount)) {
             prevTitle = 'Có đề tài đã thực hiện báo cáo tiến độ.'
         }
-        const ref = this.modal.create({
+        const ref = this.#modal.create({
             nzWidth: 400,
             nzContent: ConfirmComponent,
             nzClosable: false,
@@ -136,22 +141,22 @@ export class ManagerStaffComponent {
         ref.afterClose
             .pipe(first())
             .subscribe(confirm => confirm
-                && this.store.dispatch(ManagerStaffActions.deleteManagerStaff({ payload: { id: row.id! } })));
+                && this.#store.dispatch(ManagerStaffActions.deleteManagerStaff({ payload: { id: row.id! } })));
     }
 
     onSave(value: Student) {
-        this.store.dispatch(value.id
+        this.#store.dispatch(value.id
             ? ManagerStaffActions.updateManagerStaff({ payload: value })
             : ManagerStaffActions.createManagerStaff({ payload: value })
         );
     }
 
     onCancel() {
-        this.store.dispatch(ManagerStaffActions.updateVisible({ isVisible: false }));
+        this.#store.dispatch(ManagerStaffActions.updateVisible({ isVisible: false }));
     }
 
     onReloadProject(event: any) {
-        this.store.dispatch(ManagerStaffActions.loadAllProjects({ payload: event }));
+        this.#store.dispatch(ManagerStaffActions.loadAllProjects({ payload: event }));
     }
 
     onCheckedChange(event: { ids: Set<number>, data: ManagerStaff[] }) {
@@ -213,8 +218,8 @@ export class ManagerStaffComponent {
                         s.code || '',
                         `${s.email || ''}\n${s.phone || ''}`,
                         p.name || '',
-                        instructor ? `${instructor.fullName}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}` : '',
-                        manager ? `${manager.fullName}\n${manager.workPlace}\n${manager.email}\n${manager.phone}` : ''
+                        instructor ? `${rankFullName(instructor)}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}` : '',
+                        manager ? `${rankFullName(manager)}\n${manager.workPlace}\n${manager.email}\n${manager.phone}` : ''
                     ]);
                 });
             });

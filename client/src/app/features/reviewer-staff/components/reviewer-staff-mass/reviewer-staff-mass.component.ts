@@ -15,9 +15,9 @@ import {
     ToolbarComponent
 } from '../../../../core-ui/components';
 import { CommonState, selectDepartments, selectSemesters } from '../../../../common/stores';
-import { RO_MANAGER_STAFF, RO_REVIEWER_STAFF } from '../../../../common/constants';
+import { RO_REVIEWER_STAFF } from '../../../../common/constants';
 import { Project, ReviewerStaff, User } from '../../../../common/models';
-import { setTitle } from '../../../../common/utilities';
+import { rankFullName, setTitle } from '../../../../common/utilities';
 import { FormGroup, FormsModule } from '@angular/forms';
 import { filter, first, take, withLatestFrom } from 'rxjs';
 import { chunk, cloneDeep, shuffle } from 'lodash';
@@ -69,19 +69,19 @@ import { RouterLink } from '@angular/router';
     templateUrl: './reviewer-staff-mass.component.html',
 })
 export class ReviewerStaffMassComponent {
-    private readonly store = inject(Store<ReviewerStaffState>);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly notification = inject(NotificationService);
-    private readonly modal = inject(NzModalService);
+    readonly #store = inject(Store<ReviewerStaffState>);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #notification = inject(NotificationService);
+    readonly #modal = inject(NzModalService);
 
     @ViewChild('form') formComponent!: FormComponent;
     @ViewChild('confirmContent') confirmContent!: TemplateRef<any>;
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
-    projects$ = this.store.select(selectProjects);
-    isLoading$ = this.store.select(selectIsLoading);
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
+    projects$ = this.#store.select(selectProjects);
+    isLoading$ = this.#store.select(selectIsLoading);
 
-    title = 'Thành lập danh sách';
+    title = 'Thành lập danh sách phản biện';
     urlReviewerStaff = RO_REVIEWER_STAFF;
 
     isVisibleSearchUser = false;
@@ -101,13 +101,25 @@ export class ReviewerStaffMassComponent {
 
     onSave() {
         if (this.groups.some(g => !g.user)) {
-            this.notification.error('Có nhóm chưa chọn GV phản biện. Vui lòng kiểm tra lại!');
+            this.#notification.error('Có nhóm chưa chọn GV phản biện. Vui lòng kiểm tra lại!');
             return;
         }
         if (this.groups.some(g => !g.projects.length)) {
-            this.notification.error('Có nhóm chưa chọn đề tài. Vui lòng kiểm tra lại!');
+            this.#notification.error('Có nhóm chưa chọn đề tài. Vui lòng kiểm tra lại!');
             return;
         }
+
+        for (let i = 0; i < this.groups.length; i++) {
+            for (let j = i + 1; j < this.groups.length; j++) {
+                const groupA = this.groups[i];
+                const groupB = this.groups[j];
+                if (groupA.user?.id === groupB.user?.id) {
+                    this.#notification.error(`GV ${rankFullName(groupA.user)} nhóm ${i + 1} trùng với nhóm ${j + 1}. Vui lòng kiểm tra lại!`);
+                    return;
+                }
+            }
+        }
+
         const payload: ReviewerStaff[] = [];
         for (let i = 0; i < this.groups.length; i++) {
             const group = this.groups[i];
@@ -118,7 +130,7 @@ export class ReviewerStaffMassComponent {
                 userId: group.user?.id
             });
         }
-        this.store.dispatch(ReviewerStaffActions.createMultipleReviewerStaff({ payload }));
+        this.#store.dispatch(ReviewerStaffActions.createMultipleReviewerStaff({ payload }));
     }
 
     onSearchUser(groupIndex: number) {
@@ -173,7 +185,7 @@ export class ReviewerStaffMassComponent {
             && departmentId.value && semesterId.value
             && ( this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value )) {
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -211,24 +223,25 @@ export class ReviewerStaffMassComponent {
     }
 
     private getAllProjects() {
-        this.store.dispatch(ReviewerStaffActions.loadAllProjects({
+        this.#store.dispatch(ReviewerStaffActions.loadAllProjects({
             payload: {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
                 state: 'rne'
             }
         }));
-        this.store.select(selectIsLoaded)
+        this.#store.select(selectIsLoaded)
             .pipe(
                 filter<boolean>(isLoaded => isLoaded),
                 take(1),
-                withLatestFrom(this.store.select(selectProjects))
+                withLatestFrom(this.#store.select(selectProjects))
             ).subscribe(([ _, projects ]) => {
             if (!projects.length) {
-                this.notification.warning('Không còn đề tài nào chưa có nhóm.');
+                this.#notification.warning('Không còn đề tài nào chưa có nhóm.');
+                this.formComponent?.markAsDirty();
                 return;
             }
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzContent: this.confirmContent,
                 nzFooter: null,
                 nzMaskClosable: false,
@@ -266,6 +279,4 @@ export class ReviewerStaffMassComponent {
                 }
             });
     }
-
-    protected readonly RO_MANAGER_STAFF = RO_MANAGER_STAFF;
 }

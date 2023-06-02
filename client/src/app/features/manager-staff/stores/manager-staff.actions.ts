@@ -37,5 +37,5 @@ export const ManagerStaffActions = createActionGroup({
         
         'Update Visible': props<{ isVisible: boolean }>()
     }
-})
+});
 

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Pagination, PaginationMetaDto } from '../../common/dtos';
+import { Pagination, PaginationMetaDto, PointGrade } from '../../common/dtos';
 import { ProjectEntity } from './models';
 import {
   ProjectApproveRequestDto,
@@ -38,6 +38,7 @@ import {
   ProjectProgressType,
   ProjectQueryState,
   ProjectStatus,
+  Rank,
   Role,
 } from '../../common/constants';
 import {
@@ -51,6 +52,11 @@ import { StudentDto } from '../student/dtos';
 import { UserService } from '../user/services';
 import { SemesterService } from '../semester/semester.service';
 import moment from 'moment';
+import {
+  calculatePointGrade,
+  randomScore,
+  randomString,
+} from '../../common/utilities';
 
 @Injectable()
 export class ProjectService {
@@ -89,7 +95,7 @@ export class ProjectService {
       ])
       .leftJoin('project.department', 'department')
       .leftJoin('project.instructor', 'instructor')
-      .leftJoinAndSelect('project.students', 'student')
+      .leftJoin('project.students', 'student')
       .leftJoin('project.semester', 'semester')
       .leftJoin('project.reviewedBy', 'reviewedBy')
       .leftJoin('project.createdBy', 'createdBy')
@@ -104,22 +110,31 @@ export class ProjectService {
         { userId: user.id },
       )
       .addSelect([
+        'student.id',
+        'student.code',
+        'student.fullName',
+        'student.phone',
+        'student.email',
         'instructor.fullName',
         'instructor.email',
         'instructor.workPlace',
         'instructor.phone',
         'instructor.id',
+        'instructor.rank',
         'department.name',
         'semester.name',
         'reviewedBy.id',
         'reviewedBy.fullName',
+        'reviewedBy.rank',
         'createdBy.id',
         'createdBy.fullName',
+        'createdBy.rank',
         'managerStaff.id',
         'managerStaff.userId',
         'reviewerStaff.id',
         'reviewerStaff.userId',
         'reviewerStaffUser.fullName',
+        'reviewerStaffUser.rank',
         'examinerCouncil.id',
         'examinerCouncilUsers.position',
       ]);
@@ -231,7 +246,7 @@ export class ProjectService {
           id: project.id,
           folderName: project.name,
         },
-        { delay: 2000 },
+        1000,
       );
     }
 
@@ -247,7 +262,7 @@ export class ProjectService {
         },
         userId: currentUser.id,
       },
-      { delay: 1000, removeOnComplete: true },
+      1000,
     );
 
     return project.toDto();
@@ -273,6 +288,7 @@ export class ProjectService {
       .addSelect([
         'instructor.id',
         'instructor.fullName',
+        'instructor.rank',
         'department.id',
         'department.name',
         'semester.id',
@@ -284,6 +300,7 @@ export class ProjectService {
         'student.phone',
         'createdBy.id',
         'createdBy.fullName',
+        'createdBy.rank',
       ]);
 
     if (query && query.extra?.includes('all')) {
@@ -298,12 +315,15 @@ export class ProjectService {
         .addSelect([
           'reviewedBy.id',
           'reviewedBy.fullName',
+          'reviewedBy.rank',
           'managerStaff.id',
           'managerStaffUser.id',
           'managerStaffUser.fullName',
+          'managerStaffUser.rank',
           'reviewerStaff.id',
           'reviewerStaffUser.id',
           'reviewerStaffUser.fullName',
+          'reviewerStaffUser.rank',
           'examinerCouncil.location',
           'progress.id',
           'progress.wordFile',
@@ -371,7 +391,7 @@ export class ProjectService {
           id: project.id,
           folderName: project.name,
         },
-        { delay: 2000, removeOnComplete: true },
+        1000,
       );
     }
 
@@ -554,13 +574,30 @@ export class ProjectService {
         if (!instructor) {
           switch (request.instrNotExist) {
             case PROJECT_INSTR_NOT_EXIST.INSERT:
+              let rank = Rank.Other;
+              let fullN = fullName || '';
+              switch (true) {
+                case fullN.includes(`${Rank.Doctor}.`):
+                  rank = Rank.Doctor;
+                  fullN = fullN.replace(`${Rank.Doctor}.`, '');
+                  break;
+                case fullN.includes(`${Rank.Master}.`):
+                  rank = Rank.Master;
+                  fullN = fullN.replace(`${Rank.Master}.`, '');
+                  break;
+                case fullN.includes(`${Rank.Engineer}.`):
+                  rank = Rank.Engineer;
+                  fullN = fullN.replace(`${Rank.Engineer}.`, '');
+                  break;
+              }
               const newInstr = await this.userService.createUser(
                 {
                   email: (email || '').trim().toLowerCase(),
-                  fullName: (fullName || '').trim(),
+                  fullName: fullN.trim(),
                   workPlace: (workPlace || '').trim(),
                   phone: (phone || '').trim(),
                   role: Role.LECTURER,
+                  rank,
                 },
                 currentUser,
               );
@@ -806,12 +843,19 @@ export class ProjectService {
     if (user.role !== Role.ADMINISTRATOR) {
       switch (type) {
         case ProjectProgressType.INSTRUCTOR_REVIEW:
-          queryBuilder.andWhere('project.instructorId = :userId', {
-            userId: user.id,
-          });
+          queryBuilder
+            .andWhere('project.status = :status', {
+              status: ProjectStatus.IN_PROGRESS,
+            })
+            .andWhere('project.instructorId = :userId', {
+              userId: user.id,
+            });
           break;
         case ProjectProgressType.REVIEWER_REVIEW:
           queryBuilder
+            .andWhere('project.status = :status', {
+              status: ProjectStatus.IN_REVIEW,
+            })
             .leftJoin('project.reviewerStaff', 'reviewerStaff')
             .andWhere('reviewerStaff.userId = :userId', {
               userId: user.id,
@@ -820,10 +864,12 @@ export class ProjectService {
         case ProjectProgressType.COUNCIL_REVIEW:
         case ProjectProgressType.COMPLETED:
           queryBuilder
+            .andWhere('project.status = :status', {
+              status: ProjectStatus.IN_PRESENTATION,
+            })
             .leftJoin('project.examinerCouncil', 'examinerCouncil')
-            .leftJoin(
-              'examinerCouncil.users',
-              'examinerCouncilUsers',
+            .leftJoin('examinerCouncil.users', 'examinerCouncilUsers')
+            .andWhere(
               'examinerCouncilUsers.userId = :userId AND examinerCouncilUsers.position IN (:...positions)',
               {
                 userId: user.id,
@@ -836,6 +882,9 @@ export class ProjectService {
           break;
         default:
           queryBuilder
+            .andWhere('project.status = :status', {
+              status: ProjectStatus.IN_PROGRESS,
+            })
             .leftJoin('project.managerStaff', 'managerStaff')
             .andWhere('managerStaff.userId = :userId', {
               userId: user.id,
@@ -925,7 +974,7 @@ export class ProjectService {
     const queryBuilder = this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.progresses', 'progress')
-      .addSelect(['progress.id', 'progress.type']);
+      .addSelect(['progress.id', 'progress.type', 'progress.score']);
 
     if (request.departmentId) {
       queryBuilder.andWhere('project.department_id = :departmentId', {
@@ -949,7 +998,9 @@ export class ProjectService {
     let totalReview = 0;
     let totalPresentation = 0;
     const scoreDistribution: { [key: number]: number } = {};
-    const outpoint: { [key: string]: number } = {};
+    const presentationPointGrade: PointGrade = {};
+    const instructorPointGrade: PointGrade = {};
+    const reviewerPointGrade: PointGrade = {};
     for (const project of projects) {
       switch (project.status) {
         case ProjectStatus.REFUSE:
@@ -962,12 +1013,20 @@ export class ProjectService {
           totalCompleted++;
           break;
       }
-      if (
-        project.progresses.some(
-          (pg) => pg.type === ProjectProgressType.REVIEWER_REVIEW,
-        )
-      ) {
+
+      const instructorReport = project.progresses.find(
+        (pg) => pg.type === ProjectProgressType.INSTRUCTOR_REVIEW,
+      );
+      if (instructorReport) {
+        calculatePointGrade(instructorPointGrade, instructorReport.score);
+      }
+
+      const reviewerReport = project.progresses.find(
+        (pg) => pg.type === ProjectProgressType.REVIEWER_REVIEW,
+      );
+      if (reviewerReport) {
         totalReview++;
+        calculatePointGrade(reviewerPointGrade, reviewerReport.score);
       }
 
       if (project.conclusionScore !== null) {
@@ -979,62 +1038,7 @@ export class ProjectService {
         } else {
           scoreDistribution[score] = 1;
         }
-        switch (true) {
-          case 0 < score && score < 4:
-            if (!outpoint['F']) {
-              outpoint['F'] = 0;
-            }
-            outpoint['F'] += 1;
-            break;
-          case 4 <= score && score < 4.8:
-            if (!outpoint['D']) {
-              outpoint['D'] = 0;
-            }
-            outpoint['D'] += 1;
-            break;
-          case 4.8 <= score && score < 5.5:
-            if (!outpoint['D+']) {
-              outpoint['D+'] = 0;
-            }
-            outpoint['D+'] += 1;
-            break;
-          case 5.5 <= score && score < 6.3:
-            if (!outpoint['C']) {
-              outpoint['C'] = 0;
-            }
-            outpoint['C'] += 1;
-            break;
-          case 6.3 <= score && score < 7.0:
-            if (!outpoint['C+']) {
-              outpoint['C+'] = 0;
-            }
-            outpoint['C+'] += 1;
-            break;
-          case 7.0 <= score && score < 7.8:
-            if (!outpoint['B']) {
-              outpoint['B'] = 0;
-            }
-            outpoint['B'] += 1;
-            break;
-          case 7.8 <= score && score < 8.5:
-            if (!outpoint['B+']) {
-              outpoint['B+'] = 0;
-            }
-            outpoint['B+'] += 1;
-            break;
-          case 8.5 <= score && score < 9.0:
-            if (!outpoint['A']) {
-              outpoint['A'] = 0;
-            }
-            outpoint['A'] += 1;
-            break;
-          case 9.0 <= score && score < 10.0:
-            if (!outpoint['A+']) {
-              outpoint['A+'] = 0;
-            }
-            outpoint['A+'] += 1;
-            break;
-        }
+        calculatePointGrade(presentationPointGrade, score);
       }
     }
     return new ProjectStatisticalResponseDto({
@@ -1045,8 +1049,100 @@ export class ProjectService {
       totalReview,
       totalPresentation,
       scoreDistribution,
-      outpoint,
+      presentationPointGrade,
+      instructorPointGrade,
+      reviewerPointGrade,
       averageScore: +(totalScore / totalPresentation).toFixed(1),
     });
+  }
+
+  async dumpReview(type: ProjectProgressType, currentUser: UserEntity) {
+    const projects = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.progresses', 'progress')
+      .andWhere('project.managerStaff IS NOT NULL')
+      .getMany();
+    for (const project of projects) {
+      try {
+        if (type === ProjectProgressType.COUNCIL_REVIEW) {
+          if (project.status !== ProjectStatus.IN_PRESENTATION) {
+            continue;
+          }
+          const formScore = randomScore(10, 15);
+          const contentScore = randomScore(15, 35);
+          const summarizeScore = randomScore(10, 20);
+          const answerScore = randomScore(20, 30);
+          const conclusionScore = +(
+            (formScore +
+              contentScore +
+              summarizeScore +
+              answerScore +
+              randomScore(0, 10)) /
+            10
+          ).toFixed(1);
+          await this.councilReview(
+            project.id,
+            {
+              formScore,
+              contentScore,
+              summarizeScore,
+              answerScore,
+              conclusionScore,
+            },
+            currentUser,
+          );
+        } else {
+          if (project.progresses.some((pg) => pg.type == type)) {
+            continue;
+          }
+          const score = randomScore();
+          await this.review(
+            project.id,
+            {
+              comment1: `${
+                type != ProjectProgressType.INSTRUCTOR_REVIEW
+                  ? 'Tính thực tiến cao'
+                  : 'Đã hoàn thành tốt'
+              } ${randomString(8)}`,
+              comment2: `Đạt yêu cầu ${randomString(8)}`,
+              comment3: `Tốt ${randomString(8)}`,
+              comment4:
+                type != ProjectProgressType.INSTRUCTOR_REVIEW
+                  ? `Tốt ${randomString(8)}`
+                  : '',
+              comment5: '',
+              score,
+              isApproval: score > 4,
+              type,
+            },
+            currentUser,
+          );
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
+  async dumpReport(
+    type: ProjectProgressType,
+    files: { wordFile; reportFile; otherFile },
+    currentUser: UserEntity,
+  ) {
+    const projects = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.progresses', 'progress')
+      .andWhere('project.managerStaff IS NOT NULL')
+      .getMany();
+    for (const project of projects) {
+      if (project.progresses.some((pg) => pg.type == type)) {
+        continue;
+      }
+      try {
+        await this.report(project.id, { type }, files, currentUser);
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
 }

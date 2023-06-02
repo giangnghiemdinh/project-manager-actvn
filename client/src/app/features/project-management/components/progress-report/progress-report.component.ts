@@ -9,7 +9,7 @@ import { FormComponent, FormFileComponent, FormTextareaComponent } from '../../.
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { ReportNamePipe } from './report-name.pipe';
 import { NotificationService } from '../../../../common/services';
-import { ProjectProgressType } from '../../../../common/constants/project.constant';
+import { ProjectProgressType } from '../../../../common/constants';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 @Component({
@@ -33,7 +33,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 })
 export class ProgressReportComponent {
 
-    private readonly notification = inject(NotificationService);
+    readonly #notification = inject(NotificationService);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() report: ProjectProgress | null = null;
     @Input() isVisible: boolean | null = false;
@@ -53,7 +53,7 @@ export class ProgressReportComponent {
         if (!this.formComponent.isValid) { return; }
         const value: any = this.formComponent.value;
         if (!value.wordFile?.originObject && !value.reportFile?.originObject && !value.otherFile?.originObject) {
-            this.notification.error('Vui lòng cập nhật tệp đính kèm');
+            this.#notification.error('Vui lòng cập nhật tệp đính kèm');
             return;
         }
         this.ok.emit({

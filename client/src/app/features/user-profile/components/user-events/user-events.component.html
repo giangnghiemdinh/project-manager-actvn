@@ -6,6 +6,7 @@
     </div>
     <app-table [data]="events"
                [showHeader]="false"
+               [showIndex]="false"
                [pagination]="pagination"
                (pageChanges)="pageChange.emit($event)">
         <app-table-column [responsive]="{ md: true }" key="message" width="400px">

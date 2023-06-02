@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Department, User } from '../../../common/models';
-import { Genders, Roles } from '../../../common/constants';
+import { Genders, Ranks, Roles } from '../../../common/constants';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -35,6 +35,7 @@ import { getBase64 } from '../../../common/utilities';
 })
 export class UserFormComponent implements OnChanges {
     readonly #notification = inject(NotificationService);
+
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -46,6 +47,7 @@ export class UserFormComponent implements OnChanges {
 
     genders = Genders;
     roles = Roles;
+    ranks = Ranks;
     avatar: { id?: string, base64?: string, file?: any } | null = null;
     acceptFiles = [ '.jpg', '.jpeg', '.png' ];
     defaultAvatarUrl = 'assets/images/avatars/default-avatar.jpg';

@@ -21,7 +21,7 @@
                                      [options]="departments || []"
                                      [validators]="{ required: true }"/>
                     <app-form-text control="phone" label="Số điện thoại"/>
-                    <app-form-text control="email" label="Email"/>
+                    <app-form-text control="email" label="Email" [validators]="{ email: true }"/>
                 </div>
             </app-form>
         </nz-spin>

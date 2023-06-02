@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   NotAcceptableException,
@@ -78,6 +79,7 @@ export class ManagerStaffService {
         'semester.name',
         'semester.isLocked',
         'user.fullName',
+        'user.rank',
         'user.email',
         'user.phone',
         'user.workPlace',
@@ -89,9 +91,12 @@ export class ManagerStaffService {
         'instructor.email',
         'instructor.workPlace',
         'instructor.phone',
+        'instructor.rank',
         'student.id',
         'student.fullName',
         'student.code',
+        'student.phone',
+        'student.email',
       ])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
@@ -123,9 +128,7 @@ export class ManagerStaffService {
     managerStaffDto: ManagerRequestDto,
     currentUser: UserEntity,
   ): Promise<ManagerStaffDto> {
-    await this.semesterService.validateLockedSemester(
-      managerStaffDto.semesterId,
-    );
+    await this.validateGroup(managerStaffDto);
     const managerStaff = this.managerStaffRepository.create(managerStaffDto);
     await this.managerStaffRepository.save(managerStaff);
 
@@ -136,7 +139,7 @@ export class ManagerStaffService {
         params: { managerId: managerStaff.id },
         userId: currentUser.id,
       },
-      { delay: 1000, removeOnComplete: true },
+      1000,
     );
     this.logger.log(
       `${currentUser.fullName} đã thêm mới nhóm quản lý ${managerStaff.id}`,
@@ -169,11 +172,13 @@ export class ManagerStaffService {
       .addSelect([
         'user.id',
         'user.fullName',
+        'user.rank',
         'project.id',
         'project.name',
         'project.status',
         'instructor.id',
         'instructor.fullName',
+        'instructor.rank',
         'student.id',
         'student.code',
         'student.fullName',
@@ -196,12 +201,10 @@ export class ManagerStaffService {
       where: { id },
     });
     if (!managerStaff) {
-      throw new NotFoundException('Hội đồng không tồn tại');
+      throw new NotFoundException('Nhóm quản lý không tồn tại');
     }
 
-    await this.semesterService.validateLockedSemester(
-      managerStaffDto.semesterId,
-    );
+    await this.validateGroup(managerStaffDto, id);
 
     managerStaff.projects = [];
     this.managerStaffRepository.merge(managerStaff, managerStaffDto);
@@ -274,5 +277,29 @@ export class ManagerStaffService {
     this.logger.log(
       `${currentUser.fullName} đã xoá nhóm quản lý ${managerStaff.id}`,
     );
+  }
+
+  private async validateGroup(request: ManagerRequestDto, id?: number) {
+    await this.semesterService.validateLockedSemester(request.semesterId);
+    const queryBuilder = this.managerStaffRepository
+      .createQueryBuilder('managerStaff')
+      .where('managerStaff.semesterId = :semesterId', {
+        semesterId: request.semesterId,
+      })
+      .andWhere('managerStaff.departmentId = :departmentId', {
+        departmentId: request.departmentId,
+      })
+      .andWhere('managerStaff.userId = :userId', {
+        userId: request.userId,
+      });
+
+    if (id) {
+      queryBuilder.andWhere('managerStaff.id <> :id', { id });
+    }
+
+    const isExist = await queryBuilder.getExists();
+    if (isExist) {
+      throw new ConflictException('Giảng viên đang quản lý nhóm khác.');
+    }
   }
 }

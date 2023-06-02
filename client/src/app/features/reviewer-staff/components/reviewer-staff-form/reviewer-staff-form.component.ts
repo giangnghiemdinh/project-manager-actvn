@@ -21,6 +21,8 @@ import { NgForOf } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { first, lastValueFrom, timer } from 'rxjs';
 import { ProjectStatus } from '../../../../common/constants';
+import { rankFullName } from '../../../../common/utilities';
+import { RankFullNamePipe } from '../../../../core-ui/pipes';
 
 @Component({
     selector: 'app-reviewer-staff-form',
@@ -38,13 +40,15 @@ import { ProjectStatus } from '../../../../common/constants';
         NgForOf,
         NzButtonModule,
         SearchUserComponent,
-        SearchProjectComponent
+        SearchProjectComponent,
+        RankFullNamePipe
     ],
     templateUrl: './reviewer-staff-form.component.html',
 })
 export class ReviewerStaffFormComponent {
-    private readonly notification = inject(NotificationService);
-    private readonly modal = inject(NzModalService);
+    readonly #notification = inject(NotificationService);
+    readonly #modal = inject(NzModalService);
+
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -83,7 +87,7 @@ export class ReviewerStaffFormComponent {
             this.data = {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
-                instructorName: this.reviewerStaff.user?.fullName || '',
+                instructorName: rankFullName(this.reviewerStaff.user),
             };
             Promise.resolve().then(_ => this.reloadProject());
         }
@@ -95,7 +99,7 @@ export class ReviewerStaffFormComponent {
             && departmentId.value && semesterId.value
             && (this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value)) {
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -144,7 +148,7 @@ export class ReviewerStaffFormComponent {
 
     onSearchProject() {
         if (!this.currentDepartment || !this.currentSemester) {
-            this.notification.error('Vui lòng chọn khoa và học kỳ!');
+            this.#notification.error('Vui lòng chọn khoa và học kỳ!');
             return;
         }
         if (this.projects && this.reviewerStaff
@@ -164,11 +168,11 @@ export class ReviewerStaffFormComponent {
 
     async onRemoveProject(project: Project) {
         if (project.status === ProjectStatus.IN_PRESENTATION) {
-            this.notification.error('Không thể xoá đề tài đang bảo vệ khỏi nhóm!');
+            this.#notification.error('Không thể xoá đề tài đang bảo vệ khỏi nhóm!');
             return;
         }
         if (project.reportedCount) {
-            const confirm = await lastValueFrom(this.modal.create({
+            const confirm = await lastValueFrom(this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -190,7 +194,7 @@ export class ReviewerStaffFormComponent {
         if (!users.length) { return; }
         const [ user ] = users;
         this.selectedUser = cloneDeep(user);
-        this.formComponent?.setValue('instructorName', user.fullName);
+        this.formComponent?.setValue('instructorName', rankFullName(this.selectedUser));
     }
 
     onCancel() {
@@ -201,11 +205,11 @@ export class ReviewerStaffFormComponent {
     async onSave() {
         if (!this.formComponent.isValid || !this.selectedUser) { return; }
         if (!this.selectedProjects.length) {
-            this.notification.error('Vui lòng chọn danh sách đề tài!');
+            this.#notification.error('Vui lòng chọn danh sách đề tài!');
             return;
         }
-        if (this.selectedProjects.some(p => p.reportedCount) && this.reviewerStaff && this.reviewerStaff.userId !== this.selectedUser?.id) {
-            const confirm = await lastValueFrom(this.modal.create({
+        if (this.reviewerStaff && this.selectedProjects.some(p => p.reportedCount)) {
+            const confirm = await lastValueFrom(this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -213,15 +217,12 @@ export class ReviewerStaffFormComponent {
                 nzCentered: true,
                 nzAutofocus: null,
                 nzData: {
-                    title: `Có đề tài đã chấm phản biện. Bạn có chắc chắn muốn thay đổi người phản biện không?`,
+                    title: `Có đề tài đã chấm phản biện. Bạn có chắc chắn muốn lưu thay đổi không?`,
                     okText: 'Đồng ý',
                     okDanger: false
                 }
             }).afterClose);
-            if (!confirm) {
-                this.onSelectUser([ this.reviewerStaff.user! ]);
-                return;
-            }
+            if (!confirm) { return; }
         }
         const value: any = this.formComponent.value;
         this.ok.emit({

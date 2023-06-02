@@ -26,7 +26,7 @@ export class DepartmentManagementComponent {
     department$ = this.#store.select(selectDepartment);
     isLoading$ = this.#store.select(selectIsLoading);
     isVisible$ = this.#store.select(selectIsVisible);
-    title = 'Quản lý khoa';
+    title = 'Danh sách khoa';
 
     constructor() {
         setTitle(this.title);

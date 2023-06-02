@@ -44,7 +44,7 @@
                         Người đề xuất
                     </div>
                     <div class="col-span-8">
-                        {{ project.createdBy?.fullName }}
+                        {{ project.createdBy | rankFullName }}
                     </div>
                 </div>
                 <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">
@@ -52,7 +52,7 @@
                         Người hướng dẫn
                     </div>
                     <div class="col-span-8">
-                        {{ project.instructor?.fullName }}
+                        {{ project.instructor | rankFullName }}
                     </div>
                 </div>
                 <div class="grid grid-cols-12 gap-2 px-4 py-2 border-b border-gray-150">

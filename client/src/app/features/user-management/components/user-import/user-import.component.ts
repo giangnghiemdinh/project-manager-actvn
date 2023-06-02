@@ -20,8 +20,8 @@ import moment from 'moment';
 })
 export class UserImportComponent implements OnChanges {
 
-    private readonly excelService = inject(ExcelService);
-    private readonly notificationService = inject(NotificationService);
+    readonly #excelService = inject(ExcelService);
+    readonly #notification = inject(NotificationService);
     @Input() isVisible: boolean | null = false;
     @Input() isLoading: boolean | null = false;
     @Output() cancel = new EventEmitter();
@@ -47,7 +47,7 @@ export class UserImportComponent implements OnChanges {
     };
 
     onDownloadSample() {
-        this.excelService.export('Nhập danh sách người dùng', [
+        this.#excelService.export('Nhập danh sách người dùng', [
             {
                 columns: [
                     { title: 'Họ và tên', width: 25 },
@@ -80,22 +80,22 @@ export class UserImportComponent implements OnChanges {
 
     onImport() {
         if (!this.files.length) {
-            this.notificationService.error('Vui lòng chọn tệp đính kèm!');
+            this.#notification.error('Vui lòng chọn tệp đính kèm!');
             return;
         }
         const [ file ] = this.files;
-        this.excelService.import(file.originFileObj, (err: any, data: any) => {
+        this.#excelService.import(file.originFileObj, (err: any, data: any) => {
             if (err) {
-                this.notificationService.error(err);
+                this.#notification.error(err);
                 return;
             }
             if (!data || !data.length) {
-                this.notificationService.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
+                this.#notification.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
                 return;
             }
             const [ sheet0 ] = data;
             if (!sheet0 || sheet0.length <= 1) {
-                this.notificationService.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
+                this.#notification.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
                 return;
             }
             const users: User[] = []
@@ -103,16 +103,16 @@ export class UserImportComponent implements OnChanges {
                 const row = sheet0[i];
                 const u: User = {};
                 if (isEmpty(row[0])) {
-                    this.notificationService.error(`Vui lòng điền Họ và tên dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền Họ và tên dòng ${i + 1}!`);
                     return;
                 }
                 u.fullName = row[0];
                 if (isEmpty(row[1])) {
-                    this.notificationService.error(`Vui lòng điền Email dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền Email dòng ${i + 1}!`);
                     return;
                 }
                 if (!new RegExp(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(row[1])) {
-                    this.notificationService.error(`Email dòng ${i + 1} không hợp lệ!`);
+                    this.#notification.error(`Email dòng ${i + 1} không hợp lệ!`);
                     return;
                 }
                 u.email = row[1];
@@ -120,7 +120,7 @@ export class UserImportComponent implements OnChanges {
                 if (isEmpty(row[3])) {
                     u.gender = Gender.Male;
                 } else if (row[3] != Gender.Male && row[4] != Gender.Female) {
-                    this.notificationService.error(`Giới tính dòng ${i + 1} không hợp lệ!`);
+                    this.#notification.error(`Giới tính dòng ${i + 1} không hợp lệ!`);
                     return;
                 } else {
                     u.gender = +row[3];
@@ -128,7 +128,7 @@ export class UserImportComponent implements OnChanges {
                 if (!isEmpty(row[4])) {
                     const birthday = moment(row[4], 'DD/MM/YYYY');
                     if (!birthday.isValid()) {
-                        this.notificationService.error(`Ngày sinh dòng ${i + 1} không hợp lệ!`);
+                        this.#notification.error(`Ngày sinh dòng ${i + 1} không hợp lệ!`);
                         return;
                     }
                     u.birthday = birthday.toDate();

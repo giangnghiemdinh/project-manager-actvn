@@ -36,6 +36,12 @@
                             </div>
                             <div class="mt-2 flex flex-col gap-2">
                                 <div>
+                                    <div class="font-semibold text-gray-600">Học hàm, học vị</div>
+                                    <div class="text-gray-400 truncate">
+                                        {{ user.rank | rank }}
+                                    </div>
+                                </div>
+                                <div>
                                     <div class="font-semibold text-gray-600">Giới tính</div>
                                     <div class="text-gray-400 truncate">
                                         {{ user.gender | gender }}

@@ -37,7 +37,11 @@
                                         </div>
                                     </ng-template>
                                 </app-table-column>
-                                <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px"/>
+                                <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px">
+                                    <ng-template table-cell let-row>
+                                        {{ row.instructor | rankFullName }}
+                                    </ng-template>
+                                </app-table-column>
                                 <app-table-column key="action" title="" align="center" width="50px" [right]="true">
                                     <ng-template table-cell let-row>
                                         <i (click)="onRemoveProject(row)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>

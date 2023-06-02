@@ -177,8 +177,8 @@ export class ApiConfigService {
     return this.getBoolean('ENABLE_DOCUMENTATION');
   }
 
-  get isEmailCreNotification(): boolean {
-    return this.getBoolean('EMAIL_CRE_NOTIFICATION');
+  get isRandomPass(): boolean {
+    return this.getBoolean('IS_RANDOM_PASS');
   }
 
   get twoFactorAuthAppName() {

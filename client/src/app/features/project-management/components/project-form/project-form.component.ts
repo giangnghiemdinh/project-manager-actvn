@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import {
@@ -14,9 +14,9 @@ import { ProjectStatuses } from '../../../../common/constants';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { cloneDeep } from 'lodash';
 import { FormGroup } from '@angular/forms';
-import { NotificationService } from '../../../../common/services';
 import { NgIf } from '@angular/common';
 import { timer } from 'rxjs';
+import { rankFullName } from '../../../../common/utilities';
 
 @Component({
     selector: 'app-project-form',
@@ -25,7 +25,7 @@ import { timer } from 'rxjs';
     templateUrl: './project-form.component.html',
 })
 export class ProjectFormComponent implements OnChanges {
-    private readonly notification = inject(NotificationService);
+
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -52,14 +52,16 @@ export class ProjectFormComponent implements OnChanges {
         }
         if (project && this.project) {
             const project = cloneDeep(this.project)
-            project.instructorName = this.project.instructor?.fullName || '';
+            project.instructorName = this.project.instructor
+                ? rankFullName(this.project.instructor)
+                : '';
             project.studentCodes = this.project.students
                 ?.map(s => s.code)
                 .join(', ');
             this.instructor = this.project.instructor || null;
             this.students = this.project.students || [];
             this.project = { ...project };
-            !!(project && project.managerStaffId) && timer(0).subscribe(_ => this.formComponent.disable());
+            !!(project && project.managerStaffId) && timer(100).subscribe(_ => this.formComponent?.disable());
         }
     }
 
@@ -93,7 +95,7 @@ export class ProjectFormComponent implements OnChanges {
         if (!users.length) { return; }
         const [ selected ] = users;
         this.instructor = cloneDeep(selected);
-        this.formComponent.setValue('instructorName', this.instructor.fullName);
+        this.formComponent.setValue('instructorName', rankFullName(this.instructor));
     }
 
     onSelectStudent(students: Student[]) {

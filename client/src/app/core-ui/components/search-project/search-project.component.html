@@ -3,6 +3,7 @@
           [nzWidth]="550"
           [nzBodyStyle]="{ padding: '0', maxHeight: 'unset' }"
           (nzOnCancel)="onCancel()"
+          [nzAutofocus]="'auto'"
           [nzFooter]="null"
           nzTitle="">
     <ng-container *nzModalContent>
@@ -35,7 +36,7 @@
                     </div>
                     <div>
                         <strong>Người hướng dẫn:</strong>
-                        {{ project.instructor?.fullName }}
+                        {{ project.instructor | rankFullName }}
                     </div>
                     <div class="flex gap-1">
                         <strong> Sinh viên thực hiện:</strong>

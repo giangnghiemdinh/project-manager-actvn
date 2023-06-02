@@ -1,113 +1,40 @@
-import { createAction, props } from '@ngrx/store';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { ExaminerCouncil, PaginationPayload, PaginationResponse, Project } from '../../../common/models';
 
-export const loadAllProjects = createAction(
-  '[ExaminerCouncil] Load All Project',
-  props<{
-    payload: PaginationPayload,
-    response?: PaginationResponse<Project>
-  }>()
-);
+export const ExaminerCouncilActions = createActionGroup({
+    source: 'Examiner Council',
+    events: {
+        'Load All Project': props<{
+            payload: PaginationPayload,
+            response?: PaginationResponse<Project>
+        }>(),
+        'Load All Project Success': props<{ response: PaginationResponse<Project> }>(),
+        'Load All Project Failure': props<{ errors: any }>(),
 
-export const loadAllProjectSuccess = createAction(
-  '[ExaminerCouncil] Load All Project Success',
-  props<{ response: PaginationResponse<Project> }>()
-);
+        'Load Examiner Councils': emptyProps(),
+        'Load Examiner Councils Success': props<{ response: PaginationResponse<ExaminerCouncil> }>(),
+        'Load Examiner Councils Failure': props<{ errors: any }>(),
 
-export const loadAllProjectFailure = createAction(
-  '[ExaminerCouncil] Load All Project Failure',
-  props<{ errors: any }>()
-);
+        'Load Examiner Council': props<{ payload: { id: number } }>(),
+        'Load Examiner Council Success': props<{ response: ExaminerCouncil }>(),
+        'Load Examiner Council Failure': props<{ errors: any }>(),
 
-export const loadExaminerCouncils = createAction(
-  '[ExaminerCouncil] Load Examiner Councils'
-);
+        'Create Examiner Council': props<{ payload: ExaminerCouncil }>(),
+        'Create Examiner Council Success': props<{ response: ExaminerCouncil }>(),
+        'Create Examiner Council Failure': props<{ errors: any }>(),
 
-export const loadExaminerCouncilsSuccess = createAction(
-  '[ExaminerCouncil] Load Examiner Councils Success',
-  props<{ response: PaginationResponse<ExaminerCouncil> }>()
-);
+        'Create Multiple Examiner Council': props<{ payload: ExaminerCouncil[] }>(),
+        'Create Multiple Examiner Council Success': emptyProps(),
+        'Create Multiple Examiner Council Failure': props<{ errors: any }>(),
 
-export const loadExaminerCouncilsFailure = createAction(
-  '[ExaminerCouncil] Load Examiner Councils Failure',
-  props<{ errors: any }>()
-);
+        'Update Examiner Council': props<{ payload: ExaminerCouncil }>(),
+        'Update Examiner Council Success': emptyProps(),
+        'Update Examiner Council Failure': props<{ errors: any }>(),
 
-export const loadExaminerCouncil = createAction(
-  '[ExaminerCouncil] Load Examiner Council',
-  props<{ payload: { id: number } }>()
-);
+        'Delete Examiner Council': props<{ payload: { id: number } }>(),
+        'Delete Examiner Council Success': emptyProps(),
+        'Delete Examiner Council Failure': props<{ errors: any }>(),
 
-export const loadExaminerCouncilSuccess = createAction(
-  '[ExaminerCouncil] Load Examiner Council Success',
-  props<{ response: ExaminerCouncil }>()
-);
-
-export const loadExaminerCouncilFailure = createAction(
-  '[ExaminerCouncil] Load Examiner Council Failure',
-  props<{ errors: any }>()
-);
-
-export const createExaminerCouncil = createAction(
-  '[ExaminerCouncil] Create Examiner Council',
-  props<{ payload: ExaminerCouncil }>()
-);
-
-export const createExaminerCouncilSuccess = createAction(
-  '[ExaminerCouncil] Create Examiner Council Success',
-  props<{ response: ExaminerCouncil }>()
-);
-
-export const createExaminerCouncilFailure = createAction(
-  '[ExaminerCouncil] Create Examiner Council Failure',
-  props<{ errors: any }>()
-);
-
-export const createMultipleExaminerCouncil = createAction(
-  '[ExaminerCouncil] Create Multiple Examiner Council',
-  props<{ payload: ExaminerCouncil[] }>()
-);
-
-export const createMultipleExaminerCouncilSuccess = createAction(
-  '[ExaminerCouncil] Create Multiple Examiner Council Success',
-  // props<{ response: ExaminerCouncil[] }>()
-);
-
-export const createMultipleExaminerCouncilFailure = createAction(
-  '[ExaminerCouncil] Create Multiple Examiner Council Failure',
-  props<{ errors: any }>()
-);
-
-export const updateExaminerCouncil = createAction(
-  '[ExaminerCouncil] Update Examiner Council',
-  props<{ payload: ExaminerCouncil }>()
-);
-
-export const updateExaminerCouncilSuccess = createAction(
-  '[ExaminerCouncil] Update Examiner Council Success'
-);
-
-export const updateExaminerCouncilFailure = createAction(
-  '[ExaminerCouncil] Update Examiner Council Failure',
-  props<{ errors: any }>()
-);
-
-export const deleteExaminerCouncil = createAction(
-  '[ExaminerCouncil] Delete Examiner Council',
-  props<{ payload: { id: number } }>()
-);
-
-export const deleteExaminerCouncilSuccess = createAction(
-  '[ExaminerCouncil] Delete Examiner Council Success'
-);
-
-export const deleteExaminerCouncilFailure = createAction(
-  '[ExaminerCouncil] Delete Examiner Council Failure',
-  props<{ errors: any }>()
-);
-
-export const updateVisible = createAction(
-  '[ExaminerCouncil] Update Visible',
-  props<{ isVisible: boolean }>()
-);
-
+        'Update Visible': props<{ isVisible: boolean }>()
+    }
+});

@@ -14,12 +14,11 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { FormsModule } from '@angular/forms';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { ProjectStatusPipe } from '../../../../core-ui/pipes/project-status.pipe';
+import { ProjectStatusPipe } from '../../../../core-ui/pipes';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
-import { ExcelService } from '../../../../common/services/excel.service';
+import { ExcelService, NotificationService } from '../../../../common/services';
 import { isEmpty } from 'lodash';
-import { NotificationService } from '../../../../common/services';
 import { Department, Semester } from '../../../../common/models';
 
 @Component({
@@ -30,8 +29,8 @@ import { Department, Semester } from '../../../../common/models';
 })
 export class ProjectImportComponent implements OnChanges {
 
-    private readonly excelService = inject(ExcelService);
-    private readonly notificationService = inject(NotificationService);
+    readonly #excelService = inject(ExcelService);
+    readonly #notification = inject(NotificationService);
 
     @ViewChild('form') formContainer!: FormComponent;
     @ViewChild('importForm') importFormContainer!: FormComponent;
@@ -62,7 +61,7 @@ export class ProjectImportComponent implements OnChanges {
     };
 
     onDownloadSample() {
-        this.excelService.export('Nhập danh sách đề tài',[
+        this.#excelService.export('Nhập danh sách đề tài',[
             {
                 columns: [
                     { title: 'TT', width: 10, alignment: 'center' },
@@ -74,7 +73,7 @@ export class ProjectImportComponent implements OnChanges {
                 notes: [
                     { cell: 'B1', text: 'Đây là trường bắt buộc.' },
                     { cell: 'D1', text: 'Đối với yêu cầu đã có sinh viên đăng ký, vui lòng điền thông tin theo mẫu: \n\n[Yêu cầu đề tài]\n\nSinh viên:\nNghiêm Đình Giang \nAT140414 \ngiangnghiemdinh@gmail.com \n038699964 \n\nSinh viên:\nPhạm Duy Phúc \nAT140434 \nduyphucit@gmail.com \n0123456789' },
-                    { cell: 'E1', text: 'Vui lòng điền thông tin theo mẫu: \n\nThs. Hoàng Thanh Nam\nKhoa ATTT - HVKTMM\nnamht@hocvienact.edu.vn\n0978571541' }
+                    { cell: 'E1', text: 'Vui lòng điền thông tin theo mẫu: \n\nThS. Hoàng Thanh Nam\nKhoa ATTT - HVKTMM\nnamht@hocvienact.edu.vn\n0978571541' }
                 ],
                 sheetName: 'Danh sách đề tài',
             }
@@ -92,7 +91,7 @@ export class ProjectImportComponent implements OnChanges {
 
     onPreImport() {
         if (!this.files.length) {
-            this.notificationService.error('Vui lòng chọn tệp đính kèm!');
+            this.#notification.error('Vui lòng chọn tệp đính kèm!');
             return;
         }
         this.isVisibleModal = true;
@@ -104,18 +103,18 @@ export class ProjectImportComponent implements OnChanges {
         const value = this.formContainer.value;
         const importValue = this.importFormContainer.value;
         const [ file ] = this.files;
-        this.excelService.import(file.originFileObj, (err: any, data: any) => {
+        this.#excelService.import(file.originFileObj, (err: any, data: any) => {
             if (err) {
-                this.notificationService.error(err);
+                this.#notification.error(err);
                 return;
             }
             if (!data || !data.length) {
-                this.notificationService.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
+                this.#notification.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
                 return;
             }
             const [ sheet0 ] = data;
             if (!sheet0 || sheet0.length <= 1) {
-                this.notificationService.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
+                this.#notification.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
                 return;
             }
             const projects: any = [];
@@ -123,22 +122,22 @@ export class ProjectImportComponent implements OnChanges {
                 const row = sheet0[i];
                 const p: any = {};
                 if (isEmpty(row[1])) {
-                    this.notificationService.error(`Vui lòng điền tên đề tài dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền tên đề tài dòng ${i + 1}!`);
                     return;
                 }
                 p.name = row[1];
                 if (isEmpty(row[2])) {
-                    this.notificationService.error(`Vui lòng điền mô tả dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền mô tả dòng ${i + 1}!`);
                     return;
                 }
                 p.description = row[2];
                 if (isEmpty(row[3])) {
-                    this.notificationService.error(`Vui lòng điền yêu cầu dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền yêu cầu dòng ${i + 1}!`);
                     return;
                 }
                 p.requirement = (row[3] || '').replace(/\r/g, '');
                 if (isEmpty(row[4])) {
-                    this.notificationService.error(`Vui lòng điền người hướng dẫn dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền người hướng dẫn dòng ${i + 1}!`);
                     return;
                 }
                 p.instructor = (row[4] || '').replace(/\r/g, '');

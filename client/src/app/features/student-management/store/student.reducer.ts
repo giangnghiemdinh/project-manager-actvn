@@ -1,7 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { AbstractState } from '../../../common/abstracts';
 import { MetaPagination, Student } from '../../../common/models';
-import * as studentActions from './student.actions';
+import { StudentActions } from './student.actions';
 
 export interface StudentState extends AbstractState {
     students: Student[],
@@ -26,24 +26,24 @@ export const studentFeature = createFeature({
     reducer: createReducer(
         initialState,
 
-        on(studentActions.updateVisible, (state, { isVisible }) => ({
+        on(StudentActions.updateVisible, (state, { isVisible }) => ({
             ...state,
             isVisible,
             student: isVisible ? null : state.student,
         })),
 
-        on(studentActions.updateVisibleImport, (state, { isVisible }) => ({
+        on(StudentActions.updateVisibleImport, (state, { isVisible }) => ({
             ...state,
             isVisibleImport: isVisible,
         })),
 
-        on(studentActions.loadStudents, (state) => ({
+        on(StudentActions.loadStudents, (state) => ({
             ...state,
             errors: null,
             isLoading: true,
         })),
 
-        on(studentActions.loadStudentsSuccess, (state, { response }) => ({
+        on(StudentActions.loadStudentsSuccess, (state, { response }) => ({
             ...state,
             students: response.data,
             pagination: response.meta,
@@ -51,13 +51,13 @@ export const studentFeature = createFeature({
             isLoading: false,
         })),
 
-        on(studentActions.loadStudentsFailure, (state, { errors }) => ({
+        on(StudentActions.loadStudentsFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,
         })),
 
-        on(studentActions.loadStudent, (state) => ({
+        on(StudentActions.loadStudent, (state) => ({
             ...state,
             student: null,
             errors: null,
@@ -65,7 +65,7 @@ export const studentFeature = createFeature({
             isLoading: true,
         })),
 
-        on(studentActions.loadStudentSuccess, (state, { response }) => ({
+        on(StudentActions.loadStudentSuccess, (state, { response }) => ({
             ...state,
             student: response,
             errors: null,
@@ -73,82 +73,82 @@ export const studentFeature = createFeature({
             isLoading: false,
         })),
 
-        on(studentActions.loadStudentFailure, (state, { errors }) => ({
+        on(StudentActions.loadStudentFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,
         })),
 
-        on(studentActions.createStudent, (state) => ({
+        on(StudentActions.createStudent, (state) => ({
             ...state,
             errors: null,
             isLoading: true,
         })),
 
-        on(studentActions.createStudentSuccess, (state, { response }) => ({
+        on(StudentActions.createStudentSuccess, (state, { response }) => ({
             ...state,
             errors: null,
             isVisible: false,
             isLoading: false,
         })),
 
-        on(studentActions.createStudentFailure, (state, { errors }) => ({
+        on(StudentActions.createStudentFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,
         })),
 
-        on(studentActions.updateStudent, (state) => ({
+        on(StudentActions.updateStudent, (state) => ({
             ...state,
             errors: null,
             isLoading: true,
         })),
 
-        on(studentActions.updateStudentSuccess, (state) => ({
+        on(StudentActions.updateStudentSuccess, (state) => ({
             ...state,
             errors: null,
             isVisible: false,
             isLoading: false,
         })),
 
-        on(studentActions.updateStudentFailure, (state, { errors }) => ({
+        on(StudentActions.updateStudentFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,
         })),
 
-        on(studentActions.importStudent, (state) => ({
+        on(StudentActions.importStudent, (state) => ({
             ...state,
             errors: null,
             isLoading: true,
         })),
 
-        on(studentActions.importStudentSuccess, (state) => ({
+        on(StudentActions.importStudentSuccess, (state) => ({
             ...state,
             errors: null,
             isVisibleImport: false,
             isLoading: false,
         })),
 
-        on(studentActions.importStudentFailure, (state, { errors }) => ({
+        on(StudentActions.importStudentFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,
         })),
 
-        on(studentActions.deleteStudent, (state) => ({
+        on(StudentActions.deleteStudent, (state) => ({
             ...state,
             errors: null,
             isLoading: true,
         })),
 
-        on(studentActions.deleteStudentSuccess, (state) => ({
+        on(StudentActions.deleteStudentSuccess, (state) => ({
             ...state,
             errors: null,
             isLoading: false,
         })),
 
-        on(studentActions.deleteStudentFailure, (state, { errors }) => ({
+        on(StudentActions.deleteStudentFailure, (state, { errors }) => ({
             ...state,
             errors,
             isLoading: false,

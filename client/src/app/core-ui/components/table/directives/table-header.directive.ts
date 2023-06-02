@@ -8,7 +8,6 @@ export class TableHeaderDirective {
 
     constructor(
         public template: TemplateRef<any>
-    ) {
-    }
+    ) {}
 
 }

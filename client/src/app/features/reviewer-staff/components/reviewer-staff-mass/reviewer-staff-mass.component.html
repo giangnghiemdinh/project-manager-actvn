@@ -49,8 +49,8 @@
                         </app-form>
                         <button class="mt-6" nzSize="large"
                                 nzBlock nz-button nzType="primary"
-                                [disabled]="!form.form.valid || form.isPristine"
-                                (click)="onLoadingProjects(form.form)">
+                                [disabled]="!!form && (!form.form.valid || form?.isPristine)"
+                                (click)="!!form && onLoadingProjects(form.form)">
                             Kiểm tra danh sách đề tài
                         </button>
                     </div>

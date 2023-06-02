@@ -15,7 +15,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { selectQueryParams } from '../../common/stores/router';
 import { ProjectStatus, RO_REVIEWER_STAFF } from '../../common/constants';
-import { setTitle } from '../../common/utilities';
+import { rankFullName, setTitle } from '../../common/utilities';
 import { ReviewerStaff, Student } from '../../common/models';
 import {
     ReviewerStaffState,
@@ -35,6 +35,7 @@ import { HasRoleDirective } from '../../core-ui/directives';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { first } from 'rxjs';
 import { ExcelService, MergeCell, NotificationService } from '../../common/services';
+import { RankFullNamePipe } from '../../core-ui/pipes';
 
 @Component({
     selector: 'app-reviewer-staff',
@@ -56,28 +57,31 @@ import { ExcelService, MergeCell, NotificationService } from '../../common/servi
         NgIf,
         ReviewerStaffFormComponent,
         HasRoleDirective,
-        NzDropDownModule
+        NzDropDownModule,
+        RankFullNamePipe
     ],
     templateUrl: './reviewer-staff.component.html',
 })
 export class ReviewerStaffComponent {
     @ViewChild('filterForm') filterForm!: FormComponent;
     @ViewChild('table') table!: TableComponent;
+    
     readonly #excelService = inject(ExcelService);
     readonly #notificationService = inject(NotificationService);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly store = inject(Store<ReviewerStaffState>);
-    private readonly router = inject(Router);
-    private readonly modal = inject(NzModalService);
-    queryParams$ = this.store.select(selectQueryParams);
-    reviewerStaffs$ = this.store.select(selectReviewerStaffs);
-    pagination$ = this.store.select(selectPagination);
-    isLoading$ = this.store.select(selectIsLoading);
-    isVisible$ = this.store.select(selectIsVisible);
-    projects$ = this.store.select(selectProjects);
-    reviewerStaff$ = this.store.select(selectReviewerStaff);
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #store = inject(Store<ReviewerStaffState>);
+    readonly #router = inject(Router);
+    readonly #modal = inject(NzModalService);
+    
+    queryParams$ = this.#store.select(selectQueryParams);
+    reviewerStaffs$ = this.#store.select(selectReviewerStaffs);
+    pagination$ = this.#store.select(selectPagination);
+    isLoading$ = this.#store.select(selectIsLoading);
+    isVisible$ = this.#store.select(selectIsVisible);
+    projects$ = this.#store.select(selectProjects);
+    reviewerStaff$ = this.#store.select(selectReviewerStaff);
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
     title = 'Danh sách GV Phản biện';
     url = RO_REVIEWER_STAFF;
     selectedItems: ReviewerStaff[] = [];
@@ -89,26 +93,26 @@ export class ReviewerStaffComponent {
 
     onSearch(value: any) {
         value.page = 1;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onPageChanges(event: { index: number, size: number }) {
         const value: any = this.filterForm.value;
         value.page = event.index;
         value.limit = event.size;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onLoad() {
-        this.store.dispatch(ReviewerStaffActions.loadReviewerStaffs());
+        this.#store.dispatch(ReviewerStaffActions.loadReviewerStaffs());
     }
 
     onAdd() {
-        this.store.dispatch(ReviewerStaffActions.updateVisible({ isVisible: true }));
+        this.#store.dispatch(ReviewerStaffActions.updateVisible({ isVisible: true }));
     }
 
     onEdit(id: number) {
-        this.store.dispatch(ReviewerStaffActions.loadReviewerStaff({ payload: { id } }));
+        this.#store.dispatch(ReviewerStaffActions.loadReviewerStaff({ payload: { id } }));
     }
 
     onDelete(row: ReviewerStaff) {
@@ -120,7 +124,7 @@ export class ReviewerStaffComponent {
         if (row.projects?.some(p => p.reportedCount)) {
             prevTitle = 'Có đề tài đã chấm phản biện.'
         }
-        const ref = this.modal.create({
+        const ref = this.#modal.create({
             nzWidth: 400,
             nzContent: ConfirmComponent,
             nzClosable: false,
@@ -136,22 +140,22 @@ export class ReviewerStaffComponent {
         ref.afterClose
             .pipe(first())
             .subscribe(confirm => confirm
-                && this.store.dispatch(ReviewerStaffActions.deleteReviewerStaff({ payload: { id: row.id! } })));
+                && this.#store.dispatch(ReviewerStaffActions.deleteReviewerStaff({ payload: { id: row.id! } })));
     }
 
     onSave(value: Student) {
-        this.store.dispatch(value.id
+        this.#store.dispatch(value.id
             ? ReviewerStaffActions.updateReviewerStaff({ payload: value })
             : ReviewerStaffActions.createReviewerStaff({ payload: value })
         );
     }
 
     onCancel() {
-        this.store.dispatch(ReviewerStaffActions.updateVisible({ isVisible: false }));
+        this.#store.dispatch(ReviewerStaffActions.updateVisible({ isVisible: false }));
     }
 
     onReloadProject(event: any) {
-        this.store.dispatch(ReviewerStaffActions.loadAllProjects({ payload: event }));
+        this.#store.dispatch(ReviewerStaffActions.loadAllProjects({ payload: event }));
     }
 
     onCheckedChange(event: { ids: Set<number>, data: ReviewerStaff[] }) {
@@ -213,8 +217,8 @@ export class ReviewerStaffComponent {
                         s.code || '',
                         `${s.email || ''}\n${s.phone || ''}`,
                         p.name || '',
-                        instructor ? `${instructor.fullName}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}` : '',
-                        reviewer ? `${reviewer.fullName}\n${reviewer.workPlace}\n${reviewer.email}\n${reviewer.phone}` : ''
+                        instructor ? `${rankFullName(instructor)}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}` : '',
+                        reviewer ? `${rankFullName(reviewer)}\n${reviewer.workPlace}\n${reviewer.email}\n${reviewer.phone}` : ''
                     ]);
                 });
             });

@@ -1,5 +1,6 @@
 import { NumberProperty } from '../../../common/decorators';
 import { ApiProperty } from '@nestjs/swagger';
+import { PointGrade } from '../../../common/dtos';
 
 export class ProjectStatisticalRequestDto {
   @NumberProperty('ID học kỳ', { int: true, min: 1 })
@@ -35,7 +36,13 @@ export class ProjectStatisticalResponseDto {
   scoreDistribution: { [key: number]: number };
 
   @ApiProperty()
-  outpoint: { [key: string]: number };
+  presentationPointGrade: PointGrade;
+
+  @ApiProperty()
+  instructorPointGrade: PointGrade;
+
+  @ApiProperty()
+  reviewerPointGrade: PointGrade;
 
   constructor(data: {
     total: number;
@@ -46,7 +53,9 @@ export class ProjectStatisticalResponseDto {
     totalReview: number;
     averageScore: number;
     scoreDistribution: { [key: number]: number };
-    outpoint: { [key: string]: number };
+    presentationPointGrade: PointGrade;
+    instructorPointGrade: PointGrade;
+    reviewerPointGrade: PointGrade;
   }) {
     this.total = data.total;
     this.totalExpired = data.totalExpired;
@@ -56,6 +65,8 @@ export class ProjectStatisticalResponseDto {
     this.totalPresentation = data.totalPresentation;
     this.averageScore = data.averageScore;
     this.scoreDistribution = data.scoreDistribution;
-    this.outpoint = data.outpoint;
+    this.presentationPointGrade = data.presentationPointGrade;
+    this.instructorPointGrade = data.instructorPointGrade;
+    this.reviewerPointGrade = data.reviewerPointGrade;
   }
 }

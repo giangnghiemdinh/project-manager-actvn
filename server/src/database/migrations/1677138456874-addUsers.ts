@@ -9,14 +9,14 @@ const users = [
     phone: '0386999646',
     gender: 1,
     role: Role.ADMINISTRATOR,
-    twoFactory: TwoFactoryMethod.OTP,
+    twoFactory: TwoFactoryMethod.DISABLED,
   },
   {
     fullName: 'Nghiêm Đình Giang',
     email: 'nghiemgiangit@gmail.com',
     phone: '0386999646',
     gender: 1,
-    role: Role.LECTURER,
+    role: Role.CENSOR,
     twoFactory: TwoFactoryMethod.EMAIL,
   },
 ];

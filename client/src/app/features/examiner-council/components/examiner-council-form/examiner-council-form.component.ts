@@ -20,11 +20,11 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { FormGroup, FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../../common/services';
 import { NgForOf } from '@angular/common';
-import { ProjectStatus } from '../../../../common/constants/project.constant';
-import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../../../common/constants/user.constant';
+import { ExaminerCouncilPosition, ExaminerCouncilPositions, ProjectStatus } from '../../../../common/constants';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { CouncilPositionPipe } from '../../council-position.pipe';
-import { first, timer } from 'rxjs';
+import { first, lastValueFrom, timer } from 'rxjs';
+import { RankFullNamePipe, RankPipe } from '../../../../core-ui/pipes';
 
 @Component({
     selector: 'app-manager-council-form',
@@ -47,12 +47,14 @@ import { first, timer } from 'rxjs';
         NzSelectModule,
         FormsModule,
         CouncilPositionPipe,
+        RankFullNamePipe,
+        RankPipe,
     ],
     templateUrl: './examiner-council-form.component.html',
 })
 export class ExaminerCouncilFormComponent implements OnChanges {
-    private readonly notification = inject(NotificationService);
-    private readonly modal = inject(NzModalService);
+    readonly #notification = inject(NotificationService);
+    readonly #modal = inject(NzModalService);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -106,7 +108,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
             && departmentId.value && semesterId.value
             && (this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value)) {
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -157,7 +159,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
 
     onSearchProject() {
         if (!this.currentDepartment || !this.currentSemester) {
-            this.notification.error('Vui lòng chọn khoa và học kỳ!');
+            this.#notification.error('Vui lòng chọn khoa và học kỳ!');
             return;
         }
         if (this.projects && this.examinerCouncil
@@ -177,7 +179,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
 
     onRemoveProject(project: Project) {
         if (project.conclusionScore) {
-            this.notification.error('Không thể xoá đề tài đã có điểm bảo vệ khỏi nhóm!')
+            this.#notification.error('Không thể xoá đề tài đã có điểm bảo vệ khỏi nhóm!')
             return;
         }
         this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id);
@@ -199,48 +201,64 @@ export class ExaminerCouncilFormComponent implements OnChanges {
         this.cancel.emit(false);
     }
 
-    onSave() {
+    async onSave() {
         if (!this.formComponent.isValid) { return; }
         if (!this.selectedUsers.length) {
-            this.notification.error('Vui lòng chọn thành viên hội đồng!');
+            this.#notification.error('Vui lòng chọn thành viên hội đồng!');
             return;
         }
         const chairPersonLength = this.selectedUsers
             .filter(u => u.position === ExaminerCouncilPosition.CHAIRPERSON).length;
         if (chairPersonLength > 1) {
-            this.notification.error('Hội đồng có tối đa 01 chủ tịch!');
+            this.#notification.error('Hội đồng có tối đa 01 chủ tịch!');
             return;
         }
         if (!chairPersonLength) {
-            this.notification.error('Vui lòng chọn chủ tịch!');
+            this.#notification.error('Vui lòng chọn chủ tịch!');
             return;
         }
 
         const adSecretaryLength = this.selectedUsers
             .filter(u => u.position === ExaminerCouncilPosition.ADMINISTRATIVE_SECRETARY).length;
         if (adSecretaryLength > 1) {
-            this.notification.error('Hội đồng có tối đa 01 thư ký hành chính!');
+            this.#notification.error('Hội đồng có tối đa 01 thư ký hành chính!');
             return;
         }
         if (!adSecretaryLength) {
-            this.notification.error('Vui lòng chọn thư ký hành chính!');
+            this.#notification.error('Vui lòng chọn thư ký hành chính!');
             return;
         }
 
         const secretaryLength = this.selectedUsers
             .filter(u => u.position === ExaminerCouncilPosition.SECRETARY).length;
         if (secretaryLength > 1) {
-            this.notification.error('Hội đồng có tối đa 01 thư ký!');
+            this.#notification.error('Hội đồng có tối đa 01 thư ký!');
             return;
         }
         if (!secretaryLength) {
-            this.notification.error('Vui lòng chọn thư ký!');
+            this.#notification.error('Vui lòng chọn thư ký!');
             return;
         }
 
         if (!this.selectedProjects.length) {
-            this.notification.error('Vui lòng chọn danh sách đề tài!');
+            this.#notification.error('Vui lòng chọn danh sách đề tài!');
             return;
+        }
+        if (this.examinerCouncil && this.selectedProjects.some(p => p.conclusionScore)) {
+            const confirm = await lastValueFrom(this.#modal.create({
+                nzWidth: 400,
+                nzContent: ConfirmComponent,
+                nzFooter: null,
+                nzClosable: false,
+                nzCentered: true,
+                nzAutofocus: null,
+                nzData: {
+                    title: `Có đề tài đã có điểm bảo vệ. Bạn có chắc chắn muốn lưu thay đổi không?`,
+                    okText: 'Đồng ý',
+                    okDanger: false
+                }
+            }).afterClose);
+            if (!confirm) { return; }
         }
         const value: any = this.formComponent.value;
         this.ok.emit({

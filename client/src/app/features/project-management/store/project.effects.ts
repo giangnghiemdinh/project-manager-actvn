@@ -16,16 +16,16 @@ import { Router } from '@angular/router';
 @Injectable()
 export class ProjectEffects extends AbstractEffects {
     readonly #router = inject(Router);
-    private readonly authStore = inject(Store<AuthState>);
-    private readonly projectService = inject(ProjectService);
+    readonly #authStore = inject(Store<AuthState>);
+    readonly #projectService = inject(ProjectService);
 
     loadProjects$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ProjectActions.loadProjects),
             concatLatestFrom(() => this.routerStore.select(selectQueryParams)),
             mergeMap(([_, queryParams]) =>
-                this.projectService.getProjects(queryParams).pipe(
-                    concatLatestFrom(() => this.authStore.select(selectProfile)),
+                this.#projectService.getProjects(queryParams).pipe(
+                    concatLatestFrom(() => this.#authStore.select(selectProfile)),
                     map(([response, profile]) => {
                         const isAdministrator = profile?.role === Role.ADMINISTRATOR;
                         const data = response.data.map(d => {
@@ -52,7 +52,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.loadProject),
             map(action => action.payload),
             mergeMap((payload) =>
-                this.projectService.getProject(payload.id, payload.extra).pipe(
+                this.#projectService.getProject(payload.id, payload.extra).pipe(
                     map((response: Project) => ProjectActions.loadProjectSuccess({ response, modal: payload.modal })),
                     catchError(errors => of(ProjectActions.loadProjectFailure({ errors })))
                 )
@@ -75,7 +75,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.loadReport),
             map(action => action.payload),
             mergeMap((payload) =>
-                this.projectService.getReport(payload).pipe(
+                this.#projectService.getReport(payload).pipe(
                     map((response: Project) => ProjectActions.loadReportSuccess({ response })),
                     catchError(errors => of(ProjectActions.loadReportFailure({ errors })))
                 )
@@ -88,7 +88,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.createProject),
             map(action => action.payload),
             switchMap((payload: Project) =>
-                this.projectService.createProject(payload).pipe(
+                this.#projectService.createProject(payload).pipe(
                     map((response: Project) => ProjectActions.createProjectSuccess({ response })),
                     catchError(errors => of(ProjectActions.createProjectFailure({ errors })))
                 )
@@ -111,7 +111,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.createProposeProject),
             map(action => action.payload),
             switchMap((payload: Project) =>
-                this.projectService.createProposeProject(payload).pipe(
+                this.#projectService.createProposeProject(payload).pipe(
                     map((response: Project) => ProjectActions.createProposeProjectSuccess({ response })),
                     catchError(errors => of(ProjectActions.createProposeProjectFailure({ errors })))
                 )
@@ -134,7 +134,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.updateProject),
             map(action => action.payload),
             mergeMap((payload: Project) =>
-                this.projectService.updateProject(payload).pipe(
+                this.#projectService.updateProject(payload).pipe(
                     map(_ => ProjectActions.updateProjectSuccess()),
                     catchError(errors => of(ProjectActions.updateProjectFailure({ errors })))
                 )
@@ -157,7 +157,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.deleteProject),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.projectService.deleteProject(payload.id).pipe(
+                this.#projectService.deleteProject(payload.id).pipe(
                     map(_ => ProjectActions.deleteProjectSuccess()),
                     catchError(errors => of(ProjectActions.deleteProjectFailure({ errors })))
                 )
@@ -180,7 +180,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.report),
             map(action => action.payload),
             switchMap((payload: ProjectProgress) => {
-                return this.projectService.report(payload.id!, payload).pipe(
+                return this.#projectService.report(payload.id!, payload).pipe(
                     map(response => ProjectActions.reportSuccess({ response })),
                     catchError(errors => of(ProjectActions.reportFailure({ errors })))
                 );
@@ -203,7 +203,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.review),
             map(action => action.payload),
             mergeMap(payload =>
-                this.projectService.review(payload).pipe(
+                this.#projectService.review(payload).pipe(
                     map(response => ProjectActions.reviewSuccess({ response })),
                     catchError(errors => of(ProjectActions.reviewFailure({ errors })))
                 )
@@ -226,7 +226,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.importProject),
             map(action => action.payload),
             mergeMap((payload: ProjectImportPayload) =>
-                this.projectService.import(payload).pipe(
+                this.#projectService.import(payload).pipe(
                     map(_ => ProjectActions.importProjectSuccess()),
                     catchError(errors => of(ProjectActions.importProjectFailure({ errors })))
                 )
@@ -250,7 +250,7 @@ export class ProjectEffects extends AbstractEffects {
             ofType(ProjectActions.councilReview),
             map(action => action.payload),
             mergeMap((payload: Project) =>
-                this.projectService.councilReview(payload).pipe(
+                this.#projectService.councilReview(payload).pipe(
                     map(_ => ProjectActions.councilReviewSuccess()),
                     catchError(errors => of(ProjectActions.createProjectFailure({ errors })))
                 )

@@ -24,16 +24,6 @@ import {
     selectStudents,
     StudentState
 } from './store/student.reducer';
-import {
-    createStudent,
-    deleteStudent,
-    importStudent,
-    loadStudent,
-    loadStudents,
-    updateStudent,
-    updateVisible,
-    updateVisibleImport
-} from './store/student.actions';
 import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { Student } from '../../common/models';
@@ -46,6 +36,7 @@ import { selectQueryParams } from '../../common/stores/router';
 import { RO_STUDENT_MANAGER } from '../../common/constants';
 import { StudentImportComponent } from './components/student-import/student-import.component';
 import { first } from 'rxjs';
+import { StudentActions } from './store/student.actions';
 
 @Component({
     selector: 'app-student-management',
@@ -75,19 +66,21 @@ import { first } from 'rxjs';
 export class StudentManagementComponent {
 
     @ViewChild('filterForm') filterForm!: FormComponent;
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly store = inject(Store<StudentState>);
-    private readonly router = inject(Router);
-    private readonly modal = inject(NzModalService);
-    queryParams$ = this.store.select(selectQueryParams);
-    students$ = this.store.select(selectStudents);
-    pagination$ = this.store.select(selectPagination);
-    isLoading$ = this.store.select(selectIsLoading);
-    isVisible$ = this.store.select(selectIsVisible);
-    isVisibleImport$ = this.store.select(selectIsVisibleImport);
-    student$ = this.store.select(selectStudent);
-    departments$ = this.commonStore.select(selectDepartments);
-    title = 'Quản lý sinh viên';
+    
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #store = inject(Store<StudentState>);
+    readonly #router = inject(Router);
+    readonly #modal = inject(NzModalService);
+    
+    queryParams$ = this.#store.select(selectQueryParams);
+    students$ = this.#store.select(selectStudents);
+    pagination$ = this.#store.select(selectPagination);
+    isLoading$ = this.#store.select(selectIsLoading);
+    isVisible$ = this.#store.select(selectIsVisible);
+    isVisibleImport$ = this.#store.select(selectIsVisibleImport);
+    student$ = this.#store.select(selectStudent);
+    departments$ = this.#commonStore.select(selectDepartments);
+    title = 'Danh sách sinh viên';
     url = RO_STUDENT_MANAGER;
 
     constructor() {
@@ -97,30 +90,30 @@ export class StudentManagementComponent {
 
     onSearch(value: any) {
         value.page = 1;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onPageChanges(event: { index: number, size: number }) {
         const value: any = this.filterForm.value;
         value.page = event.index;
         value.limit = event.size;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onLoad() {
-        this.store.dispatch(loadStudents());
+        this.#store.dispatch(StudentActions.loadStudents());
     }
 
     onAdd() {
-        this.store.dispatch(updateVisible({ isVisible: true }));
+        this.#store.dispatch(StudentActions.updateVisible({ isVisible: true }));
     }
 
     onEdit(id: number) {
-        this.store.dispatch(loadStudent({ payload: { id } }));
+        this.#store.dispatch(StudentActions.loadStudent({ payload: { id } }));
     }
 
     onDelete(id: number) {
-        const ref = this.modal.create({
+        const ref = this.#modal.create({
             nzWidth: 400,
             nzContent: ConfirmComponent,
             nzClosable: false,
@@ -136,30 +129,30 @@ export class StudentManagementComponent {
         ref.afterClose
             .pipe(first())
             .subscribe(confirm => confirm
-                && this.store.dispatch(deleteStudent({ payload: { id } })));
+                && this.#store.dispatch(StudentActions.deleteStudent({ payload: { id } })));
     }
 
     onSave(value: Student) {
-        this.store.dispatch(value.id
-            ? updateStudent({ payload: value })
-            : createStudent({ payload: value })
+        this.#store.dispatch(value.id
+            ? StudentActions.updateStudent({ payload: value })
+            : StudentActions.createStudent({ payload: value })
         );
     }
 
     onCancel() {
-        this.store.dispatch(updateVisible({ isVisible: false }));
+        this.#store.dispatch(StudentActions.updateVisible({ isVisible: false }));
     }
 
     onImport() {
-        this.store.dispatch(updateVisibleImport({ isVisible: true }));
+        this.#store.dispatch(StudentActions.updateVisibleImport({ isVisible: true }));
     }
 
     onCancelImport() {
-        this.store.dispatch(updateVisibleImport({ isVisible: false }));
+        this.#store.dispatch(StudentActions.updateVisibleImport({ isVisible: false }));
     }
 
     onSaveImport(payload: any) {
-        this.store.dispatch(importStudent({ payload }));
+        this.#store.dispatch(StudentActions.importStudent({ payload }));
     }
 
 }

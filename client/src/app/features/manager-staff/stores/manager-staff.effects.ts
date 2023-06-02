@@ -15,16 +15,16 @@ import { ManagerStaffService } from '../services/manager-staff.service';
 @Injectable()
 export class ManagerStaffEffects extends AbstractEffects {
 
-    private readonly projectService = inject(ProjectService);
-    private readonly managerStaffService = inject(ManagerStaffService);
-    private readonly router = inject(Router);
+    readonly #projectService = inject(ProjectService);
+    readonly #managerStaffService = inject(ManagerStaffService);
+    readonly #router = inject(Router);
 
     loadAllProject$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ManagerStaffActions.loadAllProjects),
             map(action => action.payload),
             switchMap((payload: PaginationPayload) =>
-                this.projectService.getProjects(payload).pipe(
+                this.#projectService.getProjects(payload).pipe(
                     map(response => {
                         return response.meta.hasNextPage
                             ? ManagerStaffActions.loadAllProjects({
@@ -44,7 +44,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.loadManagerStaffs),
             concatLatestFrom(() => this.routerStore.select(selectQueryParams)),
             mergeMap(([_, params]) =>
-                this.managerStaffService.getManagerStaffs(params).pipe(
+                this.#managerStaffService.getManagerStaffs(params).pipe(
                     map((response) => ManagerStaffActions.loadManagerStaffsSuccess({ response })),
                     catchError(errors => of(ManagerStaffActions.loadManagerStaffsFailure({ errors })))
                 )
@@ -57,7 +57,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.loadManagerStaff),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.managerStaffService.getManagerStaff(payload.id).pipe(
+                this.#managerStaffService.getManagerStaff(payload.id).pipe(
                     map((response: ManagerStaff) => ManagerStaffActions.loadManagerStaffSuccess({ response })),
                     catchError(errors => of(ManagerStaffActions.loadManagerStaffFailure({ errors })))
                 )
@@ -70,7 +70,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.createManagerStaff),
             map(action => action.payload),
             mergeMap((payload: ManagerStaff) =>
-                this.managerStaffService.createManagerStaff(payload).pipe(
+                this.#managerStaffService.createManagerStaff(payload).pipe(
                     map((response: ManagerStaff) => ManagerStaffActions.createManagerStaffSuccess({ response })),
                     catchError(errors => of(ManagerStaffActions.createManagerStaffFailure({ errors })))
                 )
@@ -93,7 +93,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.createMultipleManagerStaff),
             map(action => action.payload),
             mergeMap((payload: ManagerStaff[]) =>
-                this.managerStaffService.createMultipleManagerStaff(payload).pipe(
+                this.#managerStaffService.createMultipleManagerStaff(payload).pipe(
                     map(_ => ManagerStaffActions.createMultipleManagerStaffSuccess()),
                     catchError(errors => of(ManagerStaffActions.createMultipleManagerStaffFailure({ errors })))
                 )
@@ -106,7 +106,7 @@ export class ManagerStaffEffects extends AbstractEffects {
                 ofType(ManagerStaffActions.createMultipleManagerStaffSuccess),
                 tap(_ => {
                     this.raiseSuccess('Thành lập danh sách quản lý thành công.');
-                    this.router.navigate(['/' + RO_MANAGER_STAFF]).then();
+                    this.#router.navigate(['/' + RO_MANAGER_STAFF]).then();
                 }),
             ),
         { dispatch: false }
@@ -117,7 +117,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.updateManagerStaff),
             map(action => action.payload),
             mergeMap((payload: ManagerStaff) =>
-                this.managerStaffService.updateManagerStaff(payload).pipe(
+                this.#managerStaffService.updateManagerStaff(payload).pipe(
                     map(_ => ManagerStaffActions.updateManagerStaffSuccess()),
                     catchError(errors => of(ManagerStaffActions.updateManagerStaffFailure({ errors })))
                 )
@@ -140,7 +140,7 @@ export class ManagerStaffEffects extends AbstractEffects {
             ofType(ManagerStaffActions.deleteManagerStaff),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.managerStaffService.deleteManagerStaff(payload.id).pipe(
+                this.#managerStaffService.deleteManagerStaff(payload.id).pipe(
                     map(_ => ManagerStaffActions.deleteManagerStaffSuccess()),
                     catchError(errors => of(ManagerStaffActions.deleteManagerStaffFailure({ errors })))
                 )

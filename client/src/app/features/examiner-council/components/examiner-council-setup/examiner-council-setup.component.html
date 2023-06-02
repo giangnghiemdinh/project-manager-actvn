@@ -49,8 +49,8 @@
                         </app-form>
                         <button class="mt-6" nzSize="large"
                                 nzBlock nz-button nzType="primary"
-                                [disabled]="!form.isValid || form.isPristine"
-                                (click)="onLoadingProjects(form.form)">
+                                [disabled]="!!form && (!form.form.valid || form?.isPristine)"
+                                (click)="!!form && onLoadingProjects(form.form)">
                             Kiểm tra danh sách đề tài
                         </button>
                     </div>
@@ -105,7 +105,13 @@
                     </div>
                     <div class="border-t border-gray-150">
                         <app-table [data]="group.users" [scroll]="{ x: '450px' }" size="small">
-                            <app-table-column key="user.fullName" title="Họ và tên" width="250px"/>
+                            <app-table-column key="user.fullName" title="Họ và tên" width="250px">
+                            </app-table-column>
+                            <app-table-column key="user.rank" title="Học hàm, học vị" width="150px">
+                                <ng-template table-cell let-row>
+                                    {{ row.user.rank | rank }}
+                                </ng-template>
+                            </app-table-column>
                             <app-table-column key="position" title="Chức vụ" width="150px">
                                 <ng-template table-cell let-row>
                                     <div class="editable-cell" [hidden]="editId === row.userId" (click)="editId = row.userId">
@@ -143,8 +149,16 @@
                                 </ng-template>
                             </app-table-column>
                             <app-table-column key="name" title="Tên đề tài" width="250px"/>
-                            <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px"/>
-                            <app-table-column key="reviewerStaff.user.fullName" title="GV phản biện" width="200px"/>
+                            <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px">
+                                <ng-template table-cell let-row>
+                                    {{ row.instructor | rankFullName }}
+                                </ng-template>
+                            </app-table-column>
+                            <app-table-column key="reviewerStaff.user.fullName" title="GV phản biện" width="200px">
+                                <ng-template table-cell let-row>
+                                    {{ row.reviewerStaff.user | rankFullName }}
+                                </ng-template>
+                            </app-table-column>
                             <app-table-column key="action" title="" align="center" width="50px" [right]="true">
                                 <ng-template table-cell let-row>
                                     <i (click)="onRemoveProject(index, row.id!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>

@@ -12,5 +12,19 @@ export interface ProjectStatisticalResponse {
     totalPresentation?: number;
     averageScore?: number;
     scoreDistribution?: { [key: number]: number };
-    outpoint?: { [key: string]: number };
+    presentationPointGrade?: PointGrade;
+    instructorPointGrade?: PointGrade;
+    reviewerPointGrade?: PointGrade;
+}
+
+export interface PointGrade {
+    'F'?: number;
+    'D'?: number;
+    'D+'?: number;
+    'C'?: number;
+    'C+'?: number;
+    'B'?: number;
+    'B+'?: number;
+    'A'?: number;
+    'A+'?: number;
 }

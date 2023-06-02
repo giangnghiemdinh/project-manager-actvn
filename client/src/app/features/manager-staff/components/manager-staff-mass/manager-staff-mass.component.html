@@ -49,8 +49,8 @@
                         </app-form>
                         <button class="mt-6" nzSize="large"
                                 nzBlock nz-button nzType="primary"
-                                [disabled]="!form.form.valid || form.isPristine"
-                                (click)="onLoadingProjects(form.form)">
+                                [disabled]="!!form && (!form.form.valid || form?.isPristine)"
+                                (click)="!!form && onLoadingProjects(form.form)">
                             Kiểm tra danh sách đề tài
                         </button>
                     </div>
@@ -67,11 +67,11 @@
                             <span *ngIf="!group.user" class="italic text-gray-400">(Chưa chọn GV quản lý)</span>
                             <nz-avatar *ngIf="group.user"
                                        nz-tooltip [nzTooltipTitle]="tooltopTemplate"
-                                       [nzText]="(group.user.fullName || '').charAt(0)"
+                                       [nzText]="group.user.fullName || ''"
                                        [nzSrc]="group.user.avatar | driverUrl">
                                 <ng-template #tooltopTemplate>
                                     <div class="text-center">
-                                        <div>{{ group.user.fullName }}</div>
+                                        <div>{{ group.user | rankFullName }}</div>
                                         <div>{{ group.user.email }}</div>
                                     </div>
                                 </ng-template>
@@ -104,7 +104,11 @@
                                     </div>
                                 </ng-template>
                             </app-table-column>
-                            <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px"/>
+                            <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="200px">
+                                <ng-template table-cell let-row>
+                                    {{ row.instructor | rankFullName }}
+                                </ng-template>
+                            </app-table-column>
                             <app-table-column key="action" title="" align="center" width="50px" [right]="true">
                                 <ng-template table-cell let-row>
                                     <i (click)="onRemoveProject(index, row.id!)" class='text-red-600 cursor-pointer bx bxs-trash-alt'></i>
@@ -130,7 +134,7 @@
 <ng-template #confirmContent let-params let-ref="modalRef">
     <div class="flex flex-col gap-4 my-2">
         <div class="rounded-md px-4 py-2 border border-blue-300 bg-blue-200">
-            Có tất cả {{ (projects$ | async)?.length }} đề tài đủ điều kiện.
+            Có tất cả {{ (projects$ | async)?.length }} đề tài chưa có quản lý.
         </div>
         <nz-form-item>
             <nz-form-label [nzSpan]="24" nzFor="permission">Hình thức tổ chức</nz-form-label>

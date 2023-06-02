@@ -1,5 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import * as examinerCouncilActions from './examiner-council.actions';
+import { ExaminerCouncilActions } from './examiner-council.actions';
 import { AbstractState } from '../../../common/abstracts';
 import { ExaminerCouncil, MetaPagination, Project } from '../../../common/models';
 
@@ -28,13 +28,13 @@ export const examinerCouncilFeature = createFeature({
   reducer: createReducer(
     initialState,
 
-    on(examinerCouncilActions.updateVisible, (state, { isVisible }) => ({
+    on(ExaminerCouncilActions.updateVisible, (state, { isVisible }) => ({
       ...state,
       isVisible,
       examinerCouncil: isVisible ? null : state.examinerCouncil,
     })),
 
-    on(examinerCouncilActions.loadAllProjects, (state, { response }) => ({
+    on(ExaminerCouncilActions.loadAllProject, (state, { response }) => ({
       ...state,
       isLoaded: false,
       projects: response ? [...state.projects, ...response.data] : [],
@@ -42,7 +42,7 @@ export const examinerCouncilFeature = createFeature({
       isLoading: true,
     })),
 
-    on(examinerCouncilActions.loadAllProjectSuccess, (state, { response }) => ({
+    on(ExaminerCouncilActions.loadAllProjectSuccess, (state, { response }) => ({
       ...state,
       projects: [...state.projects, ...response.data],
       isLoaded: true,
@@ -50,20 +50,20 @@ export const examinerCouncilFeature = createFeature({
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.loadAllProjectFailure, (state, { errors }) => ({
+    on(ExaminerCouncilActions.loadAllProjectFailure, (state, { errors }) => ({
       ...state,
       errors,
       projects: [],
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.loadExaminerCouncils, (state) => ({
+    on(ExaminerCouncilActions.loadExaminerCouncils, (state) => ({
       ...state,
       errors: null,
       isLoading: true,
     })),
 
-    on(examinerCouncilActions.loadExaminerCouncilsSuccess, (state, { response }) => ({
+    on(ExaminerCouncilActions.loadExaminerCouncilsSuccess, (state, { response }) => ({
       ...state,
       examinerCouncils: response.data,
       pagination: response.meta,
@@ -71,13 +71,13 @@ export const examinerCouncilFeature = createFeature({
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.loadExaminerCouncilsFailure, (state, { errors }) => ({
+    on(ExaminerCouncilActions.loadExaminerCouncilsFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.loadExaminerCouncil, (state) => ({
+    on(ExaminerCouncilActions.loadExaminerCouncil, (state) => ({
       ...state,
       examinerCouncil: null,
       errors: null,
@@ -85,7 +85,7 @@ export const examinerCouncilFeature = createFeature({
       isLoading: true,
     })),
 
-    on(examinerCouncilActions.loadExaminerCouncilSuccess, (state, { response }) => ({
+    on(ExaminerCouncilActions.loadExaminerCouncilSuccess, (state, { response }) => ({
       ...state,
       examinerCouncil: response,
       errors: null,
@@ -93,19 +93,19 @@ export const examinerCouncilFeature = createFeature({
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.loadExaminerCouncilFailure, (state, { errors }) => ({
+    on(ExaminerCouncilActions.loadExaminerCouncilFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.createExaminerCouncil, (state) => ({
+    on(ExaminerCouncilActions.createExaminerCouncil, (state) => ({
       ...state,
       errors: null,
       isLoading: true,
     })),
 
-    on(examinerCouncilActions.createExaminerCouncilSuccess, (state, { response }) => ({
+    on(ExaminerCouncilActions.createExaminerCouncilSuccess, (state, { response }) => ({
       ...state,
       errors: null,
       examinerCouncil: null,
@@ -113,19 +113,19 @@ export const examinerCouncilFeature = createFeature({
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.createExaminerCouncilFailure, (state, { errors }) => ({
+    on(ExaminerCouncilActions.createExaminerCouncilFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.updateExaminerCouncil, (state) => ({
+    on(ExaminerCouncilActions.updateExaminerCouncil, (state) => ({
       ...state,
       errors: null,
       isLoading: true,
     })),
 
-    on(examinerCouncilActions.updateExaminerCouncilSuccess, (state) => ({
+    on(ExaminerCouncilActions.updateExaminerCouncilSuccess, (state) => ({
       ...state,
       errors: null,
       examinerCouncil: null,
@@ -133,24 +133,24 @@ export const examinerCouncilFeature = createFeature({
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.updateExaminerCouncilFailure, (state, { errors }) => ({
+    on(ExaminerCouncilActions.updateExaminerCouncilFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,
     })),
-    on(examinerCouncilActions.deleteExaminerCouncil, (state) => ({
+    on(ExaminerCouncilActions.deleteExaminerCouncil, (state) => ({
       ...state,
       errors: null,
       isLoading: true,
     })),
 
-    on(examinerCouncilActions.deleteExaminerCouncilSuccess, (state) => ({
+    on(ExaminerCouncilActions.deleteExaminerCouncilSuccess, (state) => ({
       ...state,
       errors: null,
       isLoading: false,
     })),
 
-    on(examinerCouncilActions.deleteExaminerCouncilFailure, (state, { errors }) => ({
+    on(ExaminerCouncilActions.deleteExaminerCouncilFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,

@@ -18,10 +18,10 @@ import { UserProfileState } from './user-profile.reducer';
 @Injectable()
 export class UserProfileEffects extends AbstractEffects {
 
-    private readonly authStore = inject(Store<AuthState>);
-    private readonly userService = inject(UserService);
-    private readonly router = inject(Router);
-    private readonly store = inject(Store<UserProfileState>);
+    readonly #authStore = inject(Store<AuthState>);
+    readonly #userService = inject(UserService);
+    readonly #router = inject(Router);
+    readonly #store = inject(Store<UserProfileState>);
 
     loadUser$ = createEffect(() =>
         this.actions$.pipe(
@@ -29,9 +29,9 @@ export class UserProfileEffects extends AbstractEffects {
             concatLatestFrom(_ => this.routerStore.select(selectRouteParams)),
             mergeMap(([_, params]) => {
                 const id = params && !isNaN(params['id']) ? +params['id'] : null;
-                return (id ? this.userService.getUser(id) : this.userService.getProfile()).pipe(
+                return (id ? this.#userService.getUser(id) : this.#userService.getProfile()).pipe(
                     map((response: User) => {
-                        !id && this.authStore.dispatch(AuthActions.updateProfile({ profile: response }));
+                        !id && this.#authStore.dispatch(AuthActions.updateProfile({ profile: response }));
                         return UserProfileActions.loadUserSuccess({ response });
                     }),
                     catchError(errors => of(UserProfileActions.loadUserFailure({ errors })))
@@ -44,7 +44,7 @@ export class UserProfileEffects extends AbstractEffects {
             this.actions$.pipe(
                 ofType(UserProfileActions.loadUserFailure),
                 tap((res) => {
-                    this.router.navigate([RO_USER_MANAGER]).then();
+                    this.#router.navigate([RO_USER_MANAGER]).then();
                 })
             ),
         { dispatch: false }
@@ -55,7 +55,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.updateUser),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.updateUser(payload).pipe(
+                this.#userService.updateUser(payload).pipe(
                     map(response => UserProfileActions.updateUserSuccess({ response })),
                     catchError(errors => of(UserProfileActions.updateUserFailure({ errors })))
                 )
@@ -66,11 +66,11 @@ export class UserProfileEffects extends AbstractEffects {
     updateUserSuccess$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UserProfileActions.updateUserSuccess),
-            concatLatestFrom(_ => this.authStore.select(selectProfile)),
+            concatLatestFrom(_ => this.#authStore.select(selectProfile)),
             tap(([res, profile]) => {
                 this.raiseSuccess('Cập nhật người dùng thành công.');
                 if (profile && res.response && res.response.id === profile.id) {
-                    this.authStore.dispatch(AuthActions.updateProfile({ profile: res.response }));
+                    this.#authStore.dispatch(AuthActions.updateProfile({ profile: res.response }));
                 }
             })
         ),
@@ -82,7 +82,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.verifyNewEmail),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.verifyNewEmail(payload).pipe(
+                this.#userService.verifyNewEmail(payload).pipe(
                     map(response => UserProfileActions.verifyNewEmailSuccess()),
                     catchError(errors => of(UserProfileActions.verifyNewEmailFailure({ errors })))
                 )
@@ -95,7 +95,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.changeEmail),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.changeEmail(payload).pipe(
+                this.#userService.changeEmail(payload).pipe(
                     map(response => UserProfileActions.changeEmailSuccess()),
                     catchError(errors => of(UserProfileActions.changeEmailFailure({ errors })))
                 )
@@ -119,7 +119,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.changePassword),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.changePassword(payload).pipe(
+                this.#userService.changePassword(payload).pipe(
                     map(response => UserProfileActions.changePasswordSuccess()),
                     catchError(errors => of(UserProfileActions.changePasswordFailure({ errors })))
                 )
@@ -143,7 +143,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.change2FA),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.change2FA(payload).pipe(
+                this.#userService.change2FA(payload).pipe(
                     map(response => UserProfileActions.change2FASuccess({ isSelf: payload.isSelf })),
                     catchError(errors => of(UserProfileActions.change2FAFailure({ errors })))
                 )
@@ -161,7 +161,7 @@ export class UserProfileEffects extends AbstractEffects {
                         return;
                     }
                     this.raiseSuccess('Thay đổi phương thức xác thành công!');
-                    this.store.dispatch(UserProfileActions.loadUser());
+                    this.#store.dispatch(UserProfileActions.loadUser());
                 })
             ),
         { dispatch: false }
@@ -172,7 +172,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.deleteSession),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.deleteSession(payload.id).pipe(
+                this.#userService.deleteSession(payload.id).pipe(
                     map(response => UserProfileActions.deleteSessionSuccess({ deviceId: payload.deviceId })),
                     catchError(errors => of(UserProfileActions.deleteSessionFailure({ errors })))
                 )
@@ -191,7 +191,7 @@ export class UserProfileEffects extends AbstractEffects {
                     return;
                 }
                 this.raiseSuccess('Xoá phiên đăng nhập thành công!');
-                this.store.dispatch(UserProfileActions.loadSessions({ payload: { userId: id || '' } }))
+                this.#store.dispatch(UserProfileActions.loadSessions({ payload: { userId: id || '' } }))
             })
         ),
         { dispatch: false }
@@ -202,7 +202,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.updateProfile),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.updateProfile(payload).pipe(
+                this.#userService.updateProfile(payload).pipe(
                     map(response => UserProfileActions.updateProfileSuccess({ response })),
                     catchError(errors => of(UserProfileActions.updateProfileFailure({ errors })))
                 )
@@ -214,7 +214,7 @@ export class UserProfileEffects extends AbstractEffects {
             this.actions$.pipe(
                 ofType(UserProfileActions.updateProfileSuccess),
                 tap(({ response }) => {
-                    this.authStore.dispatch(AuthActions.updateProfile({ profile: response }));
+                    this.#authStore.dispatch(AuthActions.updateProfile({ profile: response }));
                     this.raiseSuccess('Cập nhật thông tin thành công.');
                 }),
             ),
@@ -226,7 +226,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.loadSessions),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.getSessions(payload).pipe(
+                this.#userService.getSessions(payload).pipe(
                     map(response => UserProfileActions.loadSessionsSuccess({ response })),
                     catchError(errors => of(UserProfileActions.loadSessionsFailure({ errors })))
                 )
@@ -239,7 +239,7 @@ export class UserProfileEffects extends AbstractEffects {
             ofType(UserProfileActions.loadEvents),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.getEvents(payload).pipe(
+                this.#userService.getEvents(payload).pipe(
                     map(response => UserProfileActions.loadEventsSuccess({ response })),
                     catchError(errors => of(UserProfileActions.loadSessionsFailure({ errors })))
                 )
@@ -249,6 +249,6 @@ export class UserProfileEffects extends AbstractEffects {
 
     private logout() {
         clearToken();
-        this.router.navigate([RO_LOGIN_FULL]).then();
+        this.#router.navigate([RO_LOGIN_FULL]).then();
     }
 }

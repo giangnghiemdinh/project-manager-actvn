@@ -20,31 +20,23 @@ export class ProjectConsumer {
 
   @Process(PROJECT_FOLDER_PROCESS)
   async createProjectFolder(job: Job<any>) {
-    try {
-      const { id, folderName } = job.data;
-      // const project = await this.projectService.getProject(id);
-      // if (!project) {
-      //   return;
-      // }
-      // const folder = await this.driverService.createFolder(
-      //   folderName,
-      //   this.driverService.defaultFolderIds.projects,
-      // );
-      // await this.projectService.updateFolderId(id, folder.id);
-      // this.logger.log(`Đã tạo thư mục cho đề tài ${folderName}`);
-    } catch (e) {
-      this.logger.error(e);
+    const { id, folderName } = job.data;
+    const project = await this.projectService.getProject(id);
+    if (!project) {
+      return;
     }
+    const folder = await this.driverService.createFolder(
+      folderName,
+      this.driverService.defaultFolderIds.projects,
+    );
+    await this.projectService.updateFolderId(id, folder.id);
+    this.logger.log(`Đã tạo thư mục cho đề tài ${folderName}`);
   }
 
   @Process(PROJECT_STATUS_PROCESS)
   async updateProjectStatus(job: Job<any>) {
-    try {
-      const { id, status } = job.data;
-      await this.projectService.updateStatus(id, status);
-      this.logger.log(`Đã cập nhật trạng thái ${status} cho đề tài ${id}`);
-    } catch (e) {
-      this.logger.error(e);
-    }
+    const { id, status } = job.data;
+    await this.projectService.updateStatus(id, status);
+    this.logger.log(`Đã cập nhật trạng thái ${status} cho đề tài ${id}`);
   }
 }

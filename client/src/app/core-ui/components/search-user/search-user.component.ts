@@ -5,9 +5,6 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { FormsModule } from '@angular/forms';
 import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
-import { TableComponent } from '../table/table.component';
-import { TableColumnDirective } from '../table/directives/table-column.directive';
-import { TableCellDirective } from '../table/directives/table-cell.directive';
 import { FormComponent, FormTextComponent } from '../form';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { Datasource, UiScrollModule } from 'ngx-ui-scroll';
@@ -15,6 +12,7 @@ import { UserService } from '../../../common/services';
 import { lastValueFrom, map } from 'rxjs';
 import { Role } from '../../../common/constants';
 import { RouterLink } from '@angular/router';
+import { RankFullNamePipe } from '../../pipes';
 
 @Component({
     selector: 'app-search-user',
@@ -26,21 +24,19 @@ import { RouterLink } from '@angular/router';
         FormsModule,
         NgIf,
         NgForOf,
-        TableComponent,
         AsyncPipe,
-        TableColumnDirective,
-        TableCellDirective,
         FormComponent,
         FormTextComponent,
         NzSpinModule,
         UiScrollModule,
-        RouterLink
+        RouterLink,
+        RankFullNamePipe
     ],
     templateUrl: './search-user.component.html',
 })
 export class SearchUserComponent implements OnChanges {
 
-    private readonly userService = inject(UserService);
+    readonly #userService = inject(UserService);
     @Input() isVisible = false;
     @Input() isMultiple = false;
     @Input() departmentId: number | null = null;
@@ -61,12 +57,13 @@ export class SearchUserComponent implements OnChanges {
     async ngOnChanges(changes: SimpleChanges) {
         const { isVisible } = changes;
         if (isVisible && this.isVisible) {
+            this.params = {};
+            this.cacheData = {};
+            this.selectedUser = [];
             if (!this.initialized) {
                 this.initDataSource();
                 return;
             }
-            this.cacheData = {};
-            this.selectedUser = [];
             await this.dataSource.adapter.relax();
             await this.dataSource.adapter.reset();
         }
@@ -148,7 +145,7 @@ export class SearchUserComponent implements OnChanges {
         if (!!this.cacheData[`${ page }`]) {
             return Promise.resolve(this.cacheData[`${ page }`]);
         }
-        return lastValueFrom(this.userService.getUsers({
+        return lastValueFrom(this.#userService.getUsers({
             page,
             limit: this.pagination.limit,
             role: Role.LECTURER,

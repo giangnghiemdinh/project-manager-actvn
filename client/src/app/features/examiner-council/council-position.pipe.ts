@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../common/constants/user.constant';
+import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../common/constants';
 
 @Pipe({
     name: 'councilPosition',

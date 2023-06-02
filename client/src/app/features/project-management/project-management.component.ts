@@ -11,7 +11,7 @@ import {
     TableComponent,
     ToolbarComponent
 } from '../../core-ui/components';
-import { setTitle } from '../../common/utilities';
+import { rankFullName, setTitle } from '../../common/utilities';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -41,7 +41,7 @@ import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/co
 import { ProjectFormComponent } from './components/project-form/project-form.component';
 import { selectQueryParams } from '../../common/stores/router';
 import { HasRoleDirective } from '../../core-ui/directives';
-import { ProjectStatusPipe } from '../../core-ui/pipes';
+import { ProjectStatusPipe, RankFullNamePipe } from '../../core-ui/pipes';
 import { ProgressReportComponent } from './components/progress-report/progress-report.component';
 import { ProjectReviewComponent } from './components/project-review/project-review.component';
 import { ProjectImportComponent } from './components/project-import/project-import.component';
@@ -53,32 +53,34 @@ import { ExcelService, NotificationService } from '../../common/services';
 @Component({
     selector: 'app-project-management',
     standalone: true,
-    imports: [ ToolbarComponent, NzButtonModule, NzInputModule, NzTableModule, NzPaginationModule, NzModalModule, NzFormModule, TableColumnDirective, TableComponent, TableCellDirective, NzDropDownModule, AsyncPipe, ProjectFormComponent, SearchStudentComponent, SearchUserComponent, FormComponent, FormSelectComponent, FormTextComponent, NgForOf, NgIf, ProjectStatusPipe, NgClass, ProgressReportComponent, RouterLink, ProjectReviewComponent, ProjectImportComponent, CouncilReviewComponent, HasRoleDirective, NgTemplateOutlet ],
+    imports: [ ToolbarComponent, NzButtonModule, NzInputModule, NzTableModule, NzPaginationModule, NzModalModule, NzFormModule, TableColumnDirective, TableComponent, TableCellDirective, NzDropDownModule, AsyncPipe, ProjectFormComponent, SearchStudentComponent, SearchUserComponent, FormComponent, FormSelectComponent, FormTextComponent, NgForOf, NgIf, ProjectStatusPipe, NgClass, ProgressReportComponent, RouterLink, ProjectReviewComponent, ProjectImportComponent, CouncilReviewComponent, HasRoleDirective, NgTemplateOutlet, RankFullNamePipe ],
     templateUrl: './project-management.component.html',
 })
 export class ProjectManagementComponent {
     @ViewChild('filterForm') filterForm!: FormComponent;
     @ViewChild('table') table!: TableComponent;
+    
     readonly #excelService = inject(ExcelService);
     readonly #notification = inject(NotificationService);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly store = inject(Store<ProjectState>);
-    private readonly router = inject(Router);
-    private readonly modal = inject(NzModalService);
-    queryParams$ = this.store.select(selectQueryParams);
-    projects$ = this.store.select(selectProjects);
-    pagination$ = this.store.select(selectPagination);
-    isLoading$ = this.store.select(selectIsLoading);
-    isVisible$ = this.store.select(selectIsVisible);
-    isVisibleImport$ = this.store.select(selectIsVisibleImport);
-    isVisibleReport$ = this.store.select(selectIsVisibleReport);
-    isVisibleReview$ = this.store.select(selectIsVisibleReview);
-    isVisibleCouncilReview$ = this.store.select(selectIsVisibleCouncilReview);
-    project$ = this.store.select(selectProject);
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
-    report$ = this.store.select(selectReport);
-    title = 'Quản lý đề tài';
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #store = inject(Store<ProjectState>);
+    readonly #router = inject(Router);
+    readonly #modal = inject(NzModalService);
+    
+    queryParams$ = this.#store.select(selectQueryParams);
+    projects$ = this.#store.select(selectProjects);
+    pagination$ = this.#store.select(selectPagination);
+    isLoading$ = this.#store.select(selectIsLoading);
+    isVisible$ = this.#store.select(selectIsVisible);
+    isVisibleImport$ = this.#store.select(selectIsVisibleImport);
+    isVisibleReport$ = this.#store.select(selectIsVisibleReport);
+    isVisibleReview$ = this.#store.select(selectIsVisibleReview);
+    isVisibleCouncilReview$ = this.#store.select(selectIsVisibleCouncilReview);
+    project$ = this.#store.select(selectProject);
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
+    report$ = this.#store.select(selectReport);
+    title = 'Danh sách đề tài';
     url = RO_PROJECT_MANAGER;
     isPropose = false;
     statuses = ProjectStatuses;
@@ -99,41 +101,41 @@ export class ProjectManagementComponent {
 
     onSearch(value: any) {
         value.page = 1;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onPageChanges(event: { index: number, size: number }) {
         const value: any = this.filterForm.value;
         value.page = event.index;
         value.limit = event.size;
-        this.router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
+        this.#router.navigate([this.url], { queryParams: value }).then(_ => this.onLoad());
     }
 
     onLoad() {
-        this.store.dispatch(ProjectActions.loadProjects());
+        this.#store.dispatch(ProjectActions.loadProjects());
     }
 
     onUpdateReport(progress: ProjectProgress) {
-        this.store.dispatch(ProjectActions.report({ payload: progress }));
+        this.#store.dispatch(ProjectActions.report({ payload: progress }));
     }
 
     onDeleteFile(event: any) {
-        this.store.dispatch(ProjectActions.deleteFile({ payload: event }));
+        this.#store.dispatch(ProjectActions.deleteFile({ payload: event }));
     }
 
     onAdd() {
         this.isPropose = false;
-        this.store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'form' }));
+        this.#store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'form' }));
     }
 
     onPropose() {
         this.isPropose = true;
-        this.store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'form' }));
+        this.#store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'form' }));
     }
 
     onEdit(id: number) {
         this.isPropose = false;
-        this.store.dispatch(ProjectActions.loadProject({ payload: { id, modal: 'form' } }));
+        this.#store.dispatch(ProjectActions.loadProject({ payload: { id, modal: 'form' } }));
     }
 
     onDelete(project: Project) {
@@ -141,7 +143,7 @@ export class ProjectManagementComponent {
             this.#notification.error('Không được phép xoá đề tài đã được phân công quản lý!');
             return;
         }
-        const ref = this.modal.create({
+        const ref = this.#modal.create({
             nzWidth: 400,
             nzContent: ConfirmComponent,
             nzClosable: false,
@@ -157,11 +159,11 @@ export class ProjectManagementComponent {
         ref.afterClose
             .pipe(first())
             .subscribe(confirm => confirm
-                && this.store.dispatch(ProjectActions.deleteProject({ payload: { id: project.id! } })));
+                && this.#store.dispatch(ProjectActions.deleteProject({ payload: { id: project.id! } })));
     }
 
     onSave(payload: Project) {
-        this.store.dispatch(payload.id
+        this.#store.dispatch(payload.id
             ? ProjectActions.updateProject({ payload })
             : (this.isPropose
                 ? ProjectActions.createProposeProject({ payload })
@@ -170,35 +172,35 @@ export class ProjectManagementComponent {
     }
 
     onReport(id: number, type: ProjectProgressType) {
-        this.store.dispatch(ProjectActions.loadReport({ payload: { id, type } }));
+        this.#store.dispatch(ProjectActions.loadReport({ payload: { id, type } }));
     }
 
     onCouncilReview(id: number) {
-        this.store.dispatch(ProjectActions.loadProject({ payload: { id, modal: 'council' } }));
+        this.#store.dispatch(ProjectActions.loadProject({ payload: { id, modal: 'council' } }));
     }
 
     onSaveImport(payload: ProjectImportPayload) {
-        this.store.dispatch(ProjectActions.importProject({ payload }));
+        this.#store.dispatch(ProjectActions.importProject({ payload }));
     }
 
     onSaveReport(payload: ProjectProgress) {
-        this.store.dispatch(ProjectActions.report({ payload }));
+        this.#store.dispatch(ProjectActions.report({ payload }));
     }
 
     onSaveReview(payload: ProjectProgress) {
-        this.store.dispatch(ProjectActions.review({ payload }));
+        this.#store.dispatch(ProjectActions.review({ payload }));
     }
 
     onSaveCouncilReview(payload: Project) {
-        this.store.dispatch(ProjectActions.councilReview({ payload }));
+        this.#store.dispatch(ProjectActions.councilReview({ payload }));
     }
 
     onCancel(modal: ModalType) {
-        this.store.dispatch(ProjectActions.updateVisible({ isVisible: false, modal }));
+        this.#store.dispatch(ProjectActions.updateVisible({ isVisible: false, modal }));
     }
 
     onImport() {
-        this.store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'import' }));
+        this.#store.dispatch(ProjectActions.updateVisible({ isVisible: true, modal: 'import' }));
     }
 
     onCheckedChange(event: { ids: Set<number>, data: Project[] }) {
@@ -233,7 +235,7 @@ export class ProjectManagementComponent {
             row.push(requirement);
 
             const instructor = project.instructor;
-            instructor && row.push(`${instructor.fullName}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}`);
+            instructor && row.push(`${rankFullName(instructor)}\n${instructor.workPlace}\n${instructor.email}\n${instructor.phone}`);
 
             data.push(row);
         }

@@ -12,7 +12,7 @@
                       class="w-full"
                       [debounceTime]="300"
                       [data]="queryParams$ | async"
-                      [hidden]="{ page: 1, limit: 10 }"
+                      [hidden]="{ page: 1, limit: 20 }"
                       (valueChanges)="onSearch($event)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4">
                     <app-form-select class="col-span-1 lg:col-span-2" control="departmentId" placeholder="Khoa"
@@ -55,6 +55,9 @@
                 </ng-template>
             </app-table-column>
             <app-table-column key="instructor.fullName" title="Người hướng dẫn" width="150px">
+                <ng-template table-cell let-row>
+                    {{ row.instructor?.rank ? row.instructor?.rank + '. ' : '' }}{{ row.instructor?.fullName }}
+                </ng-template>
             </app-table-column>
             <app-table-column key="students" title="Sinh viên thực hiện" width="150px">
                 <ng-template table-cell let-row>
@@ -64,8 +67,14 @@
                 </ng-template>
             </app-table-column>
             <app-table-column key="createdBy.fullName" title="Người đề xuất" width="150px">
+                <ng-template table-cell let-row>
+                    {{ row.createdBy | rankFullName }}
+                </ng-template>
             </app-table-column>
             <app-table-column key="reviewedBy.fullName" title="Người duyệt" width="150px">
+                <ng-template table-cell let-row>
+                    {{ row.reviewedBy | rankFullName }}
+                </ng-template>
             </app-table-column>
             <app-table-column key="reason" title="Lý do" width="150px"/>
             <app-table-column key="action" title="" width="50px" [right]="true">

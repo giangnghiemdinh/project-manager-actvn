@@ -15,6 +15,14 @@ export enum Gender {
   Female,
 }
 
+export enum Rank {
+  DoctorProfessor = 'PGS. TS',
+  Doctor = 'TS',
+  Master = 'ThS',
+  Engineer = 'KS',
+  Other = '',
+}
+
 export enum UserStatus {
   DE_ACTIVE = 'de_active',
   ACTIVE = 'active',

@@ -34,14 +34,14 @@
                     <div class="truncate font-semibold text-gray-600 text-md">{{ profile?.fullName }}</div>
                     <div class="w-fit text-xs px-1 bg-yellow-500 rounded-md text-white">{{ profile?.role | role }}</div>
                 </div>
-                <nz-avatar [nzShape]="'square'" [nzSize]="40" [nzText]="profile?.fullName?.charAt(0)"
+                <nz-avatar [nzShape]="'square'" [nzSize]="40" [nzText]="profile?.fullName || ''"
                            [nzSrc]="(profile?.avatar || '') | driverUrl"></nz-avatar>
             </div>
             <nz-dropdown-menu #accountDesktopMenu="nzDropdownMenu">
                 <div class="w-[250px] bg-white border border-gray-200 rounded-md shadow-md z-[999]">
                     <div class="px-4 py-2 flex items-center border-b border-gray-150 gap-2">
                         <nz-avatar class="flex-shrink-0" [nzShape]="'square'" [nzSize]="40"
-                                   [nzText]="profile?.fullName?.charAt(0)"
+                                   [nzText]="profile?.fullName || ''"
                                    [nzSrc]="(profile?.avatar || '') | driverUrl"></nz-avatar>
                         <div>
                             <div class="font-bold text-md text-black truncate">{{ profile?.fullName }}</div>

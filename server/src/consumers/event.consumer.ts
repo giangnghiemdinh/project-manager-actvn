@@ -22,69 +22,64 @@ export class EventConsumer {
 
   @Process(CREATE_EVENT_PROCESS)
   async createEvent(job: Job<any>) {
-    try {
-      const { message, params, userId, shouldLoad } = job.data;
-      switch (true) {
-        case shouldLoad !== false && 'projectId' in params:
-          const project = await this.projectService.getProject(
-            params['projectId'],
+    const { message, params, userId, shouldLoad } = job.data;
+    switch (true) {
+      case shouldLoad !== false && 'projectId' in params:
+        const project = await this.projectService.getProject(
+          params['projectId'],
+        );
+        await this.userEventService.insert({
+          message: `${message} | ${project.semester?.name} | ${project.department?.name}`,
+          params: JSON.stringify(params),
+          userId,
+        });
+        break;
+      case 'managerId' in params:
+        const managerStaff = await this.managerStaffService.getManagerStaff(
+          params['managerId'],
+        );
+        await this.userEventService.insert({
+          message: `${message} | ${managerStaff.semester?.name} | ${managerStaff.department?.name}`,
+          params: JSON.stringify({
+            ...params,
+            managerFullName: managerStaff.user?.fullName,
+            semesterId: managerStaff?.semesterId,
+          }),
+          userId,
+        });
+        break;
+      case 'reviewerId' in params:
+        const reviewerStaff = await this.reviewerStaffService.getReviewerStaff(
+          params['reviewerId'],
+        );
+        await this.userEventService.insert({
+          message: `${message} | ${reviewerStaff.semester?.name} | ${reviewerStaff.department?.name}`,
+          params: JSON.stringify({
+            ...params,
+            reviewerFullName: reviewerStaff.user?.fullName,
+            semesterId: reviewerStaff?.semesterId,
+          }),
+          userId,
+        });
+        break;
+      case 'councilId' in params:
+        const examinerCouncil =
+          await this.examinerCouncilService.getExaminerCouncil(
+            params['councilId'],
           );
-          await this.userEventService.insert({
-            message: `${message} | ${project.semester?.name} | ${project.department?.name}`,
-            params: JSON.stringify(params),
-            userId,
-          });
-          break;
-        case 'managerId' in params:
-          const managerStaff = await this.managerStaffService.getManagerStaff(
-            params['managerId'],
-          );
-          await this.userEventService.insert({
-            message: `${message} | ${managerStaff.semester?.name} | ${managerStaff.department?.name}`,
-            params: JSON.stringify({
-              ...params,
-              managerFullName: managerStaff.user?.fullName,
-              semesterId: managerStaff?.semesterId,
-            }),
-            userId,
-          });
-          break;
-        case 'reviewerId' in params:
-          const reviewerStaff =
-            await this.reviewerStaffService.getReviewerStaff(
-              params['reviewerId'],
-            );
-          await this.userEventService.insert({
-            message: `${message} | ${reviewerStaff.semester?.name} | ${reviewerStaff.department?.name}`,
-            params: JSON.stringify({
-              ...params,
-              reviewerFullName: reviewerStaff.user?.fullName,
-              semesterId: reviewerStaff?.semesterId,
-            }),
-            userId,
-          });
-          break;
-        case 'councilId' in params:
-          const examinerCouncil =
-            await this.examinerCouncilService.getExaminerCouncil(
-              params['councilId'],
-            );
-          await this.userEventService.insert({
-            message: `${message} | ${examinerCouncil.semester?.name} | ${examinerCouncil.department?.name}`,
-            params: JSON.stringify({
-              ...params,
-              semesterId: examinerCouncil?.semesterId,
-            }),
-            userId,
-          });
-          break;
-        default:
-          await this.normalInsert(message, params, userId);
-      }
-      this.logger.log(`Đã ghi nhật ký | ${message} | ${userId}`);
-    } catch (e) {
-      this.logger.error(e);
+        await this.userEventService.insert({
+          message: `${message} | ${examinerCouncil.semester?.name} | ${examinerCouncil.department?.name}`,
+          params: JSON.stringify({
+            ...params,
+            semesterId: examinerCouncil?.semesterId,
+          }),
+          userId,
+        });
+        break;
+      default:
+        await this.normalInsert(message, params, userId);
     }
+    this.logger.log(`Đã ghi nhật ký | ${message} | ${userId}`);
   }
 
   private normalInsert(

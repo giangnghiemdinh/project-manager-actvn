@@ -11,6 +11,7 @@ import { FormComponent, FormTextComponent } from '../form';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { UiScrollModule } from 'ngx-ui-scroll';
 import { RouterLink } from '@angular/router';
+import { RankFullNamePipe } from '../../pipes';
 
 @Component({
     selector: 'app-search-project',
@@ -27,7 +28,8 @@ import { RouterLink } from '@angular/router';
         FormTextComponent,
         NzSpinModule,
         UiScrollModule,
-        RouterLink
+        RouterLink,
+        RankFullNamePipe
     ],
     templateUrl: './search-project.component.html',
 })
@@ -40,15 +42,11 @@ export class SearchProjectComponent implements OnChanges {
     @Output() select = new EventEmitter();
     filterProjects: Project[] = [];
     selected: Project[] = [];
-    checked = false;
-    indeterminate = false;
 
     ngOnChanges(changes: SimpleChanges): void {
         const { isVisible, projects, hiddenIds } = changes;
         if (isVisible && this.isVisible) {
             this.selected = [];
-            this.checked = false;
-            this.indeterminate = false;
         }
         if (projects && this.projects) {
             this.filterProjects = cloneDeep(this.projects);
@@ -89,5 +87,4 @@ export class SearchProjectComponent implements OnChanges {
     onCancel() {
         this.isVisibleChange.emit(false);
     }
-    
 }

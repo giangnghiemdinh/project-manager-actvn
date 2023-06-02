@@ -56,7 +56,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                             return next(addTokenHeader(req, response.accessToken!));
                         }),
                         catchError((err) => {
-                            logout(router);
+                            [0, 401].includes(err.statusCode) && logout(router);
                             return throwError(err);
                         })
                     );

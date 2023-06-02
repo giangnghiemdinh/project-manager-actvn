@@ -16,10 +16,16 @@ export class ProjectReviewRequestDto {
   @StringProperty('Nhận xét 3', { required: true })
   comment3: string;
 
-  @StringProperty('Nhận xét 4')
+  @StringProperty('Nhận xét 4', {
+    validateIf: (value) => value.type === ProjectProgressType.REVIEWER_REVIEW,
+    required: true,
+  })
   comment4: string;
 
-  @StringProperty('Nhận xét 5')
+  @StringProperty('Nhận xét 5', {
+    validateIf: (value) => value.type === ProjectProgressType.REVIEWER_REVIEW,
+    required: true,
+  })
   comment5: string;
 
   @NumberProperty('Điểm', { required: true, int: true, min: 0, max: 10 })

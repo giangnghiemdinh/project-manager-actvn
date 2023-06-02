@@ -1,9 +1,5 @@
-import {
-  DateProperty,
-  EnumProperty,
-  StringProperty,
-} from '../../../common/decorators';
-import { Gender, Role } from '../../../common/constants';
+import { EnumProperty, StringProperty } from '../../../common/decorators';
+import { Gender, Rank, Role } from '../../../common/constants';
 
 export class UserRequestDto {
   @StringProperty('Họ và tên', {
@@ -29,8 +25,8 @@ export class UserRequestDto {
   @EnumProperty('Giới tính', Gender, { number: true })
   readonly gender?: Gender;
 
-  @DateProperty('Ngày sinh')
-  readonly birthday?: Date;
+  @EnumProperty('Học hàm, học vị', Rank)
+  readonly rank?: Rank = Rank.Other;
 
   @EnumProperty('Vai trò', Role, { default: Role.LECTURER })
   role: Role;

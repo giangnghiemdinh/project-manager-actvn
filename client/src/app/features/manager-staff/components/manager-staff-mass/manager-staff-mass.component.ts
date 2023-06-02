@@ -15,15 +15,15 @@ import {
     ToolbarComponent
 } from '../../../../core-ui/components';
 import { CommonState, selectDepartments, selectSemesters } from '../../../../common/stores';
-import { RO_MANAGER_STAFF, RO_REVIEWER_STAFF } from '../../../../common/constants';
+import { ProjectStatus, RO_MANAGER_STAFF } from '../../../../common/constants';
 import { ManagerStaff, Project, User } from '../../../../common/models';
-import { setTitle } from '../../../../common/utilities';
+import { rankFullName, setTitle } from '../../../../common/utilities';
 import { FormGroup, FormsModule } from '@angular/forms';
 import { filter, first, take, withLatestFrom } from 'rxjs';
 import { chunk, cloneDeep, shuffle } from 'lodash';
 import { ManagerStaffState, selectIsLoaded, selectIsLoading, selectProjects } from '../../stores/manager-staff.reducer';
 import { ManagerStaffActions } from '../../stores/manager-staff.actions';
-import { DriverUrlPipe } from '../../../../core-ui/pipes';
+import { DriverUrlPipe, RankFullNamePipe } from '../../../../core-ui/pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -33,7 +33,6 @@ import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { RouterLink } from '@angular/router';
-import { ProjectStatus } from '../../../../common/constants/project.constant';
 
 @Component({
     selector: 'app-reviewer-staff-mass',
@@ -60,26 +59,27 @@ import { ProjectStatus } from '../../../../common/constants/project.constant';
         TableComponent,
         ToolbarComponent,
         RouterLink,
-        FormsModule
+        FormsModule,
+        RankFullNamePipe
     ],
     templateUrl: './manager-staff-mass.component.html',
 })
 export class ManagerStaffMassComponent {
-    private readonly store = inject(Store<ManagerStaffState>);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly notification = inject(NotificationService);
-    private readonly modal = inject(NzModalService);
+    readonly #store = inject(Store<ManagerStaffState>);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #notification = inject(NotificationService);
+    readonly #modal = inject(NzModalService);
 
     @ViewChild('form') formComponent!: FormComponent;
     @ViewChild('confirmContent') confirmContent!: TemplateRef<any>;
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
-    projects$ = this.store.select(selectProjects);
-    isLoading$ = this.store.select(selectIsLoading);
+    
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
+    projects$ = this.#store.select(selectProjects);
+    isLoading$ = this.#store.select(selectIsLoading);
 
-    title = 'Thành lập danh sách';
+    title = 'Thành lập danh sách quản lý';
     urlManagerStaff = RO_MANAGER_STAFF;
-
     isVisibleSearchUser = false;
     isVisibleSearchProject = false;
     currentGroupIndex = 0;
@@ -97,12 +97,22 @@ export class ManagerStaffMassComponent {
 
     onSave() {
         if (this.groups.some(g => !g.user)) {
-            this.notification.error('Có nhóm chưa chọn quản lý. Vui lòng kiểm tra lại!');
+            this.#notification.error('Có nhóm chưa chọn quản lý. Vui lòng kiểm tra lại!');
             return;
         }
         if (this.groups.some(g => !g.projects.length)) {
-            this.notification.error('Có nhóm chưa chọn đề tài. Vui lòng kiểm tra lại!');
+            this.#notification.error('Có nhóm chưa chọn đề tài. Vui lòng kiểm tra lại!');
             return;
+        }
+        for (let i = 0; i < this.groups.length; i++) {
+            for (let j = i + 1; j < this.groups.length; j++) {
+                const groupA = this.groups[i];
+                const groupB = this.groups[j];
+                if (groupA.user?.id === groupB.user?.id) {
+                    this.#notification.error(`GV ${rankFullName(groupA.user)} nhóm ${i + 1} trùng với nhóm ${j + 1}. Vui lòng kiểm tra lại!`);
+                    return;
+                }
+            }
         }
         const payload: ManagerStaff[] = [];
         for (let i = 0; i < this.groups.length; i++) {
@@ -114,7 +124,7 @@ export class ManagerStaffMassComponent {
                 userId: group.user?.id
             });
         }
-        this.store.dispatch(ManagerStaffActions.createMultipleManagerStaff({ payload }));
+        this.#store.dispatch(ManagerStaffActions.createMultipleManagerStaff({ payload }));
     }
 
     onSearchUser(groupIndex: number) {
@@ -169,7 +179,7 @@ export class ManagerStaffMassComponent {
             && departmentId.value && semesterId.value
             && ( this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value )) {
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -207,7 +217,7 @@ export class ManagerStaffMassComponent {
     }
 
     private getAllProjects() {
-        this.store.dispatch(ManagerStaffActions.loadAllProjects({
+        this.#store.dispatch(ManagerStaffActions.loadAllProjects({
             payload: {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
@@ -215,17 +225,18 @@ export class ManagerStaffMassComponent {
                 state: 'mne'
             }
         }));
-        this.store.select(selectIsLoaded)
+        this.#store.select(selectIsLoaded)
             .pipe(
                 filter<boolean>(isLoaded => isLoaded),
                 take(1),
-                withLatestFrom(this.store.select(selectProjects))
+                withLatestFrom(this.#store.select(selectProjects))
             ).subscribe(([ _, projects ]) => {
             if (!projects.length) {
-                this.notification.warning('Không còn đề tài nào chưa có nhóm.');
+                this.#notification.warning('Không còn đề tài nào chưa có nhóm.');
+                this.formComponent?.markAsDirty();
                 return;
             }
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzContent: this.confirmContent,
                 nzFooter: null,
                 nzMaskClosable: false,
@@ -263,6 +274,4 @@ export class ManagerStaffMassComponent {
                 }
             });
     }
-
-    protected readonly RO_REVIEWER_STAFF = RO_REVIEWER_STAFF;
 }

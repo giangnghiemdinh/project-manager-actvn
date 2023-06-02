@@ -21,7 +21,7 @@ import { NoWhitespaceValidator } from '../../../common/validators';
 export class LoginComponent {
 
     @ViewChild('recaptcha') recaptcha!: RecaptchaComponent;
-    private readonly store = inject(Store<AuthState>);
+    readonly #store = inject(Store<AuthState>);
     form = new FormGroup({
         email: new FormControl('', [ Validators.required, Validators.email ]),
         password: new FormControl('', [ Validators.required, NoWhitespaceValidator() ]),
@@ -29,11 +29,11 @@ export class LoginComponent {
     });
     passwordVisible = false;
     forgotPassUrl = RO_FORGOT_PASS_FULL;
-    errors$ = this.store.select(selectAuthErrors);
+    errors$ = this.#store.select(selectAuthErrors);
 
     constructor() {
         setTitle('Đăng nhập');
-        this.store.dispatch(AuthActions.clearErrors());
+        this.#store.dispatch(AuthActions.clearErrors());
     }
 
     onLogin() {
@@ -43,7 +43,7 @@ export class LoginComponent {
             return;
         }
         this.recaptcha?.reset();
-        this.store.dispatch(AuthActions.login({
+        this.#store.dispatch(AuthActions.login({
             payload: {
                 email: value.email || '',
                 password: value.password || '',

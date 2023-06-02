@@ -24,6 +24,7 @@
             (click)="$event.stopPropagation(); $event.preventDefault();"
         ></th>
         <th nzWidth="20px" *ngIf="_showExpand" nzAlign="center"></th>
+        <th nzWidth="50px" *ngIf="showIndex" nzAlign="center">STT</th>
         <th *ngFor="let column of _columns"
             [nzLeft]="column.left"
             [nzRight]="column.right"
@@ -60,6 +61,9 @@
                 (nzExpandChange)="expand.emit({ row, index, expand: $event })"
                 (click)="$event.stopPropagation(); $event.preventDefault();"
             ></td>
+            <td *ngIf="showIndex" nzAlign="center">
+                {{ index | tableIndex: pagination }}
+            </td>
             <td *ngFor="let column of _columns"
                 [nzLeft]="column.left"
                 [nzAlign]="column.align"
@@ -87,6 +91,7 @@
          [class.mt-4]="paginationSize === 'small'">
         <nz-pagination
                 [nzSize]="paginationSize"
+                [nzShowTotal]="rangeTemplate"
                 [nzPageIndex]="pagination.page"
                 [nzPageSize]="pagination.limit"
                 [nzPageSizeOptions]="pageSizeOptions"
@@ -98,5 +103,8 @@
                 (nzPageIndexChange)="onPageIndexChange($event)"
                 (nzPageSizeChange)="onPageSizeChange($event)"
         ></nz-pagination>
+        <ng-template #rangeTemplate let-range="range" let-total>
+            {{ range[0] }}-{{ range[1] }} / {{ total }} bản ghi
+        </ng-template>
     </div>
 </ng-container>

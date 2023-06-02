@@ -28,8 +28,7 @@
                 </button>
                 <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
                         nzSize="large" nz-button nzType="default" (click)="onClearChecked()">
-                    <i class='bx bx-x text-lg' ></i>
-                    Bỏ chọn
+                    ({{ selectedItems.length }}) Bỏ chọn
                 </button>
             </ng-template>
         </div>
@@ -40,7 +39,7 @@
                       class="w-full"
                       [debounceTime]="300"
                       [data]="queryParams$ | async"
-                      [hidden]="{ page: 1, limit: 10 }"
+                      [hidden]="{ page: 1, limit: 20 }"
                       (valueChanges)="onSearch($event)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4">
                     <app-form-select class="col-span-1 lg:col-span-2" control="departmentId" placeholder="Khoa"
@@ -67,12 +66,12 @@
                    [pagination]="pagination$ | async"
                    (pageChanges)="onPageChanges($event)"
                    (checkedChange)="onCheckedChange($event)">
-            <app-table-column key="department.name" title="Khoa" width="150px"/>
-            <app-table-column key="semester.name" title="Học kì" width="150px"/>
-            <app-table-column key="user.fullName" title="Người phản biện" width="200px">
+            <app-table-column key="department.name" title="Khoa" width="200px"/>
+            <app-table-column key="semester.name" title="Học kì" width="200px"/>
+            <app-table-column key="user.fullName" title="Người phản biện" width="300px">
                 <ng-template table-cell let-row>
                     <a *ngIf="row.user" [routerLink]="['/user-management', row.user.id]">
-                        {{ row.user.fullName }}
+                        {{ row.user | rankFullName }}
                     </a>
                 </ng-template>
             </app-table-column>
@@ -119,7 +118,7 @@
                 <app-table [data]="data.projects"
                            [scroll]="{ x: '1024px' }"
                            [showPagination]="false">
-                    <app-table-column key="students" title="Sinh viên">
+                    <app-table-column key="students" title="Sinh viên" width="350px">
                         <ng-template table-cell let-row>
                             <div *ngFor="let student of row.students">
                                 {{ student.code }} - {{ student.fullName }}
@@ -133,7 +132,11 @@
                             </a>
                         </ng-template>
                     </app-table-column>
-                    <app-table-column key="instructor.fullName" title="GV hướng dẫn"/>
+                    <app-table-column key="instructor.fullName" title="GV hướng dẫn" width="300px">
+                        <ng-template table-cell let-row>
+                            {{ row.instructor | rankFullName }}
+                        </ng-template>
+                    </app-table-column>
                 </app-table>
             </div>
         </ng-template>

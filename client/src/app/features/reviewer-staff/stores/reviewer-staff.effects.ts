@@ -15,16 +15,16 @@ import { ReviewerStaffService } from '../services/reviewer-staff.service';
 @Injectable()
 export class ReviewerStaffEffects extends AbstractEffects {
 
-    private readonly projectService = inject(ProjectService);
-    private readonly reviewerStaffService = inject(ReviewerStaffService);
-    private readonly router = inject(Router);
+    readonly #projectService = inject(ProjectService);
+    readonly #reviewerStaffService = inject(ReviewerStaffService);
+    readonly #router = inject(Router);
 
     loadAllProject$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ReviewerStaffActions.loadAllProjects),
             map(action => action.payload),
             switchMap((payload: PaginationPayload) =>
-                this.projectService.getProjects(payload).pipe(
+                this.#projectService.getProjects(payload).pipe(
                     map(response => {
                         return response.meta.hasNextPage
                             ? ReviewerStaffActions.loadAllProjects({
@@ -44,7 +44,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.loadReviewerStaffs),
             concatLatestFrom(() => this.routerStore.select(selectQueryParams)),
             mergeMap(([_, params]) =>
-                this.reviewerStaffService.getReviewerStaffs(params).pipe(
+                this.#reviewerStaffService.getReviewerStaffs(params).pipe(
                     map((response) => ReviewerStaffActions.loadReviewerStaffsSuccess({ response })),
                     catchError(errors => of(ReviewerStaffActions.loadReviewerStaffsFailure({ errors })))
                 )
@@ -57,7 +57,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.loadReviewerStaff),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.reviewerStaffService.getReviewerStaff(payload.id).pipe(
+                this.#reviewerStaffService.getReviewerStaff(payload.id).pipe(
                     map((response: ReviewerStaff) => ReviewerStaffActions.loadReviewerStaffSuccess({ response })),
                     catchError(errors => of(ReviewerStaffActions.loadReviewerStaffFailure({ errors })))
                 )
@@ -70,7 +70,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.createReviewerStaff),
             map(action => action.payload),
             mergeMap((payload: ReviewerStaff) =>
-                this.reviewerStaffService.createReviewerStaff(payload).pipe(
+                this.#reviewerStaffService.createReviewerStaff(payload).pipe(
                     map((response: ReviewerStaff) => ReviewerStaffActions.createReviewerStaffSuccess({ response })),
                     catchError(errors => of(ReviewerStaffActions.createReviewerStaffFailure({ errors })))
                 )
@@ -93,7 +93,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.createMultipleReviewerStaff),
             map(action => action.payload),
             mergeMap((payload: ReviewerStaff[]) =>
-                this.reviewerStaffService.createMultipleReviewerStaff(payload).pipe(
+                this.#reviewerStaffService.createMultipleReviewerStaff(payload).pipe(
                     map(_ => ReviewerStaffActions.createMultipleReviewerStaffSuccess()),
                     catchError(errors => of(ReviewerStaffActions.createMultipleReviewerStaffFailure({ errors })))
                 )
@@ -106,7 +106,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
                 ofType(ReviewerStaffActions.createMultipleReviewerStaffSuccess),
                 tap(_ => {
                     this.raiseSuccess('Thành lập danh sách phản biện thành công.');
-                    this.router.navigate(['/' + RO_REVIEWER_STAFF]).then();
+                    this.#router.navigate(['/' + RO_REVIEWER_STAFF]).then();
                 }),
             ),
         { dispatch: false }
@@ -117,7 +117,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.updateReviewerStaff),
             map(action => action.payload),
             mergeMap((payload: ReviewerStaff) =>
-                this.reviewerStaffService.updateReviewerStaff(payload).pipe(
+                this.#reviewerStaffService.updateReviewerStaff(payload).pipe(
                     map(_ => ReviewerStaffActions.updateReviewerStaffSuccess()),
                     catchError(errors => of(ReviewerStaffActions.updateReviewerStaffFailure({ errors })))
                 )
@@ -140,7 +140,7 @@ export class ReviewerStaffEffects extends AbstractEffects {
             ofType(ReviewerStaffActions.deleteReviewerStaff),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.reviewerStaffService.deleteReviewerStaff(payload.id).pipe(
+                this.#reviewerStaffService.deleteReviewerStaff(payload.id).pipe(
                     map(_ => ReviewerStaffActions.deleteReviewerStaffSuccess()),
                     catchError(errors => of(ReviewerStaffActions.deleteReviewerStaffFailure({ errors })))
                 )

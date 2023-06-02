@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { concatLatestFrom, createEffect, ofType } from '@ngrx/effects';
 import { StudentService } from '../../../common/services';
-import * as studentActions from './student.actions';
+import { StudentActions } from './student.actions';
 import { catchError, map, mergeMap, of } from 'rxjs';
 import { Student } from '../../../common/models';
 import { AbstractEffects } from '../../../common/abstracts';
@@ -9,16 +9,16 @@ import { selectQueryParams } from '../../../common/stores/router';
 
 @Injectable()
 export class StudentEffects extends AbstractEffects {
-    private readonly studentService = inject(StudentService);
+    readonly #studentService = inject(StudentService);
 
     loadStudents$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.loadStudents),
+            ofType(StudentActions.loadStudents),
             concatLatestFrom(() => this.routerStore.select(selectQueryParams)),
             mergeMap(([_, queryParams]) =>
-                this.studentService.getStudents(queryParams).pipe(
-                    map((response) => studentActions.loadStudentsSuccess({ response })),
-                    catchError(errors => of(studentActions.loadStudentsFailure({ errors })))
+                this.#studentService.getStudents(queryParams).pipe(
+                    map((response) => StudentActions.loadStudentsSuccess({ response })),
+                    catchError(errors => of(StudentActions.loadStudentsFailure({ errors })))
                 )
             )
         )
@@ -26,12 +26,12 @@ export class StudentEffects extends AbstractEffects {
 
     loadStudent$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.loadStudent),
+            ofType(StudentActions.loadStudent),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.studentService.getStudent(payload.id).pipe(
-                    map((response: Student) => studentActions.loadStudentSuccess({ response })),
-                    catchError(errors => of(studentActions.loadStudentFailure({ errors })))
+                this.#studentService.getStudent(payload.id).pipe(
+                    map((response: Student) => StudentActions.loadStudentSuccess({ response })),
+                    catchError(errors => of(StudentActions.loadStudentFailure({ errors })))
                 )
             )
         )
@@ -39,12 +39,12 @@ export class StudentEffects extends AbstractEffects {
 
     createStudent$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.createStudent),
+            ofType(StudentActions.createStudent),
             map(action => action.payload),
             mergeMap((payload: Student) =>
-                this.studentService.createStudent(payload).pipe(
-                    map((response: Student) => studentActions.createStudentSuccess({ response })),
-                    catchError(errors => of(studentActions.createStudentFailure({ errors })))
+                this.#studentService.createStudent(payload).pipe(
+                    map((response: Student) => StudentActions.createStudentSuccess({ response })),
+                    catchError(errors => of(StudentActions.createStudentFailure({ errors })))
                 )
             )
         )
@@ -52,22 +52,22 @@ export class StudentEffects extends AbstractEffects {
 
     createStudentSuccess$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.createStudentSuccess),
+            ofType(StudentActions.createStudentSuccess),
             map(_ => {
                 this.raiseSuccess('Thêm mới sinh viên thành công.');
-                return studentActions.loadStudents()
+                return StudentActions.loadStudents()
             }),
         )
     );
 
     updateStudent$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.updateStudent),
+            ofType(StudentActions.updateStudent),
             map(action => action.payload),
             mergeMap((payload: Student) =>
-                this.studentService.updateStudent(payload).pipe(
-                    map(_ => studentActions.updateStudentSuccess()),
-                    catchError(errors => of(studentActions.updateStudentFailure({ errors })))
+                this.#studentService.updateStudent(payload).pipe(
+                    map(_ => StudentActions.updateStudentSuccess()),
+                    catchError(errors => of(StudentActions.updateStudentFailure({ errors })))
                 )
             )
         )
@@ -75,22 +75,22 @@ export class StudentEffects extends AbstractEffects {
 
     updateStudentSuccess$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.updateStudentSuccess),
+            ofType(StudentActions.updateStudentSuccess),
             map(_ => {
                 this.raiseSuccess('Cập nhật sinh viên thành công.');
-                return studentActions.loadStudents()
+                return StudentActions.loadStudents()
             }),
         ),
     );
 
     deleteStudent$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.deleteStudent),
+            ofType(StudentActions.deleteStudent),
             map(action => action.payload),
             mergeMap((payload: { id: number }) =>
-                this.studentService.deleteStudent(payload.id).pipe(
-                    map(_ => studentActions.deleteStudentSuccess()),
-                    catchError(errors => of(studentActions.deleteStudentFailure({ errors })))
+                this.#studentService.deleteStudent(payload.id).pipe(
+                    map(_ => StudentActions.deleteStudentSuccess()),
+                    catchError(errors => of(StudentActions.deleteStudentFailure({ errors })))
                 )
             )
         )
@@ -98,22 +98,22 @@ export class StudentEffects extends AbstractEffects {
 
     deleteStudentSuccess$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.deleteStudentSuccess),
+            ofType(StudentActions.deleteStudentSuccess),
             map(_ => {
                 this.raiseSuccess('Xoá sinh viên thành công.');
-                return studentActions.loadStudents()
+                return StudentActions.loadStudents()
             }),
         ),
     );
 
     importStudent$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.importStudent),
+            ofType(StudentActions.importStudent),
             map(action => action.payload),
             mergeMap((payload) =>
-                this.studentService.importStudent(payload).pipe(
-                    map(_ => studentActions.importStudentSuccess()),
-                    catchError(errors => of(studentActions.importStudentFailure({ errors })))
+                this.#studentService.importStudent(payload).pipe(
+                    map(_ => StudentActions.importStudentSuccess()),
+                    catchError(errors => of(StudentActions.importStudentFailure({ errors })))
                 )
             )
         )
@@ -121,10 +121,10 @@ export class StudentEffects extends AbstractEffects {
 
     importStudentSuccess$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(studentActions.importStudentSuccess),
+            ofType(StudentActions.importStudentSuccess),
             map(_ => {
                 this.raiseSuccess('Nhập danh sách sinh viên thành công.');
-                return studentActions.loadStudents();
+                return StudentActions.loadStudents();
             }),
         ),
     );

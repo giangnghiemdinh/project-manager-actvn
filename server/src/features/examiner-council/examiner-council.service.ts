@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   NotAcceptableException,
@@ -78,6 +79,7 @@ export class ExaminerCouncilService {
         'member.position',
         'user.id',
         'user.fullName',
+        'user.rank',
         'project.id',
         'project.name',
         'project.conclusionScore',
@@ -86,12 +88,14 @@ export class ExaminerCouncilService {
         'instructor.workPlace',
         'instructor.email',
         'instructor.phone',
+        'instructor.rank',
         'student.id',
         'student.code',
         'student.fullName',
         'reviewerStaff.id',
         'reviewerStaffUser.id',
         'reviewerStaffUser.fullName',
+        'reviewerStaffUser.rank',
         'reviewerStaffUser.email',
         'reviewerStaffUser.phone',
         'reviewerStaffUser.workPlace',
@@ -129,9 +133,7 @@ export class ExaminerCouncilService {
     examinerCouncilDto: ExaminerRequestDto,
     currentUser: UserEntity,
   ): Promise<ExaminerCouncilDto> {
-    await this.semesterService.validateLockedSemester(
-      examinerCouncilDto.semesterId,
-    );
+    await this.validateCouncil(examinerCouncilDto);
 
     const examinerCouncil =
       this.examinerCouncilRepository.create(examinerCouncilDto);
@@ -155,7 +157,7 @@ export class ExaminerCouncilService {
         },
         userId: currentUser.id,
       },
-      { delay: 1000, removeOnComplete: true },
+      1000,
     );
     this.logger.log(
       `${currentUser.fullName} đã thêm mới hội đồng ${examinerCouncil.id}`,
@@ -186,6 +188,7 @@ export class ExaminerCouncilService {
         'member.userId',
         'user.id',
         'user.fullName',
+        'user.rank',
         'project.id',
         'project.name',
         'project.status',
@@ -193,11 +196,15 @@ export class ExaminerCouncilService {
         'student.id',
         'student.code',
         'student.fullName',
+        'student.email',
+        'student.phone',
         'instructor.id',
         'instructor.fullName',
+        'instructor.rank',
         'reviewerStaff.id',
         'reviewerStaffUser.id',
         'reviewerStaffUser.fullName',
+        'reviewerStaffUser.rank',
         'department.name',
         'semester.name',
       ])
@@ -214,10 +221,6 @@ export class ExaminerCouncilService {
     examinerCouncilDto: ExaminerRequestDto,
     currentUser: UserEntity,
   ): Promise<void> {
-    await this.semesterService.validateLockedSemester(
-      examinerCouncilDto.semesterId,
-    );
-
     const examinerCouncil = await this.examinerCouncilRepository.findOne({
       where: { id },
       relations: ['users', 'projects'],
@@ -225,6 +228,8 @@ export class ExaminerCouncilService {
     if (!examinerCouncil) {
       throw new NotFoundException('Hội đồng không tồn tại');
     }
+
+    await this.validateCouncil(examinerCouncilDto, id);
 
     // Update status for new project
     const newProject = examinerCouncilDto.projects.filter((p) =>
@@ -347,5 +352,37 @@ export class ExaminerCouncilService {
     this.logger.log(
       `${currentUser.fullName} đã xoá hội đồng ${examinerCouncil.id}`,
     );
+  }
+
+  private async validateCouncil(request: ExaminerRequestDto, id?: number) {
+    await this.semesterService.validateLockedSemester(request.semesterId);
+    const queryBuilder = this.examinerCouncilRepository
+      .createQueryBuilder('examinerCouncil')
+      .where('examinerCouncil.semesterId = :semesterId', {
+        semesterId: request.semesterId,
+      })
+      .andWhere('examinerCouncil.departmentId = :departmentId', {
+        departmentId: request.departmentId,
+      })
+      .leftJoin('examinerCouncil.users', 'member')
+      .leftJoin('member.user', 'user')
+      .andWhere('member.userId IN (:...userIds)', {
+        userIds: request.users?.map((u) => u.userId),
+      })
+      .addSelect(['member.id', 'member.userId', 'user.id', 'user.fullName']);
+
+    if (id) {
+      queryBuilder.andWhere('examinerCouncil.id <> :id', { id });
+    }
+
+    const existCouncil = await queryBuilder.getOne();
+    if (existCouncil) {
+      const duplicateUsers = existCouncil.users
+        .filter((m) => request.users.some((u) => u.userId === m.userId))
+        .map((m) => m.user?.fullName);
+      throw new ConflictException(
+        `Giảng viên ${duplicateUsers.join(', ')} đã thuộc hội đồng khác.`,
+      );
+    }
   }
 }

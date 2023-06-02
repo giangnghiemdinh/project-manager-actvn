@@ -110,7 +110,7 @@ export class ExcelService {
                 name: 'Times New Roman',
                 family: 2,
                 bold: rowNumber === 1,
-                size: 12,
+                size: 10,
             };
         });
 

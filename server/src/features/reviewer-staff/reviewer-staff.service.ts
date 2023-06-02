@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   NotAcceptableException,
@@ -23,6 +24,7 @@ import {
 } from 'src/common/constants';
 import { UserEntity } from '../user/models';
 import { QueueService } from '../../shared/services';
+import { SemesterService } from '../semester/semester.service';
 
 @Injectable()
 export class ReviewerStaffService {
@@ -32,6 +34,7 @@ export class ReviewerStaffService {
     @InjectRepository(ReviewerStaffEntity)
     private reviewerStaffRepository: Repository<ReviewerStaffEntity>,
     private readonly projectService: ProjectService,
+    private readonly semesterService: SemesterService,
     private readonly queueService: QueueService,
   ) {}
 
@@ -77,6 +80,7 @@ export class ReviewerStaffService {
         'user.fullName',
         'user.email',
         'user.phone',
+        'user.rank',
         'user.workPlace',
         'user.id',
         'project.name',
@@ -86,9 +90,12 @@ export class ReviewerStaffService {
         'instructor.email',
         'instructor.workPlace',
         'instructor.phone',
+        'instructor.rank',
         'student.id',
         'student.fullName',
         'student.code',
+        'student.email',
+        'student.phone',
       ])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.limit);
@@ -120,6 +127,8 @@ export class ReviewerStaffService {
     reviewerStaffDto: ReviewerRequestDto,
     currentUser: UserEntity,
   ): Promise<ReviewerStaffDto> {
+    await this.validateGroup(reviewerStaffDto);
+
     const reviewerStaff = this.reviewerStaffRepository.create(reviewerStaffDto);
     await this.reviewerStaffRepository.save(reviewerStaff);
     // Update status for new project
@@ -136,7 +145,7 @@ export class ReviewerStaffService {
         params: { reviewerId: reviewerStaff.id },
         userId: currentUser.id,
       },
-      { delay: 1000, removeOnComplete: true },
+      1000,
     );
     this.logger.log(
       `${currentUser.fullName} đã thêm mới nhóm phản biện ${reviewerStaff.id}`,
@@ -166,11 +175,13 @@ export class ReviewerStaffService {
       .addSelect([
         'user.id',
         'user.fullName',
+        'user.rank',
         'project.id',
         'project.name',
         'project.status',
         'instructor.id',
         'instructor.fullName',
+        'instructor.rank',
         'student.id',
         'student.code',
         'student.fullName',
@@ -197,6 +208,8 @@ export class ReviewerStaffService {
     if (!reviewerStaff) {
       throw new NotFoundException('Nhóm phản biện không tồn tại');
     }
+
+    await this.validateGroup(reviewerStaffDto, id);
 
     // Update status for new project
     const newProject = reviewerStaffDto.projects.filter((p) =>
@@ -290,5 +303,29 @@ export class ReviewerStaffService {
     this.logger.log(
       `${currentUser.fullName} đã xoá nhóm phản biện ${reviewerStaff.id}`,
     );
+  }
+
+  private async validateGroup(request: ReviewerRequestDto, id?: number) {
+    await this.semesterService.validateLockedSemester(request.semesterId);
+    const queryBuilder = this.reviewerStaffRepository
+      .createQueryBuilder('reviewerStaff')
+      .where('reviewerStaff.semesterId = :semesterId', {
+        semesterId: request.semesterId,
+      })
+      .andWhere('reviewerStaff.departmentId = :departmentId', {
+        departmentId: request.departmentId,
+      })
+      .andWhere('reviewerStaff.userId = :userId', {
+        userId: request.userId,
+      });
+
+    if (id) {
+      queryBuilder.andWhere('reviewerStaff.id <> :id', { id });
+    }
+
+    const isExist = await queryBuilder.getExists();
+    if (isExist) {
+      throw new ConflictException('Giảng viên đang chấm phản biện nhóm khác.');
+    }
   }
 }

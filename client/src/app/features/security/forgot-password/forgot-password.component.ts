@@ -20,9 +20,9 @@ import { AsyncPipe, NgIf } from '@angular/common';
 })
 export class ForgotPasswordComponent {
 
-    private readonly store = inject(Store<AuthState>);
+    readonly #store = inject(Store<AuthState>);
     loginUrl = RO_LOGIN_FULL;
-    errors$ = this.store.select(selectAuthErrors);
+    errors$ = this.#store.select(selectAuthErrors);
 
     form = new FormGroup({
         email: new FormControl<string>('', [ Validators.email, Validators.required ]),
@@ -31,7 +31,7 @@ export class ForgotPasswordComponent {
 
     constructor() {
         setTitle('Quên mật khẩu');
-        this.store.dispatch(AuthActions.clearErrors());
+        this.#store.dispatch(AuthActions.clearErrors());
     }
 
     onForgot() {
@@ -40,7 +40,7 @@ export class ForgotPasswordComponent {
             this.form.markAsTouched();
             return;
         }
-        this.store.dispatch(AuthActions.forgotPassword({
+        this.#store.dispatch(AuthActions.forgotPassword({
             payload: {
                 email: value.email || ''
             }

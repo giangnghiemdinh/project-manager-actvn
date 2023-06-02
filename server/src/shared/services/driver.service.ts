@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ApiConfigService } from './api-config.service';
 import { drive_v3, google } from 'googleapis';
 import * as stream from 'stream';
 
 @Injectable()
 export class DriverService {
+  private readonly logger = new Logger(DriverService.name);
+
   driver: drive_v3.Drive;
 
   constructor(private readonly apiConfigService: ApiConfigService) {
@@ -34,6 +36,7 @@ export class DriverService {
       isPublic && (await this.setFilePublic(data.id));
       return { ...data, webViewLink, webContentLink };
     } catch (e) {
+      this.logger.error(e);
       throw e;
     }
   }
@@ -63,6 +66,7 @@ export class DriverService {
       isPublic && (await this.setFilePublic(data.id));
       return data;
     } catch (e) {
+      this.logger.error(e);
       throw e;
     }
   }

@@ -20,13 +20,20 @@
                     <div class="w-full sm:w-[unset] flex-1 flex flex-col gap-4">
                         <app-form-text control="fullName" label="Họ và tên"
                                        [validators]="{ required: true }"/>
-                        <app-form-date control="birthday" label="Ngày sinh"
-                                       [allowClear]="false"/>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <app-form-select control="rank" label="Học hàm, học vị"
+                                             [options]="ranks"
+                                             [initialValue]="''"
+                                             [validators]="{ required: true }"/>
+                            <app-form-date control="birthday" label="Ngày sinh"
+                                           [allowClear]="false"/>
+                        </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     <app-form-select control="role" label="Vai trò"
                                      [options]="roles"
+                                     [initialValue]="'Lecturer'"
                                      [disabled]="!isAdministrator"
                                      [validators]="{ required: true }"/>
                     <app-form-select control="gender" label="Giới tính"
@@ -51,7 +58,9 @@
                 <span class="mr-1.5">Quay lại</span>
             </button>
             <button class="flex items-center justify-center gap-2"
-                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                    nzSize="large" nz-button nzType="primary"
+                    [disabled]="isLoading"
+                    [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
                 <i class='bx bx-save text-lg'></i>
             </button>

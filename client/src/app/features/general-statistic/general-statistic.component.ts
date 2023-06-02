@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { RO_GENERAL_STATISTIC } from '../../common/constants';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { sortBy } from 'lodash';
+import { orderBy, sortBy } from 'lodash';
 import { debounceTime, fromEvent } from 'rxjs';
 
 @Component({
@@ -47,17 +47,17 @@ export class GeneralStatisticComponent implements AfterViewInit {
             .subscribe(value => {
                 this.projectStatistic = value;
                 this.updateScoreDistributionChart();
-                this.updateOutScoreChart();
-                this.updateReviewRatioChart();
-                this.updatePresentationRatioChart();
+                this.updatePresentationPointGrateChart();
+                this.updateReviewerPointGrateChart();
+                this.updateInstructorPointGrateChart();
             });
     }
 
     ngAfterViewInit(): void {
         this.updateScoreDistributionChart();
-        this.updateOutScoreChart();
-        this.updateReviewRatioChart();
-        this.updatePresentationRatioChart();
+        this.updatePresentationPointGrateChart();
+        this.updateReviewerPointGrateChart();
+        this.updateInstructorPointGrateChart();
     }
 
     private onLoad() {
@@ -68,13 +68,13 @@ export class GeneralStatisticComponent implements AfterViewInit {
         fromEvent(window, 'resize')
             .pipe(
                 takeUntilDestroyed(),
-                debounceTime(200)
+                debounceTime(100)
             )
             .subscribe(_ => {
                 this.scoreDistributionChart?.resize();
-                this.outscoreChart?.resize();
-                this.reviewRatioChart?.resize();
-                this.presentationRatioChart?.resize();
+                this.presentationPointGrateChart?.resize();
+                this.reviewerPointGrateChart?.resize();
+                this.instructorPointGrateChart?.resize();
             });
     }
 
@@ -84,20 +84,20 @@ export class GeneralStatisticComponent implements AfterViewInit {
         return echarts.getInstanceByDom(element) || echarts.init(element);
     }
 
-    get outscoreChart() {
-        const element = document.getElementById('outscoreChart');
+    get presentationPointGrateChart() {
+        const element = document.getElementById('presentationPointGrateChart');
         if (!element) { return null; }
         return echarts.getInstanceByDom(element) || echarts.init(element);
     }
 
-    get reviewRatioChart() {
-        const element = document.getElementById('reviewRatioChart');
+    get reviewerPointGrateChart() {
+        const element = document.getElementById('reviewerPointGrateChart');
         if (!element) { return null; }
         return echarts.getInstanceByDom(element) || echarts.init(element);
     }
 
-    get presentationRatioChart() {
-        const element = document.getElementById('presentationRatioChart');
+    get instructorPointGrateChart() {
+        const element = document.getElementById('instructorPointGrateChart');
         if (!element) { return null; }
         return echarts.getInstanceByDom(element) || echarts.init(element);
     }
@@ -127,7 +127,7 @@ export class GeneralStatisticComponent implements AfterViewInit {
         const option = {
             xAxis: {
                 type: 'category',
-                data: column
+                data: column.sort((a, b) => +a - +b)
             },
             yAxis: {
                 type: 'value'
@@ -143,11 +143,11 @@ export class GeneralStatisticComponent implements AfterViewInit {
         chart.setOption(option);
     }
 
-    updateOutScoreChart() {
-        const chart = this.outscoreChart;
+    updatePresentationPointGrateChart() {
+        const chart = this.presentationPointGrateChart;
         if (!chart) { return; }
         const data: { value: number, name: string }[] = [];
-        for (const [name, value] of Object.entries(this.projectStatistic?.outpoint || {})) {
+        for (const [name, value] of Object.entries(this.projectStatistic?.presentationPointGrade || {})) {
             data.push({ value, name });
         }
         const option = {
@@ -171,19 +171,13 @@ export class GeneralStatisticComponent implements AfterViewInit {
         chart.setOption(option);
     }
 
-    updateReviewRatioChart() {
-        const chart = this.reviewRatioChart;
+    updateReviewerPointGrateChart() {
+        const chart = this.reviewerPointGrateChart;
         if (!chart) { return; }
-        const data: { value: number, name: string }[] = [
-            {
-                name: 'Chấm phản biện',
-                value: this.projectStatistic?.totalReview || 0
-            },
-            {
-                name: 'Không phản biện',
-                value: (this.projectStatistic?.total || 0) - (this.projectStatistic?.totalReview || 0)
-            },
-        ];
+        const data: { value: number, name: string }[] = [];
+        for (const [name, value] of Object.entries(this.projectStatistic?.reviewerPointGrade || {})) {
+            data.push({ value, name });
+        }
         const option = {
             tooltip: {
                 trigger: 'item'
@@ -196,7 +190,7 @@ export class GeneralStatisticComponent implements AfterViewInit {
                 {
                     type: 'pie',
                     radius: '50%',
-                    data: data,
+                    data: orderBy(data, ['name', 'asc']),
                     percentPrecision: 0,
                     label: { show: true, formatter: (params: any) => `${params.percent}%\n${params.name}`, lineHeight: 16 }
                 }
@@ -205,19 +199,13 @@ export class GeneralStatisticComponent implements AfterViewInit {
         chart.setOption(option);
     }
 
-    updatePresentationRatioChart() {
-        const chart = this.presentationRatioChart;
+    updateInstructorPointGrateChart() {
+        const chart = this.instructorPointGrateChart;
         if (!chart) { return; }
-        const data: { value: number, name: string }[] = [
-            {
-                name: 'Bảo vệ',
-                value: this.projectStatistic?.totalReview || 0
-            },
-            {
-                name: 'Không bảo vệ',
-                value: (this.projectStatistic?.total || 0) - (this.projectStatistic?.totalPresentation || 0)
-            },
-        ];
+        const data: { value: number, name: string }[] = [];
+        for (const [name, value] of Object.entries(this.projectStatistic?.instructorPointGrade || {})) {
+            data.push({ value, name });
+        }
         const option = {
             tooltip: {
                 trigger: 'item'
@@ -230,7 +218,7 @@ export class GeneralStatisticComponent implements AfterViewInit {
                 {
                     type: 'pie',
                     radius: '50%',
-                    data: data,
+                    data: orderBy(data, ['name', 'asc']),
                     percentPrecision: 0,
                     label: { show: true, formatter: (params: any) => `${params.percent}%\n${params.name}`, lineHeight: 16 }
                 }

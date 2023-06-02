@@ -32,8 +32,7 @@
                 </button>
                 <button class="w-full sm:w-1/2 md:w-fit flex items-center justify-center gap-2"
                         nzSize="large" nz-button nzType="default" (click)="onClearChecked()">
-                    <i class='bx bx-x text-lg' ></i>
-                    Bỏ chọn
+                    ({{ selectedItems.length }}) Bỏ chọn
                 </button>
             </ng-template>
         </div>
@@ -45,7 +44,7 @@
                       class="w-full"
                       [debounceTime]="300"
                       [data]="queryParams$ | async"
-                      [hidden]="{ page: 1, limit: 10 }"
+                      [hidden]="{ page: 1, limit: 20 }"
                       (valueChanges)="onSearch($event)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4">
                     <app-form-select class="col-span-1 lg:col-span-2" control="state" placeholder="Loại"
@@ -96,8 +95,11 @@
                 </ng-template>
             </app-table-column>
             <app-table-column key="semester.name" title="Học kì" width="120px"/>
-            <app-table-column key="department.name" title="Khoa" width="80px"/>
+            <app-table-column key="department.name" title="Khoa" width="100px"/>
             <app-table-column key="instructor.fullName" title="Người hướng dẫn" width="120px">
+                <ng-template table-cell let-row>
+                    {{ row.instructor | rankFullName }}
+                </ng-template>
             </app-table-column>
             <app-table-column key="students" title="Sinh viên thực hiện" width="150px">
                 <ng-template table-cell let-row>

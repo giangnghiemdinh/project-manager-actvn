@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ProjectProgress } from '../../../../common/models/project-progress.model';
+import { ProjectProgress } from '../../../../common/models';
 import { keyBy } from 'lodash';
 
 @Pipe({

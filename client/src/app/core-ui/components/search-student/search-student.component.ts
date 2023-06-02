@@ -4,9 +4,6 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { TableComponent } from '../table/table.component';
-import { TableColumnDirective } from '../table/directives/table-column.directive';
-import { TableCellDirective } from '../table/directives/table-cell.directive';
 import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -26,9 +23,6 @@ import { lastValueFrom, map } from 'rxjs';
         NzSelectModule,
         NzSpinModule,
         NzIconModule,
-        TableComponent,
-        TableColumnDirective,
-        TableCellDirective,
         AsyncPipe,
         FormsModule,
         NzButtonModule,
@@ -40,7 +34,7 @@ import { lastValueFrom, map } from 'rxjs';
     ]
 })
 export class SearchStudentComponent implements OnChanges {
-    private readonly studentService = inject(StudentService);
+    readonly #studentService = inject(StudentService);
     @Input() isVisible = false;
     @Input() isMultiple = false;
     @Input() departmentId: number | null = null;
@@ -61,12 +55,13 @@ export class SearchStudentComponent implements OnChanges {
     async ngOnChanges(changes: SimpleChanges) {
         const { isVisible } = changes;
         if (isVisible && this.isVisible) {
+            this.params = {};
+            this.cacheData = {};
+            this.selectedStudent = [];
             if (!this.initialized) {
                 this.initDataSource();
                 return;
             }
-            this.cacheData = {};
-            this.selectedStudent = [];
             await this.dataSource.adapter.relax();
             await this.dataSource.adapter.reset();
         }
@@ -148,7 +143,7 @@ export class SearchStudentComponent implements OnChanges {
         if (!!this.cacheData[`${page}`]) {
             return Promise.resolve(this.cacheData[`${page}`]);
         }
-        return lastValueFrom(this.studentService.getStudents({
+        return lastValueFrom(this.#studentService.getStudents({
             page,
             limit: this.pagination.limit,
             ...this.params

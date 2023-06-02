@@ -39,3 +39,11 @@ export const ExaminerCouncilPositions = [
     { value: ExaminerCouncilPosition.MEMBER, label: 'Uỷ viên' },
 ];
 
+export const Ranks = [
+    { value: 'PGS. TS', label: 'PGS, Tiến sĩ' },
+    { value: 'TS', label: 'Tiến sĩ' },
+    { value: 'ThS', label: 'Thạc sĩ' },
+    { value: 'KS', label: 'Kỹ sư' },
+    { value: '', label: 'Khác' },
+];
+

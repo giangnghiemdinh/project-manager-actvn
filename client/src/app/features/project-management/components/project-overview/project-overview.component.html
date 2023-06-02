@@ -44,24 +44,6 @@
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                         <div class="col-span-12 md:col-span-3 text-[#595959]">
-                            Người tạo/ đề xuất
-                        </div>
-                        <div class="col-span-12 md:col-span-9 text-[#262626]"
-                             [class.invisible]="!project.createdBy?.fullName">
-                            {{ project.createdBy?.fullName || '#' }}
-                        </div>
-                    </div>
-                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
-                        <div class="col-span-12 md:col-span-3 text-[#595959]">
-                            Người duyệt
-                        </div>
-                        <div class="col-span-12 md:col-span-9 text-[#262626]"
-                             [class.invisible]="!project.reviewedBy?.fullName">
-                            {{ project.reviewedBy?.fullName || '#' }}
-                        </div>
-                    </div>
-                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
-                        <div class="col-span-12 md:col-span-3 text-[#595959]">
                             Học kỳ
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]">
@@ -108,11 +90,29 @@
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
                         <div class="col-span-12 md:col-span-3 text-[#595959]">
+                            Người tạo/ đề xuất
+                        </div>
+                        <div class="col-span-12 md:col-span-9 text-[#262626]"
+                             [class.invisible]="!project.createdBy">
+                            {{ project.createdBy | rankFullName: '#' }}
+                        </div>
+                    </div>
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
+                        <div class="col-span-12 md:col-span-3 text-[#595959]">
+                            Người duyệt
+                        </div>
+                        <div class="col-span-12 md:col-span-9 text-[#262626]"
+                             [class.invisible]="!project.reviewedBy">
+                            {{ project.reviewedBy | rankFullName: '#' }}
+                        </div>
+                    </div>
+                    <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
+                        <div class="col-span-12 md:col-span-3 text-[#595959]">
                             Người hướng dẫn
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
-                             [class.invisible]="!project.instructor?.fullName">
-                            {{ project.instructor?.fullName || '#' }}
+                             [class.invisible]="!project.instructor">
+                            {{ project.instructor | rankFullName: '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
@@ -120,8 +120,8 @@
                             Người quản lý
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
-                             [class.invisible]="!project.managerStaff?.user?.fullName">
-                            {{ project.managerStaff?.user?.fullName || '#' }}
+                             [class.invisible]="!project.managerStaff?.user">
+                            {{ project.managerStaff?.user | rankFullName: '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
@@ -130,12 +130,12 @@
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
                              [class.invisible]="!project.reviewerStaff?.user?.fullName">
-                            {{ project.reviewerStaff?.user?.fullName || '#' }}
+                            {{ project.reviewerStaff?.user | rankFullName: '#' }}
                         </div>
                     </div>
                     <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">
                         <div class="col-span-12 md:col-span-3 text-[#595959]">
-                            Hội đồng
+                            Địa điểm bảo vệ
                         </div>
                         <div class="col-span-12 md:col-span-9 text-[#262626]"
                              [class.invisible]="!project.examinerCouncil?.location">
@@ -475,6 +475,15 @@
                             <div class="col-span-12 md:col-span-9 text-[#262626]"
                                  [class.invisible]="!project.answerScore">
                                 {{ project.answerScore || '#' }}
+                            </div>
+                        </div>
+                        <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1 border-b border-gray-100">
+                            <div class="col-span-12 md:col-span-3 text-[#595959]">
+                                Tổng
+                            </div>
+                            <div class="col-span-12 md:col-span-9 text-[#262626]"
+                                 [class.invisible]="!project.conclusionScore">
+                                {{ ((project.formScore || 0) + (project.contentScore || 0) + (project.summarizeScore || 0) + (project.answerScore || 0)) || '#' }}
                             </div>
                         </div>
                         <div class="px-6 py-3 grid grid-cols-12 gap-x-4 gap-y-1">

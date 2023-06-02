@@ -4,7 +4,12 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { UseDto } from '../../../common/decorators';
 import { UserEventEntity } from './user-event.entity';
 import { UserSessionEntity } from './user-session.entity';
-import { Gender, Role, TwoFactoryMethod } from '../../../common/constants';
+import {
+  Gender,
+  Rank,
+  Role,
+  TwoFactoryMethod,
+} from '../../../common/constants';
 import { ProjectEntity } from '../../project/models';
 import { ExaminerCouncilEntity } from '../../examiner-council/models';
 import { ManagerStaffEntity } from '../../manager-staff/models';
@@ -37,6 +42,13 @@ export class UserEntity extends AbstractEntity<UserDto> {
     default: Gender.Male,
   })
   gender: Gender;
+
+  @Column({
+    type: 'enum',
+    enum: Rank,
+    default: Rank.Other,
+  })
+  rank: Rank;
 
   @Column({ type: 'timestamp', nullable: true })
   birthday?: Date;

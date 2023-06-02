@@ -4,9 +4,14 @@ import { ReviewerStaffService } from './reviewer-staff.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReviewerStaffEntity } from './models';
 import { ProjectModule } from '../project/project.module';
+import { SemesterModule } from '../semester/semester.module';
 
 @Module({
-  imports: [ProjectModule, TypeOrmModule.forFeature([ReviewerStaffEntity])],
+  imports: [
+    SemesterModule,
+    ProjectModule,
+    TypeOrmModule.forFeature([ReviewerStaffEntity]),
+  ],
   controllers: [ReviewerStaffController],
   providers: [ReviewerStaffService],
   exports: [ReviewerStaffService],

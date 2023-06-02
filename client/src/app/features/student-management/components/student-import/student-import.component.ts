@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 export class StudentImportComponent implements OnChanges {
 
     readonly #excelService = inject(ExcelService);
-    readonly #notificationService = inject(NotificationService);
+    readonly #notification = inject(NotificationService);
     @Input() isVisible: boolean | null = false;
     @Input() isLoading: boolean | null = false;
     @Output() ok = new EventEmitter();
@@ -81,22 +81,22 @@ export class StudentImportComponent implements OnChanges {
 
     onImport() {
         if (!this.files.length) {
-            this.#notificationService.error('Vui lòng chọn tệp đính kèm!');
+            this.#notification.error('Vui lòng chọn tệp đính kèm!');
             return;
         }
         const [ file ] = this.files;
         this.#excelService.import(file.originFileObj, (err: any, data: any) => {
             if (err) {
-                this.#notificationService.error(err);
+                this.#notification.error(err);
                 return;
             }
             if (!data || !data.length) {
-                this.#notificationService.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
+                this.#notification.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
                 return;
             }
             const [ sheet0 ] = data;
             if (!sheet0 || sheet0.length <= 1) {
-                this.#notificationService.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
+                this.#notification.error('File dữ liệu trống! Vui lòng kiểm tra lại.');
                 return;
             }
             const students: Student[] = []
@@ -104,17 +104,17 @@ export class StudentImportComponent implements OnChanges {
                 const row = sheet0[i];
                 const s: Student = {};
                 if (isEmpty(row[0])) {
-                    this.#notificationService.error(`Vui lòng điền Họ và tên dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền Họ và tên dòng ${i + 1}!`);
                     return;
                 }
                 s.fullName = row[0];
                 if (isEmpty(row[1])) {
-                    this.#notificationService.error(`Vui lòng điền mã sinh viên dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền mã sinh viên dòng ${i + 1}!`);
                     return;
                 }
                 s.code = row[1];
                 if (row[2] && !new RegExp(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(row[1])) {
-                    this.#notificationService.error(`Email dòng ${i + 1} không hợp lệ!`);
+                    this.#notification.error(`Email dòng ${i + 1} không hợp lệ!`);
                     return;
                 }
                 s.email = row[2] || '';
@@ -123,7 +123,7 @@ export class StudentImportComponent implements OnChanges {
                 if (isEmpty(row[4])) {
                     s.gender = Gender.Male;
                 } else if (row[4] != Gender.Male && row[4] != Gender.Female) {
-                    this.#notificationService.error(`Giới tính dòng ${i + 1} không hợp lệ!`);
+                    this.#notification.error(`Giới tính dòng ${i + 1} không hợp lệ!`);
                     return;
                 } else {
                     s.gender = +row[4];
@@ -132,17 +132,17 @@ export class StudentImportComponent implements OnChanges {
                 if (!isEmpty(row[5])) {
                     const birthday = moment(row[4], 'DD/MM/YYYY');
                     if (!birthday.isValid()) {
-                        this.#notificationService.error(`Ngày sinh dòng ${i + 1} không hợp lệ!`);
+                        this.#notification.error(`Ngày sinh dòng ${i + 1} không hợp lệ!`);
                         return;
                     }
                     s.birthday = birthday.toDate();
                 }
 
                 if (isEmpty(row[6])) {
-                    this.#notificationService.error(`Vui lòng điền khoa dòng ${i + 1}!`);
+                    this.#notification.error(`Vui lòng điền khoa dòng ${i + 1}!`);
                     return;
                 } else if (![1, 2, 3].includes(+row[6])) {
-                    this.#notificationService.error(`Khoa dòng ${i + 1} không hợp lệ!`);
+                    this.#notification.error(`Khoa dòng ${i + 1} không hợp lệ!`);
                     return;
                 } else {
                     s.departmentId = +row[6];

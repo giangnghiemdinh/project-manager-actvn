@@ -31,15 +31,15 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
     ]
 })
 export class TfaVerifyComponent {
-    private readonly store = inject(Store<AuthState>);
+    readonly #store = inject(Store<AuthState>);
 
     auth$ = combineLatest([
-        this.store.select(selectCredentials),
-        this.store.select(selectOtpToken)
+        this.#store.select(selectCredentials),
+        this.#store.select(selectOtpToken)
     ]).pipe(
         map(([ credentials, otpToken ]) => ( { credentials, otpToken } ))
     );
-    errors$ = this.store.select(selectAuthErrors);
+    errors$ = this.#store.select(selectAuthErrors);
 
     method = TwoFactorMethod;
     parser = numberParser;
@@ -55,7 +55,7 @@ export class TfaVerifyComponent {
     constructor() {
         setTitle('Xác thực tài khoản');
         this.startCountdown();
-        this.store.dispatch(AuthActions.clearErrors());
+        this.#store.dispatch(AuthActions.clearErrors());
     }
 
     onVerify(auth: any) {
@@ -69,7 +69,7 @@ export class TfaVerifyComponent {
             otp: this.otp.value || '',
             isTrusted: this.isTrusted.value || false
         };
-        this.store.dispatch(AuthActions.twoFactorVerify({ payload }));
+        this.#store.dispatch(AuthActions.twoFactorVerify({ payload }));
     }
 
     onReGetOtpToken(email: string) {
@@ -77,7 +77,7 @@ export class TfaVerifyComponent {
             return;
         }
         this.startCountdown();
-        this.store.dispatch(AuthActions.loadOTPToken({ payload: { email } }));
+        this.#store.dispatch(AuthActions.loadOTPToken({ payload: { email } }));
     }
 
     onResend(email: string) {
@@ -85,7 +85,7 @@ export class TfaVerifyComponent {
             return;
         }
         this.startCountdown();
-        this.store.dispatch(AuthActions.resendEmail({
+        this.#store.dispatch(AuthActions.resendEmail({
             payload: {
                 email,
                 deviceId: getDeviceId()

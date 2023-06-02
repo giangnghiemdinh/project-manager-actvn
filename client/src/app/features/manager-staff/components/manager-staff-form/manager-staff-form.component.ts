@@ -19,8 +19,9 @@ import { cloneDeep, uniqBy } from 'lodash';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NgForOf } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ProjectStatus } from '../../../../common/constants/project.constant';
+import { ProjectStatus } from '../../../../common/constants';
 import { first, lastValueFrom, timer } from 'rxjs';
+import { rankFullName } from '../../../../common/utilities';
 
 @Component({
     selector: 'app-manager-staff-form',
@@ -43,8 +44,7 @@ import { first, lastValueFrom, timer } from 'rxjs';
     templateUrl: './manager-staff-form.component.html',
 })
 export class ManagerStaffFormComponent {
-    private readonly notification = inject(NotificationService);
-    private readonly modal = inject(NzModalService);
+
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -55,6 +55,10 @@ export class ManagerStaffFormComponent {
     @Output() ok = new EventEmitter();
     @Output() cancel = new EventEmitter();
     @Output() loadProject = new EventEmitter();
+
+    readonly #notification = inject(NotificationService);
+    readonly #modal = inject(NzModalService);
+
     isVisibleSearchUser = false;
     isVisibleSearchProject = false;
     selectedUser: User | null = null;
@@ -83,7 +87,7 @@ export class ManagerStaffFormComponent {
             this.data = {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
-                instructorName: this.managerStaff.user?.fullName || '',
+                instructorName: rankFullName(this.managerStaff.user),
             };
             Promise.resolve().then(_ => this.reloadProject());
         }
@@ -95,7 +99,7 @@ export class ManagerStaffFormComponent {
             && departmentId.value && semesterId.value
             && (this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value)) {
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -145,7 +149,7 @@ export class ManagerStaffFormComponent {
 
     onSearchProject() {
         if (!this.currentDepartment || !this.currentSemester) {
-            this.notification.error('Vui lòng chọn khoa và học kỳ!');
+            this.#notification.error('Vui lòng chọn khoa và học kỳ!');
             return;
         }
         if (this.projects && this.managerStaff
@@ -165,11 +169,11 @@ export class ManagerStaffFormComponent {
 
     async onRemoveProject(project: Project) {
         if (project.status === ProjectStatus.IN_REVIEW) {
-            this.notification.error('Không thể xoá đề tài đang chấm phản biện khỏi nhóm!');
+            this.#notification.error('Không thể xoá đề tài đang chấm phản biện khỏi nhóm!');
             return;
         }
         if (project.reportedCount) {
-            const confirm = await lastValueFrom(this.modal.create({
+            const confirm = await lastValueFrom(this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -191,7 +195,7 @@ export class ManagerStaffFormComponent {
         if (!users.length) { return; }
         const [ user ] = users;
         this.selectedUser = cloneDeep(user);
-        this.formComponent?.setValue('instructorName', user.fullName);
+        this.formComponent?.setValue('instructorName', rankFullName(this.selectedUser));
     }
 
     onCancel() {
@@ -202,11 +206,11 @@ export class ManagerStaffFormComponent {
     async onSave() {
         if (!this.formComponent.isValid || !this.selectedUser) { return; }
         if (!this.selectedProjects.length) {
-            this.notification.error('Vui lòng chọn danh sách đề tài!');
+            this.#notification.error('Vui lòng chọn danh sách đề tài!');
             return;
         }
-        if (this.selectedProjects.some(p => p.reportedCount) && this.managerStaff && this.managerStaff.userId !== this.selectedUser?.id) {
-            const confirm = await lastValueFrom(this.modal.create({
+        if (this.managerStaff && this.selectedProjects.some(p => p.reportedCount)) {
+            const confirm = await lastValueFrom(this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -214,15 +218,12 @@ export class ManagerStaffFormComponent {
                 nzCentered: true,
                 nzAutofocus: null,
                 nzData: {
-                    title: `Có đề tài đã thực hiện báo cáo tiến độ. Bạn có chắc chắn muốn thay đổi người hướng dẫn không?`,
+                    title: `Có đề tài đã thực hiện báo cáo tiến độ. Bạn có chắc chắn muốn lưu thay đổi không?`,
                     okText: 'Đồng ý',
                     okDanger: false
                 }
             }).afterClose);
-            if (!confirm) {
-                this.onSelectUser([ this.managerStaff.user! ]);
-                return;
-            }
+            if (!confirm) { return; }
         }
         const value: any = this.formComponent.value;
         this.ok.emit({

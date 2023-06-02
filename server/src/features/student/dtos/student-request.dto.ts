@@ -10,7 +10,7 @@ export class StudentRequestDto {
   @StringProperty('Họ và tên', { required: true })
   readonly fullName: string;
 
-  @StringProperty('Họ và tên', {
+  @StringProperty('Mã sinh viên', {
     required: true,
     maxLength: 8,
     toUpperCase: true,

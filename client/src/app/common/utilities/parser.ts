@@ -1,3 +1,5 @@
+import { User } from '../models';
+
 export const numberParser = (value: string): string => value
     .trim()
     .replace(/。/g, '.')
@@ -41,4 +43,9 @@ export function arrayBufferToBase64(buffer: any, contentType?: string) {
         binary += String.fromCharCode(bytes[i]);
     }
     return (contentType ? `data:${contentType};base64,` : '') + window.btoa(binary);
+}
+
+export function rankFullName(user?: User, empty = '') {
+    if (!user || !user.fullName) { return empty; }
+    return `${user.rank ? user.rank + '. ' : ''}${user.fullName}`;
 }

@@ -20,7 +20,7 @@ import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ExaminerCouncil, ExaminerCouncilUser, Project, User } from '../../../../common/models';
-import { DriverUrlPipe } from '../../../../core-ui/pipes';
+import { DriverUrlPipe, RankFullNamePipe, RankPipe } from '../../../../core-ui/pipes';
 import { Store } from '@ngrx/store';
 import {
     ExaminerCouncilState,
@@ -28,21 +28,24 @@ import {
     selectIsLoading,
     selectProjects
 } from '../../store/examiner-council.reducer';
-import { createMultipleExaminerCouncil, loadAllProjects } from '../../store/examiner-council.actions';
 import { filter, first, take, withLatestFrom } from 'rxjs';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NotificationService } from '../../../../common/services';
 import { CommonState, selectDepartments, selectSemesters } from '../../../../common/stores';
-import { setTitle } from '../../../../common/utilities';
+import { rankFullName, setTitle } from '../../../../common/utilities';
 import { chunk, cloneDeep, shuffle, uniqBy } from 'lodash';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { RO_EXAMINER_COUNCIL, RO_MANAGER_STAFF, RO_REVIEWER_STAFF } from '../../../../common/constants';
+import {
+    ExaminerCouncilPosition,
+    ExaminerCouncilPositions,
+    ProjectStatus,
+    RO_EXAMINER_COUNCIL
+} from '../../../../common/constants';
 import { RouterLink } from '@angular/router';
-import { ProjectStatus } from '../../../../common/constants/project.constant';
-import { ExaminerCouncilPosition, ExaminerCouncilPositions } from '../../../../common/constants/user.constant';
 import { CouncilPositionPipe } from '../../council-position.pipe';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { ExaminerCouncilActions } from '../../store/examiner-council.actions';
 
 @Component({
     selector: 'app-manager-council-setup',
@@ -74,25 +77,27 @@ import { NzInputModule } from 'ng-zorro-antd/input';
         NzSpinModule,
         RouterLink,
         CouncilPositionPipe,
-        NzInputModule
+        NzInputModule,
+        RankFullNamePipe,
+        RankPipe
     ],
     templateUrl: './examiner-council-setup.component.html',
 })
 export class ExaminerCouncilSetupComponent {
 
-    private readonly store = inject(Store<ExaminerCouncilState>);
-    private readonly commonStore = inject(Store<CommonState>);
-    private readonly notification = inject(NotificationService);
-    private readonly modal = inject(NzModalService);
+    readonly #store = inject(Store<ExaminerCouncilState>);
+    readonly #commonStore = inject(Store<CommonState>);
+    readonly #notification = inject(NotificationService);
+    readonly #modal = inject(NzModalService);
 
     @ViewChild('form') formComponent!: FormComponent;
     @ViewChild('confirmContent') confirmContent!: TemplateRef<any>;
-    departments$ = this.commonStore.select(selectDepartments);
-    semesters$ = this.commonStore.select(selectSemesters);
-    projects$ = this.store.select(selectProjects);
-    isLoading$ = this.store.select(selectIsLoading);
+    departments$ = this.#commonStore.select(selectDepartments);
+    semesters$ = this.#commonStore.select(selectSemesters);
+    projects$ = this.#store.select(selectProjects);
+    isLoading$ = this.#store.select(selectIsLoading);
 
-    title = 'Thành lập danh sách';
+    title = 'Thành lập danh sách hội đồng';
     urlExaminerCouncil = RO_EXAMINER_COUNCIL;
 
     isVisibleSearchUser = false;
@@ -119,48 +124,63 @@ export class ExaminerCouncilSetupComponent {
         for (let i = 0; i < this.groups.length; i++) {
             const group = this.groups[i];
             if (!group.users.length) {
-                this.notification.error(`Vui lòng chọn thành viên cho hội đồng ${ i + 1 }`);
+                this.#notification.error(`Vui lòng chọn thành viên cho hội đồng ${ i + 1 }`);
                 return;
             }
             if (!group.projects.length) {
-                this.notification.error(`Vui lòng chọn đề tài cho hội đồng ${ i + 1 }`);
+                this.#notification.error(`Vui lòng chọn đề tài cho hội đồng ${ i + 1 }`);
                 return;
             }
             if (!group.location) {
-                this.notification.error(`Vui lòn nhập địa điểm cho hội đồng ${ i + 1 }`);
+                this.#notification.error(`Vui lòn nhập địa điểm cho hội đồng ${ i + 1 }`);
                 return;
             }
             const chairPersonLength = group.users
                 .filter(u => u.position === ExaminerCouncilPosition.CHAIRPERSON).length;
             if (chairPersonLength > 1) {
-                this.notification.error(`Hội đồng ${ i + 1 } có tối đa 01 chủ tịch!`);
+                this.#notification.error(`Hội đồng ${ i + 1 } có tối đa 01 chủ tịch!`);
                 return;
             }
             if (!chairPersonLength) {
-                this.notification.error(`Vui lòng chọn chủ tịch cho hội đồng ${ i + 1 }`);
+                this.#notification.error(`Vui lòng chọn chủ tịch cho hội đồng ${ i + 1 }`);
                 return;
             }
 
             const adSecretaryLength = group.users
                 .filter(u => u.position === ExaminerCouncilPosition.ADMINISTRATIVE_SECRETARY).length;
             if (adSecretaryLength > 1) {
-                this.notification.error(`Hội đồng ${ i + 1 } có tối đa 01 thư ký hành chính!`);
+                this.#notification.error(`Hội đồng ${ i + 1 } có tối đa 01 thư ký hành chính!`);
                 return;
             }
             if (!adSecretaryLength) {
-                this.notification.error(`Vui lòng chọn thư ký hành chính cho hội đồng ${ i + 1 }`);
+                this.#notification.error(`Vui lòng chọn thư ký hành chính cho hội đồng ${ i + 1 }`);
                 return;
             }
 
             const secretaryLength = group.users
                 .filter(u => u.position === ExaminerCouncilPosition.SECRETARY).length;
             if (secretaryLength > 1) {
-                this.notification.error(`Hội đồng ${ i + 1 } có tối đa 01 thư ký!`);
+                this.#notification.error(`Hội đồng ${ i + 1 } có tối đa 01 thư ký!`);
                 return;
             }
             if (!secretaryLength) {
-                this.notification.error(`Vui lòng chọn thư ký cho hội đồng ${ i + 1 }`);
+                this.#notification.error(`Vui lòng chọn thư ký cho hội đồng ${ i + 1 }`);
                 return;
+            }
+
+            for (let i = 0; i < this.groups.length; i++) {
+                for (let j = i + 1; j < this.groups.length; j++) {
+                    const groupA = this.groups[i];
+                    const groupB = this.groups[j];
+                    const duplicated = groupA.users
+                        .filter(a => groupB.users.some(b => b.userId === a.userId))
+                        .map(u => rankFullName(u.user));
+
+                    if (duplicated.length) {
+                        this.#notification.error(`GV ${duplicated.join(', ')} nhóm ${i + 1} trùng với nhóm ${j + 1}. Vui lòng kiểm tra lại!`);
+                        return;
+                    }
+                }
             }
 
             payload.push({
@@ -171,7 +191,7 @@ export class ExaminerCouncilSetupComponent {
                 users: group.users
             });
         }
-        this.store.dispatch(createMultipleExaminerCouncil({ payload }));
+        this.#store.dispatch(ExaminerCouncilActions.createMultipleExaminerCouncil({ payload }));
     }
 
     onSearchUser(groupIndex: number) {
@@ -235,7 +255,7 @@ export class ExaminerCouncilSetupComponent {
             && departmentId.value && semesterId.value
             && ( this.currentDepartment !== departmentId.value
                 || this.currentSemester !== semesterId.value )) {
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzWidth: 400,
                 nzContent: ConfirmComponent,
                 nzFooter: null,
@@ -273,7 +293,7 @@ export class ExaminerCouncilSetupComponent {
     }
 
     private getAllProjects() {
-        this.store.dispatch(loadAllProjects({
+        this.#store.dispatch(ExaminerCouncilActions.loadAllProject({
             payload: {
                 departmentId: this.currentDepartment,
                 semesterId: this.currentSemester,
@@ -281,17 +301,18 @@ export class ExaminerCouncilSetupComponent {
                 status: ProjectStatus.IN_REVIEW
             }
         }));
-        this.store.select(selectIsLoaded)
+        this.#store.select(selectIsLoaded)
             .pipe(
                 filter<boolean>(isLoaded => isLoaded),
                 take(1),
-                withLatestFrom(this.store.select(selectProjects))
+                withLatestFrom(this.#store.select(selectProjects))
             ).subscribe(([ _, projects ]) => {
             if (!projects.length) {
-                this.notification.warning('Không còn đề tài nào chưa có hội đồng.');
+                this.#notification.warning('Không còn đề tài nào chưa có hội đồng.');
+                this.formComponent?.markAsDirty();
                 return;
             }
-            const ref = this.modal.create({
+            const ref = this.#modal.create({
                 nzContent: this.confirmContent,
                 nzFooter: null,
                 nzMaskClosable: false,
@@ -333,7 +354,4 @@ export class ExaminerCouncilSetupComponent {
                 }
             });
     }
-
-    protected readonly RO_REVIEWER_STAFF = RO_REVIEWER_STAFF;
-    protected readonly RO_MANAGER_STAFF = RO_MANAGER_STAFF;
 }

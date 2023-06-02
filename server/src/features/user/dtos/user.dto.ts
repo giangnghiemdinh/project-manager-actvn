@@ -1,7 +1,12 @@
 import { AbstractDto } from '../../../common/abstracts';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { UserEntity } from '../models';
-import { Gender, Role, TwoFactoryMethod } from '../../../common/constants';
+import {
+  Gender,
+  Rank,
+  Role,
+  TwoFactoryMethod,
+} from '../../../common/constants';
 import { ProjectDto } from '../../project/dtos';
 
 export class UserDto extends AbstractDto {
@@ -22,6 +27,9 @@ export class UserDto extends AbstractDto {
 
   @ApiPropertyOptional()
   gender?: Gender;
+
+  @ApiPropertyOptional()
+  rank?: Rank;
 
   @ApiPropertyOptional()
   birthday?: Date;
@@ -52,6 +60,7 @@ export class UserDto extends AbstractDto {
     this.phone = user.phone;
     this.isActive = user.isActive;
     this.gender = user.gender;
+    this.rank = user.rank;
     this.birthday = user.birthday;
     this.address = user.address;
     this.workPlace = user.workPlace;

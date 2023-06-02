@@ -12,15 +12,15 @@ import { Store } from '@ngrx/store';
 @Injectable()
 export class UserEffects extends AbstractEffects {
 
-    private readonly authStore = inject(Store<AuthState>);
-    private readonly userService = inject(UserService);
+    readonly #authStore = inject(Store<AuthState>);
+    readonly #userService = inject(UserService);
 
     loadUsers$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UserActions.loadUsers),
             concatLatestFrom(() => this.routerStore.select(selectQueryParams)),
             mergeMap(([_, queryParams]) =>
-                this.userService.getUsers(queryParams).pipe(
+                this.#userService.getUsers(queryParams).pipe(
                     map((response) => UserActions.loadUsersSuccess({ response })),
                     catchError(errors => of(UserActions.loadUsersFailure({ errors })))
                 )
@@ -33,7 +33,7 @@ export class UserEffects extends AbstractEffects {
             ofType(UserActions.loadUser),
             map(action => action.payload),
             mergeMap((payload) =>
-                this.userService.getUser(payload.id).pipe(
+                this.#userService.getUser(payload.id).pipe(
                     map((response: User) => UserActions.loadUserSuccess({ response })),
                     catchError(errors => of(UserActions.loadUserFailure({ errors })))
                 )
@@ -46,7 +46,7 @@ export class UserEffects extends AbstractEffects {
             ofType(UserActions.createUser),
             map(action => action.payload),
             mergeMap((payload: User) =>
-                this.userService.createUser(payload).pipe(
+                this.#userService.createUser(payload).pipe(
                     map((response: User) => UserActions.createUserSuccess({ response })),
                     catchError(errors => of(UserActions.createUserFailure({ errors })))
                 )
@@ -69,7 +69,7 @@ export class UserEffects extends AbstractEffects {
             ofType(UserActions.updateUser),
             map(action => action.payload),
             mergeMap(payload =>
-                this.userService.updateUser(payload).pipe(
+                this.#userService.updateUser(payload).pipe(
                     map(response => UserActions.updateUserSuccess({ response })),
                     catchError(errors => of(UserActions.updateUserFailure({ errors })))
                 )
@@ -80,11 +80,11 @@ export class UserEffects extends AbstractEffects {
     updateUserSuccess$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UserActions.updateUserSuccess),
-            concatLatestFrom(_ => this.authStore.select(selectProfile)),
+            concatLatestFrom(_ => this.#authStore.select(selectProfile)),
             map(([res, profile]) => {
                 this.raiseSuccess('Cập nhật người dùng thành công.');
                 if (profile && res.response && res.response.id === profile.id) {
-                    this.authStore.dispatch(AuthActions.updateProfile({ profile: res.response }));
+                    this.#authStore.dispatch(AuthActions.updateProfile({ profile: res.response }));
                 }
                 return UserActions.loadUsers();
             }),
@@ -96,7 +96,7 @@ export class UserEffects extends AbstractEffects {
             ofType(UserActions.changeStatusUser),
             map(action => action.payload),
             mergeMap((payload) =>
-                this.userService.changeStatus(payload.id, payload.status).pipe(
+                this.#userService.changeStatus(payload.id, payload.status).pipe(
                     map(_ => UserActions.changeStatusUserSuccess()),
                     catchError(errors => of(UserActions.changeStatusUserFailure({ errors })))
                 )
@@ -119,7 +119,7 @@ export class UserEffects extends AbstractEffects {
             ofType(UserActions.importUser),
             map(action => action.payload),
             mergeMap((payload) =>
-                this.userService.importUser(payload).pipe(
+                this.#userService.importUser(payload).pipe(
                     map(_ => UserActions.importUserSuccess()),
                     catchError(errors => of(UserActions.importUserFailure({ errors })))
                 )

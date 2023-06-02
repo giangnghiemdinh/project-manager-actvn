@@ -101,6 +101,7 @@ export class UserService {
         'user.isActive',
         'user.lastLogin',
         'user.role',
+        'user.rank',
       ]);
 
     if (pageOptionsDto.q) {
@@ -193,7 +194,8 @@ export class UserService {
     }
 
     delete request.avatarFile;
-    request.password = randomString(8);
+    const isRandomPass = this.configService.isRandomPass;
+    request.password = isRandomPass ? randomString(8) : '123456';
 
     const user = this.userRepository.create(request);
     await this.userRepository.insert(user);
@@ -208,10 +210,10 @@ export class UserService {
         },
         userId: currentUser.id,
       },
-      { delay: 1000, removeOnComplete: true },
+      1000,
     );
 
-    if (this.configService.isEmailCreNotification) {
+    if (isRandomPass) {
       await this.queueService.addMail(EMAIL_CRE_PROCESS, {
         email: request.email,
         password: request.password,

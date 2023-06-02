@@ -13,6 +13,7 @@ export interface User {
     workPlace?: string;
     lastLogin?: Date;
     role?: Role;
+    rank?: string;
     avatarFile?: any;
     twoFactory?: TwoFactorMethod;
 }

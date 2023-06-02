@@ -40,7 +40,7 @@ export class SemesterManagementComponent {
     semester$ = this.#store.select(selectSemester);
     isLoading$ = this.#store.select(selectIsLoading);
     isVisible$ = this.#store.select(selectIsVisible);
-    title = 'Quản lý học kỳ';
+    title = 'Danh sách học kỳ';
 
     constructor() {
         setTitle(this.title);

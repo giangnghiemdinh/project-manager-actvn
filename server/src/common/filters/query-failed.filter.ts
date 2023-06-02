@@ -17,19 +17,13 @@ export class QueryFailedFilter implements ExceptionFilter<QueryFailedError> {
     let message = '';
 
     switch (exception.driverError?.code) {
-      case 'ER_PARSE_ERROR': // Truy vấn thất bại do lỗi cú pháp SQL
-        status = HttpStatus.BAD_REQUEST;
-        message = 'Invalid SQL syntax';
-        break;
-      case 'ER_NO_REFERENCED_ROW': // Truy vấn thất bại do lỗi ràng buộc khóa ngoại
-        status = HttpStatus.BAD_REQUEST;
-        message =
-          exception.driverError?.sqlMessage || 'Foreign key constraint failed';
-        break;
       case 'ER_DUP_ENTRY': // Truy vấn thất bại do lỗi trùng lặp khóa chính
         status = HttpStatus.CONFLICT;
-        message = exception.driverError?.sqlMessage || 'Duplicate entry';
+        message = 'Dữ liệu đã tồn tại!';
         break;
+      default:
+        status = HttpStatus.BAD_REQUEST;
+        message = 'Có lỗi xảy ra! Vui lòng thử lại sau.';
     }
 
     response.status(status).json({

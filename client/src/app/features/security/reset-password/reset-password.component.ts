@@ -21,12 +21,12 @@ import { LetDirective } from '../../../core-ui/directives';
     templateUrl: './reset-password.component.html',
 })
 export class ResetPasswordComponent {
-    private readonly routerStore = inject(Store<RouterReducerState>);
-    private readonly store = inject(Store<AuthState>);
+    readonly #routerStore = inject(Store<RouterReducerState>);
+    readonly #store = inject(Store<AuthState>);
     passwordVisible = false;
     confirmPasswordVisible = false;
-    queryParams$ = this.routerStore.select(selectQueryParams);
-    errors$ = this.store.select(selectAuthErrors);
+    queryParams$ = this.#routerStore.select(selectQueryParams);
+    errors$ = this.#store.select(selectAuthErrors);
     form = new FormGroup({
         password: new FormControl('', [ Validators.required, NoWhitespaceValidator() ]),
         confirmPassword: new FormControl('', [ Validators.required, NoWhitespaceValidator() ])
@@ -34,7 +34,7 @@ export class ResetPasswordComponent {
 
     constructor() {
         setTitle('Đổi mật khẩu');
-        this.store.dispatch(AuthActions.clearErrors());
+        this.#store.dispatch(AuthActions.clearErrors());
     }
 
     onReset(params: Params) {
@@ -44,6 +44,6 @@ export class ResetPasswordComponent {
             return;
         }
         const { code, email } = params;
-        this.store.dispatch(AuthActions.resetPassword({ payload: { code, email, password: value.password || '' } }));
+        this.#store.dispatch(AuthActions.resetPassword({ payload: { code, email, password: value.password || '' } }));
     }
 }

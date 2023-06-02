@@ -1,15 +1,15 @@
 import { Component, EventEmitter, inject, Input, Output, TemplateRef, ViewChild } from '@angular/core';
-import { Department, Project } from '../../../../common/models';
+import { Department, Project, Semester } from '../../../../common/models';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { FormComponent } from '../../../../core-ui/components';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
-import { Semester } from '../../../../common/models/semester.model';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { FormsModule } from '@angular/forms';
 import { take } from 'rxjs';
+import { RankFullNamePipe } from '../../../../core-ui/pipes';
 
 @Component({
     selector: 'app-project-approve-form',
@@ -24,12 +24,13 @@ import { take } from 'rxjs';
         NzFormModule,
         NzInputModule,
         FormsModule,
-        DatePipe
+        DatePipe,
+        RankFullNamePipe
     ],
     templateUrl: './project-approve-form.component.html',
 })
 export class ProjectApproveFormComponent {
-    private readonly modal = inject(NzModalService);
+    readonly #modal = inject(NzModalService);
     @ViewChild('refuseContent') refuseContent!: TemplateRef<any>;
     @Input() isVisible: boolean | null = false;
     @Input() isLoading: boolean | null = false;
@@ -40,7 +41,7 @@ export class ProjectApproveFormComponent {
     @Output() ok = new EventEmitter();
 
     onRefuse() {
-        const ref = this.modal.create({
+        const ref = this.#modal.create({
             nzContent: this.refuseContent,
             nzFooter: null,
             nzMaskClosable: false,

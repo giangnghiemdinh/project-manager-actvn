@@ -20,7 +20,7 @@ export const RO_MANAGER_STAFF = 'manager-staff-management';
 export const RO_REVIEWER_STAFF = 'reviewer-staff-management';
 export const RO_EXAMINER_COUNCIL = 'council-management';
 export const RO_GENERAL_STATISTIC = 'general-statistic';
-export const RO_PROFILE = 'profile'
+export const RO_PROFILE = 'profile';
 
 export const RO_ERROR_403 = '403';
 

@@ -13,21 +13,21 @@ import {
 } from '@angular/core';
 import { NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { NzTableModule } from 'ng-zorro-antd/table';
-import { TableColumnDirective } from './directives/table-column.directive';
 import { SortOrderPipe } from './pipes/sort-order.pipe';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { filter, map, merge, ReplaySubject, takeUntil } from 'rxjs';
 import { media } from '../../../common/utilities';
-import { GetPipe } from './directives/get.pipe';
 import { MetaPagination } from '../../../common/models';
 import { NzTableSize } from 'ng-zorro-antd/table/src/table.types';
 import { CallbackFnPipe } from './pipes/callback-fn.pipe';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
+import { IndexPipe } from './pipes/index.pipe';
+import { GetPipe, TableColumnDirective } from './directives';
 
 @Component({
     selector: 'app-table',
     standalone: true,
-    imports: [ NzTableModule, NgIf, NgForOf, SortOrderPipe, NgTemplateOutlet, NzPaginationModule, GetPipe, CallbackFnPipe, NgClass ],
+    imports: [ NzTableModule, NgIf, NgForOf, SortOrderPipe, NgTemplateOutlet, NzPaginationModule, GetPipe, CallbackFnPipe, NgClass, IndexPipe ],
     templateUrl: './table.component.html'
 })
 export class TableComponent implements AfterContentInit, OnDestroy, OnChanges {
@@ -36,6 +36,7 @@ export class TableComponent implements AfterContentInit, OnDestroy, OnChanges {
     private media$ = new ReplaySubject<void>(1);
     @Input() isLoading: boolean | null = false;
     @Input() data: any = [];
+    @Input() showIndex = true;
     @Input() outerBordered = true;
     @Input() bordered = false;
     @Input() showPagination = true;
@@ -100,7 +101,7 @@ export class TableComponent implements AfterContentInit, OnDestroy, OnChanges {
 
     onPageIndexChange(index: number) {
         this.pageIndexChange.emit(index);
-        this.pageChanges.emit({ index, size: this.pagination?.limit || 10 });
+        this.pageChanges.emit({ index, size: this.pagination?.limit || 20 });
     }
 
     onPageSizeChange(size: number) {

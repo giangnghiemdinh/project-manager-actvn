@@ -22,4 +22,4 @@ export const DepartmentActions = createActionGroup({
         'Delete Department Success': emptyProps(),
         'Delete Department Failure': props<{ errors: any }>()
     }
-})
+});

@@ -1,7 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { AbstractState } from '../../../common/abstracts';
 import { MetaPagination, Project } from '../../../common/models';
-import * as projectApproveActions from './project-approve.actions';
+import { ProjectApproveActions } from './project-approve.actions';
 
 export interface ProjectApproveState extends AbstractState {
   projects: Project[],
@@ -24,19 +24,19 @@ export const projectApproveFeature = createFeature({
   reducer: createReducer(
     initialState,
 
-    on(projectApproveActions.updateVisible, (state, { isVisible }) => ({
+    on(ProjectApproveActions.updateVisible, (state, { isVisible }) => ({
       ...state,
       isVisible,
       project: isVisible ? null : state.project,
     })),
 
-    on(projectApproveActions.loadProjects, (state) => ({
+    on(ProjectApproveActions.loadProjects, (state) => ({
       ...state,
       errors: null,
       isLoading: true,
     })),
 
-    on(projectApproveActions.loadProjectsSuccess, (state, { response }) => ({
+    on(ProjectApproveActions.loadProjectsSuccess, (state, { response }) => ({
       ...state,
       projects: response.data,
       pagination: response.meta,
@@ -44,13 +44,13 @@ export const projectApproveFeature = createFeature({
       isLoading: false,
     })),
 
-    on(projectApproveActions.loadProjectsFailure, (state, { errors }) => ({
+    on(ProjectApproveActions.loadProjectsFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,
     })),
 
-    on(projectApproveActions.loadProject, (state) => ({
+    on(ProjectApproveActions.loadProject, (state) => ({
       ...state,
       project: null,
       errors: null,
@@ -58,7 +58,7 @@ export const projectApproveFeature = createFeature({
       isLoading: true,
     })),
 
-    on(projectApproveActions.loadProjectSuccess, (state, { response }) => ({
+    on(ProjectApproveActions.loadProjectSuccess, (state, { response }) => ({
       ...state,
       project: response,
       errors: null,
@@ -66,26 +66,26 @@ export const projectApproveFeature = createFeature({
       isLoading: false,
     })),
 
-    on(projectApproveActions.loadProjectFailure, (state, { errors }) => ({
+    on(ProjectApproveActions.loadProjectFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,
     })),
 
-    on(projectApproveActions.approveProject, (state) => ({
+    on(ProjectApproveActions.approveProject, (state) => ({
       ...state,
       errors: null,
       isLoading: true,
     })),
 
-    on(projectApproveActions.approveProjectSuccess, (state, { response }) => ({
+    on(ProjectApproveActions.approveProjectSuccess, (state, { response }) => ({
       ...state,
       errors: null,
       isVisible: false,
       isLoading: false,
     })),
 
-    on(projectApproveActions.approveProjectFailure, (state, { errors }) => ({
+    on(ProjectApproveActions.approveProjectFailure, (state, { errors }) => ({
       ...state,
       errors,
       isLoading: false,

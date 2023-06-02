@@ -9,8 +9,8 @@ import {
     RadioDirective
 } from '../../../../core-ui/components';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ProjectProgress } from '../../../../common/models/project-progress.model';
-import { ProjectProgressType } from '../../../../common/constants/project.constant';
+import { ProjectProgress } from '../../../../common/models';
+import { ProjectProgressType } from '../../../../common/constants';
 import { NgIf } from '@angular/common';
 
 @Component({
