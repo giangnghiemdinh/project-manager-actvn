@@ -7,14 +7,6 @@
                     { title: 'Danh sách đề tài', url: '/project-management' },
                     { title: project.name || '' }
                  ]">
-                <div class="flex justify-end items-center gap-2">
-                    <button class="flex items-center justify-center w-[100px]"
-                            nzSize="large" nz-button nzType="default"
-                            routerLink="/project-management">
-                        <i class='bx bx-chevron-left text-lg'></i>
-                        <span class="mr-1.5">Quay lại</span>
-                    </button>
-                </div>
             </app-toolbar>
 
             <div class="flex flex-col gap-4 md:gap-6 mb-4 md:mb-6 items-center">
@@ -553,3 +545,19 @@
         </ng-container>
     </nz-spin>
 </div>
+
+<ng-container *footer>
+    <div class="container mx-auto">
+        <div class="flex justify-center">
+            <div class="w-full lg:w-4/5 2xl:w-3/5 flex justify-between items-center">
+                <button class="flex items-center justify-center w-[100px]"
+                        nzSize="large" nz-button nzType="default"
+                        routerLink="/project-management">
+                    <i class='bx bx-chevron-left text-lg'></i>
+                    <span class="mr-1.5">Quay lại</span>
+                </button>
+                <div></div>
+            </div>
+        </div>
+    </div>
+</ng-container>

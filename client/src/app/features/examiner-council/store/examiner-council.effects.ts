@@ -105,7 +105,7 @@ export class ExaminerCouncilEffects extends AbstractEffects {
             this.actions$.pipe(
                 ofType(ExaminerCouncilActions.createMultipleExaminerCouncilSuccess),
                 tap(_ => {
-                    this.raiseSuccess('Thành lập hội đồng quản lý thành công.');
+                    this.raiseSuccess('Thành lập danh sách hội đồng thành công.');
                     this.#router.navigate(['/' + RO_EXAMINER_COUNCIL]).then();
                 }),
             ),

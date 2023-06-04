@@ -38,6 +38,7 @@ import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { RouterLink } from '@angular/router';
+import { FooterDirective } from '../../../../core-ui/directives';
 
 @Component({
     selector: 'app-reviewer-staff-mass',
@@ -64,7 +65,8 @@ import { RouterLink } from '@angular/router';
         TableComponent,
         ToolbarComponent,
         RouterLink,
-        FormsModule
+        FormsModule,
+        FooterDirective
     ],
     templateUrl: './reviewer-staff-mass.component.html',
 })
@@ -237,7 +239,7 @@ export class ReviewerStaffMassComponent {
                 withLatestFrom(this.#store.select(selectProjects))
             ).subscribe(([ _, projects ]) => {
             if (!projects.length) {
-                this.#notification.warning('Không còn đề tài nào chưa có nhóm.');
+                this.#notification.warning('Không còn đề tài nào chưa chấm phản biện.');
                 this.formComponent?.markAsDirty();
                 return;
             }

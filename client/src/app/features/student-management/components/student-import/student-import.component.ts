@@ -41,7 +41,7 @@ export class StudentImportComponent implements OnChanges {
         next: () => item.onSuccess!('', item.file, '')
     });
 
-    remove = (file: NzUploadFile) => {
+    customRemove = (file: NzUploadFile) => {
         this.files = [];
         return true;
     };
@@ -76,7 +76,7 @@ export class StudentImportComponent implements OnChanges {
 
     onFileChanges(event: NzUploadChangeParam) {
         const { file, fileList } = event;
-        this.files = [ file ];
+        file.status == 'done' && (this.files = [ file ]);
     }
 
     onImport() {

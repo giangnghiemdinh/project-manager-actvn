@@ -1,4 +1,14 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { Department, User } from '../../../common/models';
 import { Genders, Ranks, Roles } from '../../../common/constants';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -35,6 +45,7 @@ import { getBase64 } from '../../../common/utilities';
 })
 export class UserFormComponent implements OnChanges {
     readonly #notification = inject(NotificationService);
+    readonly #cdr = inject(ChangeDetectorRef);
 
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
@@ -53,11 +64,14 @@ export class UserFormComponent implements OnChanges {
     defaultAvatarUrl = 'assets/images/avatars/default-avatar.jpg';
 
     ngOnChanges(changes: SimpleChanges): void {
-        const { user } = changes;
+        const { user, isVisible } = changes;
         if (user) {
             this.avatar = this.user && this.user.avatar
                 ? { id: this.user.avatar }
                 : null;
+        }
+        if (isVisible && this.isVisible) {
+            this.#cdr.detectChanges();
         }
     }
 
@@ -81,6 +95,7 @@ export class UserFormComponent implements OnChanges {
 
     onRemoveAvatar() {
         this.avatar = null;
+        this.formComponent?.markAsDirty();
     }
 
     async onFileChange(event: any) {
@@ -103,6 +118,7 @@ export class UserFormComponent implements OnChanges {
                 base64: await getBase64(file) + '',
                 id: this.avatar?.id || undefined
             };
+            this.formComponent?.markAsDirty();
         }
         event.target.value = '';
     }

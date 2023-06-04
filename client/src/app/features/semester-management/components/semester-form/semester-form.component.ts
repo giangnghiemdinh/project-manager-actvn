@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { FormComponent, FormDateComponent, FormTextComponent } from '../../../../core-ui/components';
 import { Semester } from '../../../../common/models';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -18,13 +28,22 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
         NzButtonModule
     ]
 })
-export class SemesterFormComponent {
+export class SemesterFormComponent implements OnChanges {
+
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isVisible: boolean | null = false;
     @Input() isLoading: boolean | null = false;
     @Input() semester: Semester | null = null;
     @Output() ok = new EventEmitter();
     @Output() cancel = new EventEmitter();
+
+    ngOnChanges(changes: SimpleChanges): void {
+        const { isVisible } = changes;
+        if (isVisible && this.isVisible) {
+            this.#cdr.detectChanges();
+        }
+    }
 
     onCancel() {
         this.cancel.emit();

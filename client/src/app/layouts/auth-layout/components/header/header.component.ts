@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { LAYOUT_CONFIG } from '../../../../common/constants';
 import { LetDirective } from '../../../../core-ui/directives';
-import { interval, map, startWith } from 'rxjs';
+import { filter, interval, map, startWith } from 'rxjs';
 import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import { User } from '../../../../common/models';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { DriverUrlPipe, RolePipe } from '../../../../core-ui/pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { NavigationCancel, NavigationEnd, NavigationStart, Router, RouterLink } from '@angular/router';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { MenuComponent } from '../menu/menu.component';
 
@@ -31,6 +31,7 @@ import { MenuComponent } from '../menu/menu.component';
     ]
 })
 export class HeaderComponent {
+    readonly #router = inject(Router);
     @Input() profile: User | null = null;
     @Input() isFixedSidebar = false;
     @Input() isDesktop = true;
@@ -43,4 +44,10 @@ export class HeaderComponent {
             map(_ => new Date()),
             takeUntilDestroyed()
         );
+    isNavigating$ = this.#router.events.pipe(
+        filter(event => event instanceof NavigationStart
+            || event instanceof NavigationCancel
+            || event instanceof NavigationEnd),
+        map(event => event instanceof NavigationStart)
+    );
 }

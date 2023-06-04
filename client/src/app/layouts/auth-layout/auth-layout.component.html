@@ -11,13 +11,15 @@
         <div class="flex flex-col flex-[1_auto] transition-all duration-300"
              [style.margin-top.px]="CONFIG.HEADER.HEIGHT"
              [style.margin-left.px]="isDesktop ? (isFixedSidebar ? CONFIG.SIDEBAR.WIDTH : CONFIG.SIDEBAR.MIN_WIDTH) : 0">
-            <div class="flex flex-col flex-[1_auto] lg:py-6 py-3 px-4 lg:px-8">
+            <div class="flex flex-col flex-[1_auto] lg:py-6 py-3 px-4 lg:px-8 mb-11">
                 <router-outlet/>
             </div>
+            <app-footer [templateRef]="footer"
+                        [left]="isDesktop ? (isFixedSidebar ? CONFIG.SIDEBAR.WIDTH : CONFIG.SIDEBAR.MIN_WIDTH) : 0"/>
         </div>
         <nz-back-top [nzTemplate]="tpl">
             <ng-template #tpl>
-                <i class='bx bx-vertical-top'></i>
+                <i class='bx bx-up-arrow-alt'></i>
             </ng-template>
         </nz-back-top>
     </div>

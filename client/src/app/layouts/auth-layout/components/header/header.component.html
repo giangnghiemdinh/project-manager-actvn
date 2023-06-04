@@ -62,6 +62,11 @@
             </nz-dropdown-menu>
         </div>
     </div>
+    <div class="absolute -bottom-1 h-1 left-0 right-0 overflow-hidden" *ngIf="isNavigating$ | async">
+        <div class="w-full h-1 absolute inset-0 bg-blue-300 opacity-40"></div>
+        <div class="w-full h-1 absolute progress-bar-increase bg-blue-300 rounded-md"></div>
+        <div class="w-full h-1 absolute progress-bar-decrease bg-blue-300 rounded-md"></div>
+    </div>
 </div>
 
 <nz-drawer #drawer

@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import {
@@ -26,6 +36,7 @@ import { rankFullName } from '../../../../common/utilities';
 })
 export class ProjectFormComponent implements OnChanges {
 
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -43,12 +54,12 @@ export class ProjectFormComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         const { project, isVisible } = changes;
-        if (isVisible && !this.isVisible) {
-            timer(200).subscribe(_ => {
+        if (isVisible) {
+            !this.isVisible ? timer(200).subscribe(_ => {
                 this.instructor = null;
                 this.students = [];
                 this.formComponent?.enable();
-            });
+            }) : this.#cdr.detectChanges();
         }
         if (project && this.project) {
             const project = cloneDeep(this.project)

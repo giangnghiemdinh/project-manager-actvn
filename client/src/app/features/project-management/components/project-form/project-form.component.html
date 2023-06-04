@@ -17,7 +17,6 @@
                     <app-form-select control="semesterId" label="Học kì"
                                      selectValue="id" selectLabel="name"
                                      selectDisabled="isLocked"
-                                     [clearOnDestroy]="true"
                                      [validators]="{ required: true }"
                                      [options]="semesters || []"/>
                     <app-form-text control="instructorName" label="Người hướng dẫn"
@@ -52,7 +51,9 @@
             </ng-container>
             <ng-template #allowEditTmpl>
                 <button class="flex items-center justify-center gap-2"
-                        nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                        nzSize="large" nz-button nzType="primary"
+                        [disabled]="isLoading || (!!formComponent && formComponent.isPristine)"
+                        [nzLoading]="isLoading" (click)="onSave()">
                     Lưu
                     <i class='bx bx-save text-lg'></i>
                 </button>

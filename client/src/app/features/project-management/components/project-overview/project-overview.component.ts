@@ -12,7 +12,7 @@ import { RouterReducerState } from '@ngrx/router-store';
 import { ProjectActions } from '../../store/project.actions';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { ProgressDetailPipe } from './progress-detail.pipe';
-import { DestroyDirective, LetDirective } from '../../../../core-ui/directives';
+import { DestroyDirective, FooterDirective, LetDirective } from '../../../../core-ui/directives';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { Title } from '@angular/platform-browser';
@@ -21,7 +21,7 @@ import { handleTitle } from '../../../../common/utilities';
 @Component({
     selector: 'app-project-overview',
     standalone: true,
-    imports: [ ProjectStatusPipe, ToolbarComponent, NgClass, NgIf, NzSpinModule, AsyncPipe, NgForOf, ProgressDetailPipe, LetDirective, NzToolTipModule, NzButtonModule, RouterLink, RankFullNamePipe ],
+    imports: [ ProjectStatusPipe, ToolbarComponent, NgClass, NgIf, NzSpinModule, AsyncPipe, NgForOf, ProgressDetailPipe, LetDirective, NzToolTipModule, NzButtonModule, RouterLink, RankFullNamePipe, FooterDirective ],
     templateUrl: './project-overview.component.html',
     hostDirectives: [ DestroyDirective ],
 })

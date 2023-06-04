@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Ranks } from '../../common/constants';
+import { isNil } from 'lodash';
 
 @Pipe({
     name: 'rank',
@@ -8,7 +9,7 @@ import { Ranks } from '../../common/constants';
 export class RankPipe implements PipeTransform {
 
     transform(value?: string): string {
-        if (!value) { return ''; }
+        if (isNil((value))) { return ''; }
         return Ranks.find(r => r.value == value)?.label || '';
     }
 

@@ -112,7 +112,7 @@ export class AuthEffects extends AbstractEffects {
             this.actions$.pipe(
                 ofType(AuthActions.logout),
                 mergeMap(_ => this.#authService.logout()),
-                tap(_ => {
+                tap(() => {
                     clearToken();
                     this.#router.navigate([RO_LOGIN_FULL]).then();
                 })

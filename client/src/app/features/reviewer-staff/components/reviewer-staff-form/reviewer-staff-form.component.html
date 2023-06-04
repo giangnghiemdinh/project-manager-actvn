@@ -69,7 +69,9 @@
                 <span class="mr-1.5">Quay lại</span>
             </button>
             <button class="flex items-center justify-center gap-2"
-                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                    nzSize="large" nz-button nzType="primary"
+                    [disabled]="isLoading || (!!formComponent && formComponent.isPristine)"
+                    [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
                 <i class='bx bx-save text-lg'></i>
             </button>

@@ -205,6 +205,7 @@ export class FormComponent implements OnChanges, OnDestroy, AfterViewInit {
         if (!formControl) { return; }
         this.log(`Set value ${control} | ${JSON.stringify(value)}`);
         formControl.setValue(value);
+        formControl.markAsDirty();
     }
 
     reset() {

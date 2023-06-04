@@ -35,7 +35,7 @@
                     [nzFileList]="files"
                     [nzShowUploadList]="{ showRemoveIcon: true, showDownloadIcon: false }"
                     [nzAccept]="['.xlsx', '.xls']"
-                    [nzRemove]="remove"
+                    [nzRemove]="customRemove"
                     [nzCustomRequest]="customRequest"
                     (nzChange)="onFileChanges($event)">
                 <p>
@@ -54,7 +54,7 @@
                 <span class="mr-1.5">Quay lại</span>
             </button>
             <button class="flex items-center justify-center gap-2"
-                    nz-button nzSize="large" nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onImport()">
+                    nz-button nzSize="large" nzType="primary" [disabled]="isLoading || !files.length" [nzLoading]="isLoading" (click)="onImport()">
                 Nhập dữ liệu
                 <i class='bx bx-save text-lg'></i>
             </button>

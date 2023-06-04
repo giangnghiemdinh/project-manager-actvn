@@ -39,7 +39,10 @@
                                         <div class="editable-cell" [hidden]="editId === row.userId" (click)="editId = row.userId">
                                             {{ row?.position | councilPosition }}
                                         </div>
-                                        <nz-select class="w-full" [(ngModel)]="row.position" [hidden]="editId !== row.userId" (ngModelChange)="editId = null">
+                                        <nz-select class="w-full"
+                                                   [(ngModel)]="row.position"
+                                                   [hidden]="editId !== row.userId"
+                                                   (ngModelChange)="editId = null; formComponent.markAsDirty();">
                                             <nz-option *ngFor="let position of positions"
                                                        [nzValue]="position.value" [nzLabel]="position.label"
                                             ></nz-option>
@@ -110,7 +113,9 @@
                 <span class="mr-1.5">Quay lại</span>
             </button>
             <button class="flex items-center justify-center gap-2"
-                    nzSize="large" nz-button nzType="primary" [disabled]="isLoading" [nzLoading]="isLoading" (click)="onSave()">
+                    nzSize="large" nz-button nzType="primary"
+                    [disabled]="isLoading || (!!formComponent && formComponent.isPristine)"
+                    [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
                 <i class='bx bx-save text-lg'></i>
             </button>

@@ -82,7 +82,7 @@ export class ProjectImportComponent implements OnChanges {
 
     onFileChanges(event: NzUploadChangeParam) {
         const { file, fileList } = event;
-        this.files = [ file ];
+        file.status == 'done' && (this.files = [ file ]);
     }
 
     onCancel() {

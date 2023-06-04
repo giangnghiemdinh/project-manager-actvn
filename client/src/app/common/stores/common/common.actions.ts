@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { Department, PaginationPayload, PaginationResponse, Semester, Student, User } from '../../models';
+import { Department, Semester } from '../../models';
 
 export const CommonActions = createActionGroup({
     source: 'Common',
@@ -11,14 +11,6 @@ export const CommonActions = createActionGroup({
         'Load Semesters': emptyProps(),
         'Load Semesters Success': props<{ response: Semester[] }>(),
         'Load Semesters Failure': props<{ errors: any }>(),
-
-        'Search Students': props<{ payload: PaginationPayload }>(),
-        'Search Students Success': props<{ response: PaginationResponse<Student> }>(),
-        'Search Students Failure': props<{ errors: any }>(),
-
-        'Search Users': props<{ payload: PaginationPayload }>(),
-        'Search Users Success': props<{ response: PaginationResponse<User> }>(),
-        'Search Users Failure': props<{ errors: any }>()
     }
 })
 

@@ -46,6 +46,7 @@ import { RouterLink } from '@angular/router';
 import { CouncilPositionPipe } from '../../council-position.pipe';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { ExaminerCouncilActions } from '../../store/examiner-council.actions';
+import { FooterDirective } from '../../../../core-ui/directives';
 
 @Component({
     selector: 'app-manager-council-setup',
@@ -79,7 +80,8 @@ import { ExaminerCouncilActions } from '../../store/examiner-council.actions';
         CouncilPositionPipe,
         NzInputModule,
         RankFullNamePipe,
-        RankPipe
+        RankPipe,
+        FooterDirective
     ],
     templateUrl: './examiner-council-setup.component.html',
 })

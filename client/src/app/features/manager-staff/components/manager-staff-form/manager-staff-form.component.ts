@@ -1,4 +1,14 @@
-import { Component, EventEmitter, inject, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { NotificationService } from '../../../../common/services';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import {
@@ -43,8 +53,9 @@ import { rankFullName } from '../../../../common/utilities';
     ],
     templateUrl: './manager-staff-form.component.html',
 })
-export class ManagerStaffFormComponent {
+export class ManagerStaffFormComponent implements OnChanges {
 
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -70,14 +81,14 @@ export class ManagerStaffFormComponent {
 
     ngOnChanges(changes: SimpleChanges): void {
         const { managerStaff, isVisible } = changes;
-        if (isVisible && !this.isVisible) {
-            timer(200).subscribe(_ => {
+        if (isVisible) {
+            !this.isVisible ? timer(200).subscribe(_ => {
                 this.data = null;
                 this.currentDepartment = 0;
                 this.currentSemester = 0;
                 this.selectedUser = null;
                 this.selectedProjects = [];
-            });
+            }) : this.#cdr.detectChanges();
         }
         if (managerStaff && this.managerStaff) {
             this.currentDepartment = this.managerStaff.departmentId!;
@@ -165,6 +176,7 @@ export class ManagerStaffFormComponent {
     onSelectProject(projects: Project[]) {
         if (!projects.length) { return; }
         this.selectedProjects = [...this.selectedProjects, ...projects];
+        this.formComponent.markAsDirty();
     }
 
     async onRemoveProject(project: Project) {
@@ -189,6 +201,7 @@ export class ManagerStaffFormComponent {
             if (!confirm) { return; }
         }
         this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id!);
+        this.formComponent.markAsDirty();
     }
 
     onSelectUser(users: User[]) {
@@ -196,6 +209,7 @@ export class ManagerStaffFormComponent {
         const [ user ] = users;
         this.selectedUser = cloneDeep(user);
         this.formComponent?.setValue('instructorName', rankFullName(this.selectedUser));
+        this.formComponent.markAsDirty();
     }
 
     onCancel() {

@@ -35,12 +35,12 @@ import { ChangePasswordComponent } from './components/change-password/change-pas
 import { ChangeTwoFactorComponent } from './components/change-two-factor/change-two-factor.component';
 import { handleTitle } from '../../common/utilities';
 import { Title } from '@angular/platform-browser';
-import { DestroyDirective } from '../../core-ui/directives';
+import { DestroyDirective, FooterDirective } from '../../core-ui/directives';
 
 @Component({
     selector: 'app-user-profile',
     standalone: true,
-    imports: [ NgForOf, NgClass, NgIf, NzButtonModule, ToolbarComponent, UserSecurityComponent, UserSessionsComponent, UserEventsComponent, AsyncPipe, JsonPipe, NzSpinModule, DriverUrlPipe, UserFormComponent, DatePipe, RouterLink, ChangeEmailComponent, ChangePasswordComponent, ChangeTwoFactorComponent, GenderPipe, RankPipe ],
+    imports: [ NgForOf, NgClass, NgIf, NzButtonModule, ToolbarComponent, UserSecurityComponent, UserSessionsComponent, UserEventsComponent, AsyncPipe, JsonPipe, NzSpinModule, DriverUrlPipe, UserFormComponent, DatePipe, RouterLink, ChangeEmailComponent, ChangePasswordComponent, ChangeTwoFactorComponent, GenderPipe, RankPipe, FooterDirective ],
     templateUrl: './user-profile.component.html',
     hostDirectives: [ DestroyDirective ],
 })

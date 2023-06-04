@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import {
     FormCheckboxComponent,
@@ -19,8 +29,9 @@ import { NgIf } from '@angular/common';
     imports: [ NzModalModule, FormComponent, FormTextareaComponent, NzButtonModule, FormRadioComponent, RadioDirective, FormNumberComponent, NgIf, FormCheckboxComponent ],
     templateUrl: './project-review.component.html',
 })
-export class ProjectReviewComponent {
+export class ProjectReviewComponent implements OnChanges {
 
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formContainer!: FormComponent;
     @Input() report: ProjectProgress | null = null;
     @Input() isVisible: boolean | null = false;
@@ -28,6 +39,13 @@ export class ProjectReviewComponent {
     @Output() ok = new EventEmitter();
     @Output() cancel = new EventEmitter();
     type = ProjectProgressType;
+
+    ngOnChanges(changes: SimpleChanges): void {
+        const { isVisible } = changes;
+        if (isVisible && this.isVisible) {
+            this.#cdr.detectChanges();
+        }
+    }
 
     onCancel() {
         if (this.isLoading) { return; }

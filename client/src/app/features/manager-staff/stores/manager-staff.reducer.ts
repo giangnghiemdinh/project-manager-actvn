@@ -119,6 +119,24 @@ export const managerStaffFeature = createFeature({
             isLoading: false,
         })),
 
+        on(ManagerStaffActions.createMultipleManagerStaff, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(ManagerStaffActions.createMultipleManagerStaffSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: false,
+        })),
+
+        on(ManagerStaffActions.createMultipleManagerStaffFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
         on(ManagerStaffActions.updateManagerStaff, (state) => ({
             ...state,
             errors: null,

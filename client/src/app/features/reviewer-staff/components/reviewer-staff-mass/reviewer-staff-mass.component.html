@@ -5,22 +5,6 @@
                     { title: 'Danh sách GV Phản biện', url: '/' + urlReviewerStaff },
                     { title: title },
                  ]">
-        <div class="flex justify-end items-center gap-2">
-            <button class="flex items-center justify-center w-[100px]"
-                    nzSize="large" nz-button nzType="default"
-                    [routerLink]="['/' + urlReviewerStaff]"
-                    [disabled]="isLoading$ | async">
-                <i class='bx bx-chevron-left text-lg'></i>
-                <span class="mr-1.5">Quay lại</span>
-            </button>
-            <button class="flex items-center justify-center gap-2"
-                    nzSize="large" nz-button nzType="primary"
-                    [disabled]="!groups.length || (isLoading$ | async)"
-                    (click)="onSave()">
-                Lưu
-                <i class='bx bx-save text-lg'></i>
-            </button>
-        </div>
     </app-toolbar>
     <nz-spin [nzSpinning]="isLoading$ | async">
         <div class="flex flex-col xl:flex-row gap-y-4 gap-x-6">
@@ -127,10 +111,31 @@
 
 </div>
 
+<ng-container *footer>
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center gap-2">
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default"
+                    [routerLink]="['/' + urlReviewerStaff]"
+                    [disabled]="isLoading$ | async">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
+            </button>
+            <button class="flex items-center justify-center gap-2"
+                    nzSize="large" nz-button nzType="primary"
+                    [disabled]="!groups.length || (isLoading$ | async)"
+                    (click)="onSave()">
+                Lưu
+                <i class='bx bx-save text-lg'></i>
+            </button>
+        </div>
+    </div>
+</ng-container>
+
 <ng-template #confirmContent let-params let-ref="modalRef">
     <div class="flex flex-col gap-4 my-2">
         <div class="rounded-md px-4 py-2 border border-blue-300 bg-blue-200">
-            Có tất cả {{ (projects$ | async)?.length }} đề tài đủ điều kiện phản biện.
+            Có tất cả {{ (projects$ | async)?.length }} đề tài đủ điều kiện chấm phản biện.
         </div>
         <nz-form-item>
             <nz-form-label [nzSpan]="24" nzFor="permission">Hình thức tổ chức</nz-form-label>

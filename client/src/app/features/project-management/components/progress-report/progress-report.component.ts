@@ -1,4 +1,14 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NgForOf, NgIf } from '@angular/common';
@@ -31,9 +41,10 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
     ],
     templateUrl: './progress-report.component.html',
 })
-export class ProgressReportComponent {
+export class ProgressReportComponent implements OnChanges {
 
     readonly #notification = inject(NotificationService);
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() report: ProjectProgress | null = null;
     @Input() isVisible: boolean | null = false;
@@ -43,6 +54,13 @@ export class ProgressReportComponent {
     type = ProjectProgressType;
     accept = ['.pdf', '.doc', '.docx', '.zip', '.rar'];
     maxSize = 10;
+
+    ngOnChanges(changes: SimpleChanges): void {
+        const { isVisible } = changes;
+        if (isVisible && this.isVisible) {
+            this.#cdr.detectChanges();
+        }
+    }
 
     onCancel() {
         if (this.isLoading) { return; }

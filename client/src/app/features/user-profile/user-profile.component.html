@@ -8,14 +8,6 @@
                     { title: 'Danh sách người dùng', url: id ? '/user-management' : '/' },
                     { title: (user$ | async)?.fullName || '' }
                  ]">
-        <div class="flex justify-end items-center gap-2">
-            <button class="flex items-center justify-center w-[100px]"
-                    nzSize="large" nz-button nzType="default"
-                    [routerLink]="id ? '/user-management' : '/'">
-                <i class='bx bx-chevron-left text-lg'></i>
-                <span class="mr-1.5">Quay lại</span>
-            </button>
-        </div>
     </app-toolbar>
     <nz-spin [nzSpinning]="isLoading$ | async">
         <div class="flex flex-col xl:flex-row gap-y-4 gap-x-6">
@@ -100,6 +92,20 @@
         </div>
     </nz-spin>
 </div>
+
+<ng-container *footer>
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center">
+            <button class="flex items-center justify-center w-[100px]"
+                    nzSize="large" nz-button nzType="default"
+                    [routerLink]="id ? '/user-management' : '/'">
+                <i class='bx bx-chevron-left text-lg'></i>
+                <span class="mr-1.5">Quay lại</span>
+            </button>
+            <div></div>
+        </div>
+    </div>
+</ng-container>
 
 <app-user-form [isVisible]="isVisible$ | async"
                [isLoading]="isLoading$ | async"

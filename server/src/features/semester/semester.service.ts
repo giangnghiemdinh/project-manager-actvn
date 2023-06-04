@@ -141,6 +141,7 @@ export class SemesterService {
       .createQueryBuilder('semester')
       .where({ id })
       .leftJoin('semester.projects', 'project')
+      .andWhere('project.status <> :status', { status: ProjectStatus.REFUSE })
       .loadRelationCountAndMap(
         'project.reportedCount',
         'project.progresses',

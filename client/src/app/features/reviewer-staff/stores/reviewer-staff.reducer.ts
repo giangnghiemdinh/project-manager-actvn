@@ -119,6 +119,24 @@ export const reviewerStaffFeature = createFeature({
             isLoading: false,
         })),
 
+        on(ReviewerStaffActions.createMultipleReviewerStaff, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: true,
+        })),
+
+        on(ReviewerStaffActions.createMultipleReviewerStaffSuccess, (state) => ({
+            ...state,
+            errors: null,
+            isLoading: false,
+        })),
+
+        on(ReviewerStaffActions.createMultipleReviewerStaffFailure, (state, { errors }) => ({
+            ...state,
+            errors,
+            isLoading: false,
+        })),
+
         on(ReviewerStaffActions.updateReviewerStaff, (state) => ({
             ...state,
             errors: null,

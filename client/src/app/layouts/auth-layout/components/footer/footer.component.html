@@ -1,1 +1,19 @@
-<p>footer works!</p>
+<div class="min-h-[60px] flex flex-wrap justify-between items-center bg-white border-t border-gray-100 shadow lg:px-8 px-4 gap-x-2 py-1.5"
+     [ngClass]="!!templateRef ? 'fixed bottom-0 right-0 z-[100]' : ''"
+     [style.left.px]="!!templateRef ? left : 0">
+    <ng-container *ngTemplateOutlet="templateRef"></ng-container>
+    <ng-container *ngIf="!templateRef">
+        <div>
+            <span class="text-gray-400">2023© </span>
+            <a class="text-gray-800" href="https://actvn.edu.vn/" target="_blank">Học viện Kỹ thuật mật mã</a>
+        </div>
+        <div class="flex gap-2 items-center">
+            <a class="text-gray-400" href="https://actvn.edu.vn/News/ArticleByCategory?idCategory=103#" target="_blank">
+                Giới thiệu
+            </a>
+            <a class="text-gray-400" href="https://actvn.edu.vn/News/Detail?NewsId=23316" target="_blank">
+                Liên hệ
+            </a>
+        </div>
+    </ng-container>
+</div>

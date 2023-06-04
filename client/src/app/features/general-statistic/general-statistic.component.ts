@@ -17,11 +17,12 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { orderBy, sortBy } from 'lodash';
 import { debounceTime, fromEvent } from 'rxjs';
+import { CompletedRatioPipe } from './completed-ratio.pipe';
 
 @Component({
     selector: 'app-general-statistic',
     standalone: true,
-    imports: [ NzButtonModule, ToolbarComponent, NzDropDownModule, LetDirective, AsyncPipe, NgForOf, NzSpinModule, NgIf, DecimalPipe ],
+    imports: [ NzButtonModule, ToolbarComponent, NzDropDownModule, LetDirective, AsyncPipe, NgForOf, NzSpinModule, NgIf, DecimalPipe, CompletedRatioPipe ],
     templateUrl: './general-statistic.component.html',
 })
 export class GeneralStatisticComponent implements AfterViewInit {

@@ -102,6 +102,7 @@ export class FormFileComponent extends FormItemComponent {
             originObject: file
         };
         this.formControl?.setValue(f);
+        this.formControl?.markAsDirty();
         this.filesChange.emit(f);
         event.target.value = '';
     }
@@ -118,7 +119,10 @@ export class FormFileComponent extends FormItemComponent {
         this.commonService.deleteFile(value.id)
             .pipe(finalize(() => this.isDeleting = false))
             .subscribe({
-                next: _ => (this.formControl?.reset()),
+                next: _ => {
+                    this.formControl?.reset();
+                    this.formControl?.markAsDirty();
+                },
                 error: err => this.notification.error(err.message || 'Có lỗi xảy ra! Vui lòng thử lại sau.')
             });
     }

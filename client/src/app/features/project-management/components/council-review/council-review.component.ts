@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { FormComponent, FormNumberComponent } from '../../../../core-ui/components';
@@ -17,8 +27,9 @@ import { Project } from '../../../../common/models';
     ],
     templateUrl: './council-review.component.html',
 })
-export class CouncilReviewComponent {
+export class CouncilReviewComponent implements OnChanges {
 
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formContainer!: FormComponent;
     @Input() project: Project | null = null;
     @Input() isVisible: boolean | null = false;
@@ -27,6 +38,13 @@ export class CouncilReviewComponent {
     @Output() deleteFile = new EventEmitter();
     @Output() cancel = new EventEmitter();
     totalScore = 0;
+
+    ngOnChanges(changes: SimpleChanges): void {
+        const { isVisible } = changes;
+        if (isVisible && this.isVisible) {
+            this.#cdr.detectChanges();
+        }
+    }
 
     onCancel() {
         if (this.isLoading) { return; }

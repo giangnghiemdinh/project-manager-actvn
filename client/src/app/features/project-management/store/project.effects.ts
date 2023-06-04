@@ -29,7 +29,7 @@ export class ProjectEffects extends AbstractEffects {
                     map(([response, profile]) => {
                         const isAdministrator = profile?.role === Role.ADMINISTRATOR;
                         const data = response.data.map(d => {
-                            d.isInstructor = d.status === ProjectStatus.IN_PROGRESS && (isAdministrator || profile?.id === d.instructor?.id);
+                            d.isInstructor = d.managerStaff && d.status === ProjectStatus.IN_PROGRESS && (isAdministrator || profile?.id === d.instructor?.id);
                             d.isManager = d.managerStaff && d.status === ProjectStatus.IN_PROGRESS && (isAdministrator || profile?.id === d.managerStaff.userId);
                             d.isReviewer = d.reviewerStaff && d.status === ProjectStatus.IN_REVIEW && (isAdministrator || profile?.id === d.reviewerStaff.userId);
                             d.isCouncilManager = d.examinerCouncil && d.status === ProjectStatus.IN_PRESENTATION && (isAdministrator || d.examinerCouncil.users?.some(u =>

@@ -23,8 +23,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <app-form-select control="rank" label="Học hàm, học vị"
                                              [options]="ranks"
-                                             [initialValue]="''"
-                                             [validators]="{ required: true }"/>
+                                             [initialValue]="''"/>
                             <app-form-date control="birthday" label="Ngày sinh"
                                            [allowClear]="false"/>
                         </div>
@@ -59,7 +58,7 @@
             </button>
             <button class="flex items-center justify-center gap-2"
                     nzSize="large" nz-button nzType="primary"
-                    [disabled]="isLoading"
+                    [disabled]="isLoading || (!!formComponent && formComponent.isPristine)"
                     [nzLoading]="isLoading" (click)="onSave()">
                 Lưu
                 <i class='bx bx-save text-lg'></i>

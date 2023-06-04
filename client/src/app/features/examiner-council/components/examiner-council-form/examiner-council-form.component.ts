@@ -1,4 +1,14 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import {
     ConfirmComponent,
     FormComponent,
@@ -55,6 +65,7 @@ import { RankFullNamePipe, RankPipe } from '../../../../core-ui/pipes';
 export class ExaminerCouncilFormComponent implements OnChanges {
     readonly #notification = inject(NotificationService);
     readonly #modal = inject(NzModalService);
+    readonly #cdr = inject(ChangeDetectorRef);
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
     @Input() isVisible: boolean | null = false;
@@ -79,14 +90,14 @@ export class ExaminerCouncilFormComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         const { examinerCouncil, isVisible } = changes;
-        if (isVisible && !this.isVisible) {
-            timer(200).subscribe(_ => {
+        if (isVisible) {
+            !this.isVisible ? timer(200).subscribe(_ => {
                 this.data = null;
                 this.currentDepartment = 0;
                 this.currentSemester = 0;
                 this.selectedUsers = [];
                 this.selectedProjects = [];
-            });
+            }) : this.#cdr.detectChanges();
         }
         if (examinerCouncil && this.examinerCouncil) {
             this.currentDepartment = this.examinerCouncil.departmentId!;
@@ -175,6 +186,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
     onSelectProject(projects: Project[]) {
         if (!projects.length) { return; }
         this.selectedProjects = [...this.selectedProjects, ...projects];
+        this.formComponent.markAsDirty();
     }
 
     onRemoveProject(project: Project) {
@@ -183,10 +195,12 @@ export class ExaminerCouncilFormComponent implements OnChanges {
             return;
         }
         this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id);
+        this.formComponent.markAsDirty();
     }
 
     onRemoveUser(userId: number) {
         this.selectedUsers = this.selectedUsers.filter(p => p.userId !== userId);
+        this.formComponent.markAsDirty();
     }
 
     onSelectUser(users: User[]) {
@@ -194,6 +208,7 @@ export class ExaminerCouncilFormComponent implements OnChanges {
         const newUsers = users
             .map(u => ({ user: u, userId: u.id, position: ExaminerCouncilPosition.MEMBER}));
         this.selectedUsers = (uniqBy([...this.selectedUsers, ...newUsers], 'userId')).slice(0, 6);
+        this.formComponent.markAsDirty();
     }
 
     onCancel() {

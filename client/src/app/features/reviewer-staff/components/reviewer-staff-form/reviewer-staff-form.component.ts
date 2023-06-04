@@ -1,4 +1,13 @@
-import { Component, EventEmitter, inject, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    Output,
+    SimpleChanges,
+    ViewChild
+} from '@angular/core';
 import { NotificationService } from '../../../../common/services';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import {
@@ -48,6 +57,7 @@ import { RankFullNamePipe } from '../../../../core-ui/pipes';
 export class ReviewerStaffFormComponent {
     readonly #notification = inject(NotificationService);
     readonly #modal = inject(NzModalService);
+    readonly #cdr = inject(ChangeDetectorRef);
 
     @ViewChild('form') formComponent!: FormComponent;
     @Input() isLoading: boolean | null = false;
@@ -70,14 +80,14 @@ export class ReviewerStaffFormComponent {
 
     ngOnChanges(changes: SimpleChanges): void {
         const { reviewerStaff, isVisible } = changes;
-        if (isVisible && !this.isVisible) {
-            timer(200).subscribe(_ => {
+        if (isVisible) {
+            !this.isVisible ? timer(200).subscribe(_ => {
                 this.data = null;
                 this.currentDepartment = 0;
                 this.currentSemester = 0;
                 this.selectedUser = null;
                 this.selectedProjects = [];
-            });
+            }) : this.#cdr.detectChanges();
         }
         if (reviewerStaff && this.reviewerStaff) {
             this.currentDepartment = this.reviewerStaff.departmentId!;
@@ -164,6 +174,7 @@ export class ReviewerStaffFormComponent {
     onSelectProject(projects: Project[]) {
         if (!projects.length) { return; }
         this.selectedProjects = [...this.selectedProjects, ...projects];
+        this.formComponent.markAsDirty();
     }
 
     async onRemoveProject(project: Project) {
@@ -188,6 +199,7 @@ export class ReviewerStaffFormComponent {
             if (!confirm) { return; }
         }
         this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id!);
+        this.formComponent.markAsDirty();
     }
 
     onSelectUser(users: User[]) {
@@ -195,6 +207,7 @@ export class ReviewerStaffFormComponent {
         const [ user ] = users;
         this.selectedUser = cloneDeep(user);
         this.formComponent?.setValue('instructorName', rankFullName(this.selectedUser));
+        this.formComponent.markAsDirty();
     }
 
     onCancel() {

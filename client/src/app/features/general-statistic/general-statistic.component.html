@@ -70,7 +70,7 @@
                         </div>
                     </div>
                     <div class="mt-1 text-3xl font-semibold">
-                        {{ ((projectStatistic?.totalCompleted || 0) * 100 / (projectStatistic?.total || 0)) | number: '1.0-0' }}%
+                        {{ projectStatistic | completedRatio }}
                     </div>
                 </div>
                 <div class="bg-white shadow border border-gray-150 rounded-md px-6 py-4">
