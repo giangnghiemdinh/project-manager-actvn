@@ -73,14 +73,14 @@ export class EmailConsumer {
 
   @Process(EMAIL_CRE_PROCESS)
   async emailCreatedNotification(job: Job<any>) {
-    const { email, password } = job.data;
+    const { email, url } = job.data;
     await this.mailerService.sendMail({
       to: email,
       subject: 'Thông tin tài khoản | Học viện Kỹ thuật mật mã',
       template: './account-created',
       context: {
         email,
-        password,
+        url,
       },
     });
     this.logger.log(`Đã gửi email thông tin tài khoản đến ${email}`);

@@ -169,7 +169,7 @@ export class AuthService {
     );
 
     // Save this code to cache
-    await this.cacheService.set(`Forgot_Pass_${code}`, true, expireTime * 1000);
+    await this.cacheService.set(`Reset_Pass_${code}`, true, expireTime * 1000);
 
     await this.queueService.addMail(RESET_PASS_PROCESS, {
       url: `${this.configService.webHost}/public/reset-password?code=${code}&email=${userForgotDto.email}`,
@@ -182,7 +182,7 @@ export class AuthService {
   async resetPassword(userResetDto: UserResetRequestDto) {
     const verify = await this.jwtService.verifyAsync(userResetDto.code);
     const cache = await this.cacheService.get(
-      `Forgot_Pass_${userResetDto.code}`,
+      `Reset_Pass_${userResetDto.code}`,
     );
     if (
       !cache ||
@@ -191,8 +191,7 @@ export class AuthService {
       verify.expired
     ) {
       throw new ForbiddenException(null, {
-        description:
-          'Đổi mật khẩu không thành công! Liên kết hết hạn hoặc đã được sử dụng.',
+        description: 'Liên kết hết hạn hoặc đã được sử dụng!',
       });
     }
     const user = await this.userService.findByEmail(userResetDto.email);
@@ -200,7 +199,7 @@ export class AuthService {
       throw new NotFoundException('Tài khoản không tồn tại');
     }
     await this.userService.updatePassword(user.id, userResetDto.password);
-    await this.cacheService.del(`Forgot_Pass_${userResetDto.code}`);
+    await this.cacheService.del(`Reset_Pass_${userResetDto.code}`);
   }
 
   generateOtpToken(email: string, response: Response): Promise<StreamableFile> {

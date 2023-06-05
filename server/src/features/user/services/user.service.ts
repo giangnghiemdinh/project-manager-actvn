@@ -33,6 +33,7 @@ import {
   EMAIL_CRE_PROCESS,
   Role,
   RoleName,
+  TokenType,
   USER_DUPLICATE_EMAIL,
   UserStatus,
   VERIFY_EMAIL_PROCESS,
@@ -56,6 +57,7 @@ import {
   UserSessionPageResponseDto,
 } from '../dtos/user-session-page.dto';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -71,6 +73,7 @@ export class UserService {
     private readonly configService: ApiConfigService,
     private readonly driverService: DriverService,
     private readonly queueService: QueueService,
+    private readonly jwtService: JwtService,
   ) {}
 
   findByEmail(email: string): Promise<UserEntity | null> {
@@ -214,9 +217,25 @@ export class UserService {
     );
 
     if (isRandomPass) {
+      const expireTime = this.configService.authConfig.changePassExpirationTime;
+      const code = await this.jwtService.signAsync(
+        {
+          email: user.email,
+          type: TokenType.FORGOT_PASSWORD,
+        },
+        { expiresIn: expireTime },
+      );
+
+      // Save this code to cache
+      await this.cacheService.set(
+        `Reset_Pass_${code}`,
+        true,
+        expireTime * 1000,
+      );
+
       await this.queueService.addMail(EMAIL_CRE_PROCESS, {
         email: request.email,
-        password: request.password,
+        url: `${this.configService.webHost}/public/reset-password?code=${code}&email=${user.email}`,
       });
     }
 

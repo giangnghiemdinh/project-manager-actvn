@@ -70,6 +70,7 @@ export class ApiConfigService {
       jwtExpirationTime: this.getNumber('JWT_EXPIRATION_TIME'),
       refreshExpirationTime: this.getNumber('REFRESH_EXPIRATION_TIME'),
       forgotPassExpirationTime: this.getNumber('FORGOT_PASS_EXPIRATION_TIME'),
+      changePassExpirationTime: this.getNumber('CHANGE_PASS_EXPIRATION_TIME'),
     };
   }
 

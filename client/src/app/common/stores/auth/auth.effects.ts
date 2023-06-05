@@ -100,7 +100,7 @@ export class AuthEffects extends AbstractEffects {
             this.actions$.pipe(
                 ofType(AuthActions.resetPasswordSuccess),
                 tap((res) => {
-                    this.raiseSuccess('Đặt lại mật khẩu thành công.');
+                    this.raiseSuccess('Đặt mật khẩu thành công.');
                     this.#router.navigate(['/' + RO_LOGIN_FULL]).then();
                 }),
             ),
