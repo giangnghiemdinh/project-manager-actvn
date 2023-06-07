@@ -1,0 +1,202 @@
+@border-radius-base: 0.375rem;
+@arrow-border-radius: @border-radius-base;
+@form-item-margin-bottom: 0;
+@form-vertical-label-padding: 0;
+@table-border-radius-base: 0;
+
+.ant {
+    &-modal {
+        &-close {
+        @apply ~'-top-[10px]' right-1/2 translate-x-1/2 -translate-y-full;
+            &-x {
+            @apply ~'w-[30px] h-[30px] leading-[26px] hover:bg-white/80' bg-white text-sm rounded-full text-gray-600 transition-all duration-300;
+            }
+        }
+    }
+
+    &-pagination {
+        &-item-link .anticon {
+        @apply ~'align-[0.1rem]';
+        }
+    }
+
+    &-modal {
+        &-confirm .ant-modal-confirm-btns {
+        @apply mt-3;
+        }
+
+        &-body {
+        @apply overflow-x-hidden ~'max-h-[60vh] sm:max-h-[500px]' px-4 sm:px-6 pt-2 sm:pt-3 pb-3 sm:pb-4;
+            .scrollbar();
+        }
+    }
+
+    &-checkbox {
+        &-wrapper span:not(.ant-checkbox) {
+            @apply: flex-1;
+        }
+    }
+
+    &-select {
+        &-clear {
+        @apply ~'-mt-2';
+        }
+    }
+
+    &-input-group > .ant-input:first-child {
+    @apply rounded-md;
+    }
+
+    &-table {
+        &-row:hover {
+            & .action-on-hover {
+            @apply opacity-100;
+            }
+        }
+
+        &-content, &-body {
+            .scrollbar();
+        }
+
+        &.ant-table-middle .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
+        @apply m-0;
+        }
+
+    }
+
+    &-drawer {
+        &-content {
+        @apply ~'bg-[#1E1E2D]';
+        }
+        &-body {
+        @apply p-0;
+        }
+        &-header {
+        @apply ~'bg-[#1E1E2D] border-[#393945] py-2.5' px-6;
+        }
+        &-left.ant-drawer-open &-content-wrapper {
+        @apply shadow-none;
+        }
+    }
+
+    &-back-top {
+    @apply ~'h-[40px] w-[40px] leading-[40px] bg-[#1890ff] bottom-16' rounded-md text-white text-center text-xl opacity-60 transition-all duration-300 ease-linear;
+        &:hover {
+        @apply opacity-100;
+        }
+    }
+
+    &-input {
+        .scrollbar();
+    @apply resize-none;
+    }
+}
+
+.menu-active {
+@apply ~'bg-[#2A2A3C]' text-white;
+
+    &-collapsed .menu-icon {
+    @apply text-blue-500;
+    }
+}
+
+.disabled {
+@apply pointer-events-none opacity-60;
+
+    &:hover {
+    @apply ~'text-[unset]';
+    }
+}
+
+.radio-block {
+@apply ~'w-[auto] h-[40px] border-[#d9d9d9] px-[11px]' py-0 border rounded-md flex items-center bg-white;
+
+    & .ant-radio {
+    @apply top-0;
+    }
+
+    & span:not(.ant-radio) {
+    @apply whitespace-nowrap text-ellipsis;
+    }
+}
+
+.checkbox-block {
+@apply ~'w-[auto] h-[40px] border-[#d9d9d9] px-[11px]' py-0 border rounded-md flex items-center bg-white;
+
+    & .ant-checkbox {
+    @apply top-0;
+    }
+
+    & span:not(.ant-checkbox) {
+    @apply whitespace-nowrap text-ellipsis;
+    }
+}
+
+.scrollable {
+    .scrollbar();
+}
+
+.line-clamp-2 {
+@apply overflow-hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.cell-no-padding {
+    padding: 0 !important;
+}
+
+
+.scrollbar() {
+    &::-webkit-scrollbar {
+        -webkit-appearance: none;
+    @apply scroll-smooth transition-all duration-300;
+    }
+
+    &::-webkit-scrollbar:vertical {
+    @apply ~'w-[16px]';
+    }
+
+    &::-webkit-scrollbar:horizontal {
+    @apply ~'h-[16px]';
+    }
+
+    &::-webkit-scrollbar-thumb {
+    @apply ~'bg-[#d6dee1] rounded-[16px]' border-4 border-solid border-transparent bg-clip-content;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+    @apply ~'bg-[#a8bbbf]';
+    }
+    &::-webkit-scrollbar-corner {
+    @apply bg-transparent;
+    }
+}
+
+.progress-bar {
+    &-increase {
+        animation: progress-bar-increase 2s infinite;
+    }
+    &-decrease {
+        animation: progress-bar-decrease 2s 0.5s infinite;
+    }
+}
+
+@keyframes progress-bar-increase {
+    from {
+    @apply ~'-left-[5%] w-[5%]';
+    }
+    to {
+    @apply ~'left-[130%] w-full';
+    }
+}
+
+@keyframes progress-bar-decrease {
+    from {
+        @apply ~'-left-[80%] w-[80%]';
+    }
+    to {
+        @apply ~'left-[100%] w-[10%]';
+    }
+}

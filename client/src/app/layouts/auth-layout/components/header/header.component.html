@@ -1,5 +1,4 @@
-<div class="w-full z-50 fixed top-0 right-0 transition-all duration-300 shadow border-b border-gray-100"
-     [style.background-color]="CONFIG.HEADER.BACKGROUND"
+<div class="w-full z-50 fixed top-0 right-0 transition-all duration-300 shadow border-b border-gray-100 bg-white dark:bg-[#1E1E2D] dark:border-[#1E1E2D]"
      [style.height.px]="CONFIG.HEADER.HEIGHT"
      [style.margin-left.px]="isDesktop ? (isFixedSidebar
             ? CONFIG.SIDEBAR.MIN_WIDTH
@@ -19,6 +18,38 @@
 
         <!--Navbar-->
         <div class="flex items-center shrink-0 gap-1">
+            <div class="h-full flex items-center">
+                <div nz-dropdown #dropdown="nzDropdown" [nzDropdownMenu]="themeDesktopMenu" class="w-[35px] h-[35px] md:w-[40px] md:h-[40px] inline-flex outline-0 items-center justify-center cursor-pointer transition-all duration-300 rounded-md hover:bg-gray-200">
+                    <i class='text-2xl bx bx-sun'
+                       [class.bx-sun]="activeTheme !== 'dark'"
+                       [class.bx-moon]="activeTheme === 'dark'"
+                       [class.text-gray-600]="theme === 'system'"
+                       [class.text-blue-500]="theme !== 'system'"
+                    ></i>
+                </div>
+                <nz-dropdown-menu #themeDesktopMenu="nzDropdownMenu">
+                    <div class="w-[150px] bg-white border border-gray-200 rounded-md shadow-md z-[999] p-2">
+                        <div class="px-2 py-1 font-semibold rounded-md cursor-pointer transition-all duration-300 flex items-center gap-2"
+                             [ngClass]="theme === 'light' ? 'bg-gray-200 text-blue-400' : 'hover:text-blue-400 text-gray-500'"
+                             (click)="changeTheme.emit('light')">
+                            <i class='text-base bx bx-sun'></i>
+                            Sáng
+                        </div>
+                        <div class="px-2 py-1 font-semibold rounded-md cursor-pointer transition-all duration-300 flex items-center gap-2"
+                             [ngClass]="theme === 'dark' ? 'bg-gray-200 text-blue-400' : 'hover:text-blue-400 text-gray-500'"
+                             (click)="changeTheme.emit('dark')">
+                            <i class='text-base bx bx-moon' ></i>
+                            Tối
+                        </div>
+                        <div class="px-2 py-1 font-semibold rounded-md cursor-pointer transition-all duration-300 flex items-center gap-2"
+                             [ngClass]="theme === 'system' ? 'bg-gray-200 text-blue-400' : 'hover:text-blue-400 text-gray-500'"
+                             (click)="changeTheme.emit('system')">
+                            <i class='text-base bx bx-desktop' ></i>
+                            Tự động
+                        </div>
+                    </div>
+                </nz-dropdown-menu>
+            </div>
             <div class="flex gap-2 items-center px-1 h-[50px]" *ngIf="isDesktop">
                 <div *ngLet="now$ | async as now" class="flex flex-col items-end">
                     <div class="truncate font-semibold text-gray-600 text-md">{{ now | date: 'HH:mm:ss' }}</div>

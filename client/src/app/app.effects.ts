@@ -1,6 +1,7 @@
-import { AuthEffects, CommonEffects } from './common/stores';
+import { AuthEffects, CommonEffects, SettingsEffects } from './common/stores';
 
 export const appEffects = [
     AuthEffects,
-    CommonEffects
+    CommonEffects,
+    SettingsEffects
 ];

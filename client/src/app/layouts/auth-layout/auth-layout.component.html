@@ -1,13 +1,17 @@
-<div class="w-full h-full flex flex-col">
+<div class="w-full h-full flex flex-col" *ngLet="(isFixedSidebar$ | async) as isFixedSidebar">
     <app-header [isFixedSidebar]="isFixedSidebar"
                 [isDesktop]="isDesktop"
+                [theme]="theme$ | async"
+                [activeTheme]="activeTheme$ | async"
                 [profile]="profile$ | async"
+                (changeTheme)="onChangeTheme($event)"
                 (logout)="onLogout()"/>
     <div class="flex flex-col flex-[1_auto] transition-all duration-300">
         <app-sidebar *ngIf="isDesktop"
                      [profile]="profile$ | async"
-                     [(isFixedSidebar)]="isFixedSidebar"
-                     [(isCollapsedSidebar)]="isCollapsedSidebar"/>
+                     [isFixedSidebar]="isFixedSidebar"
+                     [(isCollapsedSidebar)]="isCollapsedSidebar"
+                     (isFixedSidebarChange)="onChangeFixedSidebar($event)"/>
         <div class="flex flex-col flex-[1_auto] transition-all duration-300"
              [style.margin-top.px]="CONFIG.HEADER.HEIGHT"
              [style.margin-left.px]="isDesktop ? (isFixedSidebar ? CONFIG.SIDEBAR.WIDTH : CONFIG.SIDEBAR.MIN_WIDTH) : 0">

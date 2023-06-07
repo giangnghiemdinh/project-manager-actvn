@@ -1,4 +1,5 @@
 import { environment } from '../../../environments/environment';
+
 const APP_PREFIX = environment.appPrefix;
 
 export function loadInitialState() {
@@ -33,32 +34,22 @@ export function loadInitialState() {
     }, {});
 }
 
-export function set(key: string, value: string): void {
+export function setLocalStorage(key: string, value: string): void {
     if (!isEnabled()) { return; }
-    localStorage.setItem(`${APP_PREFIX}${key}`, value);
+    localStorage.setItem(`${APP_PREFIX}${key}`.toUpperCase(), value);
 }
 
-export function get(key: string): string {
+export function getLocalStorage(key: string): string {
     if (!isEnabled()) { return ''; }
-    return localStorage.getItem(`${APP_PREFIX}${key}`) || '';
+    return localStorage.getItem(`${APP_PREFIX}${key}`.toUpperCase()) || '';
 }
 
-export function setObject(key: string, value: unknown): void {
+export function removeLocalStorage(key: string): void {
     if (!isEnabled()) { return; }
-    localStorage.setItem(`${APP_PREFIX}${key}`, JSON.stringify(value));
+    localStorage.removeItem(`${APP_PREFIX}${key}`.toUpperCase());
 }
 
-export function getObject<TType = unknown>(key: string): TType | null {
-    if (!isEnabled()) { return null; }
-    return JSON.parse(localStorage.getItem(`${APP_PREFIX}${key}`) || JSON.stringify({})) as TType;
-}
-
-export function remove(key: string): void {
-    if (!isEnabled()) { return; }
-    localStorage.removeItem(`${APP_PREFIX}${key}`);
-}
-
-export function clear(): void {
+export function clearLocalStorage(): void {
     localStorage.clear();
 }
 

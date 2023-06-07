@@ -5,14 +5,18 @@ import { RouterReducerState } from '@ngrx/router-store';
 import { Actions } from '@ngrx/effects';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class AbstractEffects {
-  protected readonly notification = inject(NotificationService);
-  protected readonly routerStore = inject(Store<RouterReducerState>);
-  protected readonly actions$ = inject(Actions);
+    protected readonly notification = inject(NotificationService);
+    protected readonly routerStore = inject(Store<RouterReducerState>);
+    protected readonly actions$ = inject(Actions);
 
-  raiseSuccess(message: string) {
-    this.notification.success(message);
-  }
+    raiseSuccess(message: string) {
+        this.notification.success(message);
+    }
+
+    raiseError(message: string) {
+        this.notification.error(message);
+    }
 }

@@ -11,7 +11,6 @@ import { Store } from '@ngrx/store';
 
 @Injectable()
 export class UserEffects extends AbstractEffects {
-
     readonly #authStore = inject(Store<AuthState>);
     readonly #userService = inject(UserService);
 

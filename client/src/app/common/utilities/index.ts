@@ -6,3 +6,4 @@ export * from './cookie';
 export * from './auth';
 export * from './media';
 export * from './pure';
+export * from './dom';

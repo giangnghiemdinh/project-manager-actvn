@@ -16,7 +16,7 @@
            [menuLinkActive]="menu.routerLink || ''"
            [isCollapsedSidebar]="isCollapsedSidebar"
            [routerLink]="(!!menu.routerLink && [menu.routerLink]) || []"
-           class="cursor-pointer transition-all duration-300 text-gray-400 hover:bg-[#1b1b28] rounded-md group px-3 py-2 flex flex-row items-center outline-0">
+           class="cursor-pointer transition-all duration-300 text-gray-400 dark:text-gray-400 hover:bg-[#1b1b28] rounded-md group px-3 py-2 flex flex-row items-center outline-0">
             <span [class.text-blue-500]="menu.active"
                   class="menu-icon w-8 flex justify-items-start group-hover:text-blue-500">
                 <i class="text-lg bx" [ngClass]="menu.icon"></i>

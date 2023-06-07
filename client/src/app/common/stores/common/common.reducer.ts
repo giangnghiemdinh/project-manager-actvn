@@ -61,5 +61,5 @@ export const {
     selectDepartments,
     selectSemesters,
     selectIsLoading: selectCommonLoading,
-    selectErrors: selectCommonError
+    selectErrors: selectCommonErrors
 } = commonFeature;
