@@ -22,7 +22,7 @@
                 <i class="text-lg bx" [ngClass]="menu.icon"></i>
             </span>
             <span [class.opacity-0]="isCollapsedSidebar" [class.text-white]="menu.active"
-                  class="grow text-sm group-hover:text-white transition-all duration-300">{{menu.title}}</span>
+                  class="grow text-sm group-hover:text-white dark:group-hover:text-white transition-all duration-300">{{menu.title}}</span>
             <span *ngIf="menu.children?.length" class="group-hover:text-white transition-all duration-300"
                   [class.rotate-90]="activeMenuId === i">
                 <i class='bx bx-chevron-right'></i>

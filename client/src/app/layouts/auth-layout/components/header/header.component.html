@@ -28,7 +28,7 @@
                     ></i>
                 </div>
                 <nz-dropdown-menu #themeDesktopMenu="nzDropdownMenu">
-                    <div class="w-[150px] bg-white border border-gray-200 rounded-md shadow-md z-[999] p-2">
+                    <div class="w-[150px] bg-white dark:bg-[#1e1e2d] border border-gray-200 rounded-md shadow-md z-[999] p-2">
                         <div class="px-2 py-1 font-semibold rounded-md cursor-pointer transition-all duration-300 flex items-center gap-2"
                              [ngClass]="theme === 'light' ? 'bg-gray-200 text-blue-400' : 'hover:text-blue-400 text-gray-500'"
                              (click)="changeTheme.emit('light')">
@@ -69,7 +69,7 @@
                            [nzSrc]="(profile?.avatar || '') | driverUrl"></nz-avatar>
             </div>
             <nz-dropdown-menu #accountDesktopMenu="nzDropdownMenu">
-                <div class="w-[250px] bg-white border border-gray-200 rounded-md shadow-md z-[999]">
+                <div class="w-[250px] bg-white dark:bg-[#1e1e2d] border border-gray-200 rounded-md shadow-md z-[999]">
                     <div class="px-4 py-2 flex items-center border-b border-gray-150 gap-2">
                         <nz-avatar class="flex-shrink-0" [nzShape]="'square'" [nzSize]="40"
                                    [nzText]="profile?.fullName || ''"
