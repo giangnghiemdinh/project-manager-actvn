@@ -147,7 +147,6 @@ export class ProjectController {
     request.status = request.students?.length
       ? ProjectStatus.IN_PROGRESS
       : ProjectStatus.PENDING;
-    request.createdById = currentUser.id;
     return this.projectService.createProject(request, currentUser);
   }
 
@@ -160,7 +159,6 @@ export class ProjectController {
     @AuthUser() currentUser: UserEntity,
   ): Promise<ProjectDto> {
     request.status = ProjectStatus.PROPOSE;
-    request.createdById = currentUser.id;
     return this.projectService.createProject(request, currentUser);
   }
 

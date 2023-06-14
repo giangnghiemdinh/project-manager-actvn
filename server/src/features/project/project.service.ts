@@ -231,6 +231,7 @@ export class ProjectService {
     request: ProjectRequestDto,
     currentUser: UserEntity,
   ): Promise<ProjectDto> {
+    request.createdById = currentUser.id;
     await this.validateProject(request);
 
     const project = this.projectRepository.create(request);
