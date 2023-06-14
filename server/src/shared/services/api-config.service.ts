@@ -123,7 +123,7 @@ export class ApiConfigService {
       database: this.get('MYSQL_DATABASE'),
       namingStrategy: new SnakeNamingStrategy(),
       autoLoadEntities: true,
-      migrationsRun: true,
+      migrationsRun: false,
       synchronize: true,
       logging: this.isDevelopment,
     };
