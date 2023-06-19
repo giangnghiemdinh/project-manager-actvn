@@ -22,7 +22,7 @@
             <div class="flex gap-2 items-center px-1 h-[50px]" *ngIf="isDesktop">
                 <div *ngLet="now$ | async as now" class="flex flex-col items-end">
                     <div class="truncate font-semibold text-gray-600 text-md">{{ now | date: 'HH:mm:ss' }}</div>
-                    <div class="text-xs text-gray-400">{{ now | date: 'EEEE, dd/MM/yyyy' }}</div>
+                    <div class="text-xs text-gray-400">{{ now | date: 'EEEE, dd/MM/yyyy': undefined: 'vi-VN' }}</div>
                 </div>
                 <div class="text-red-500 bg-red-200 w-[34px] h-[34px] text-lg inline-flex outline-0 items-center justify-center rounded-full">
                     <i class='bx bx-time-five'></i>
