@@ -28,7 +28,7 @@ export class ProjectReviewRequestDto {
   })
   comment5: string;
 
-  @NumberProperty('Điểm', { required: true, int: true, min: 0, max: 10 })
+  @NumberProperty('Điểm', { required: true, min: 0, max: 10 })
   score: number;
 
   @BooleanProperty('Cho bảo vệ', { required: true })
