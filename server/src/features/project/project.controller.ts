@@ -56,18 +56,18 @@ export class ProjectController {
     return this.projectService.getStatistical(request);
   }
 
-  @Get('dump-review')
-  @Auth(Role.ADMINISTRATOR)
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({
-    description: 'Dump',
-  })
-  async dumpInstr(
-    @Query() query: { type: ProjectProgressType },
-    @AuthUser() currentUser: UserEntity,
-  ): Promise<any> {
-    await this.projectService.dumpReview(query.type, currentUser);
-  }
+  // @Get('dump-review')
+  // @Auth(Role.ADMINISTRATOR)
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOkResponse({
+  //   description: 'Dump',
+  // })
+  // async dumpInstr(
+  //   @Query() query: { type: ProjectProgressType },
+  //   @AuthUser() currentUser: UserEntity,
+  // ): Promise<any> {
+  //   await this.projectService.dumpReview(query.type, currentUser);
+  // }
   //
   // @Get('dump-report')
   // @Auth(Role.ADMINISTRATOR)
