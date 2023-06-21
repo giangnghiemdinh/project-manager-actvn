@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import compression from 'compression';
+import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import {
   ClassSerializerInterceptor,
@@ -74,7 +75,7 @@ async function bootstrap(): Promise<NestExpressApplication> {
     }),
   );
   app.use(compression());
-  // app.use(morgan('combined'));
+  app.use(morgan('combined'));
   app.enableCors();
   app.enableVersioning();
   app.setGlobalPrefix('/api');
