@@ -57,6 +57,7 @@ export class ProjectReviewComponent implements OnChanges {
         const value: any = this.formContainer.value;
         this.ok.emit({
             ...value,
+            isApproval: value.isApproval || false,
             type: this.report?.type,
             id: this.report?.projectId
         });
