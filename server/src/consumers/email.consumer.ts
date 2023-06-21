@@ -102,24 +102,24 @@ export class EmailConsumer {
       reason,
       isRefuse,
     } = job.data;
-    // await this.mailerService.sendMail({
-    //   to: email,
-    //   subject: `${title} | Học viện Kỹ thuật mật mã`,
-    //   template: './project-approval',
-    //   context: {
-    //     approveTitle: title,
-    //     approveContent: content,
-    //     name,
-    //     description,
-    //     requirement,
-    //     students,
-    //     instructor,
-    //     createdDate,
-    //     reviewedDate,
-    //     reason,
-    //     isRefuse,
-    //   },
-    // });
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `${title} | Học viện Kỹ thuật mật mã`,
+      template: './project-approval',
+      context: {
+        approveTitle: title,
+        approveContent: content,
+        name,
+        description,
+        requirement,
+        students,
+        instructor,
+        createdDate,
+        reviewedDate,
+        reason,
+        isRefuse,
+      },
+    });
     this.logger.log(`Đã gửi email kết quả phê duyệt đề tài đến ${email}`);
   }
 }

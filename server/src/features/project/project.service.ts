@@ -385,7 +385,7 @@ export class ProjectService {
       },
     );
 
-    if (request.status !== ProjectApproveStatus.ACCEPT) {
+    if (request.status === ProjectApproveStatus.ACCEPT) {
       await this.queueService.addProject(
         PROJECT_FOLDER_PROCESS,
         {
