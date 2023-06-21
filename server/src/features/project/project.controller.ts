@@ -56,57 +56,6 @@ export class ProjectController {
     return this.projectService.getStatistical(request);
   }
 
-  // @Get('dump-review')
-  // @Auth(Role.ADMINISTRATOR)
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOkResponse({
-  //   description: 'Dump',
-  // })
-  // async dumpInstr(
-  //   @Query() query: { type: ProjectProgressType },
-  //   @AuthUser() currentUser: UserEntity,
-  // ): Promise<any> {
-  //   await this.projectService.dumpReview(query.type, currentUser);
-  // }
-  //
-  // @Get('dump-report')
-  // @Auth(Role.ADMINISTRATOR)
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOkResponse({
-  //   description: 'Dump',
-  // })
-  // @UseInterceptors(
-  //   FileFieldsInterceptor(
-  //     [
-  //       { name: 'wordFile', maxCount: 1 },
-  //       { name: 'reportFile', maxCount: 1 },
-  //       { name: 'otherFile', maxCount: 1 },
-  //     ],
-  //     {
-  //       fileFilter: (req, file, cb) => {
-  //         if (file.originalname.match(/^.*\.(zip|rar|doc|docx|pdf)$/))
-  //           cb(null, true);
-  //         else {
-  //           cb(
-  //             new NotAcceptableException(
-  //               'Vui lòng đính kèm file word hoặc pdf!',
-  //             ),
-  //             false,
-  //           );
-  //         }
-  //       },
-  //       limits: { fileSize: 10485760 },
-  //     },
-  //   ),
-  // ) // Max 10MB
-  // async dumpReport(
-  //   @UploadedFiles() files: { wordFile; reportFile; otherFile },
-  //   @Body() request: { type: ProjectProgressType },
-  //   @AuthUser() currentUser: UserEntity,
-  // ): Promise<any> {
-  //   this.projectService.dumpReport(request.type, files, currentUser).then();
-  // }
-
   @Get()
   @Auth()
   @HttpCode(HttpStatus.OK)
