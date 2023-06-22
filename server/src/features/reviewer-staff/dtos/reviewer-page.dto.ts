@@ -6,6 +6,9 @@ import { ReviewerStaffDto } from './reviewer-staff.dto';
 export class ReviewerPageRequestDto extends PaginationOptionsDto {
   @NumberProperty('ID khoa', { int: true, min: 1 })
   readonly departmentId?: number;
+
+  @NumberProperty('ID học kỳ', { int: true, min: 1 })
+  readonly semesterId?: number;
 }
 
 export class ReviewerPageResponseDto {

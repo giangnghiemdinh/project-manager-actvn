@@ -6,6 +6,9 @@ import { NumberProperty } from '../../../common/decorators';
 export class ManagerPageRequestDto extends PaginationOptionsDto {
   @NumberProperty('ID khoa', { int: true, min: 1 })
   readonly departmentId?: number;
+
+  @NumberProperty('ID học kỳ', { int: true, min: 1 })
+  readonly semesterId?: number;
 }
 
 export class ManagerPageResponseDto {

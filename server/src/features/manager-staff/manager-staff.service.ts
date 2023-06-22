@@ -55,6 +55,12 @@ export class ManagerStaffService {
       });
     }
 
+    if (pageOptionsDto.semesterId) {
+      queryBuilder.andWhere('managerStaff.semesterId = :semesterId', {
+        semesterId: pageOptionsDto.semesterId,
+      });
+    }
+
     queryBuilder
       .orderBy('managerStaff.createdAt', pageOptionsDto.order)
       .leftJoin('managerStaff.department', 'department')

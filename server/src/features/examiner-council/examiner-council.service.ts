@@ -58,6 +58,12 @@ export class ExaminerCouncilService {
       });
     }
 
+    if (pageOptionsDto.semesterId) {
+      queryBuilder.andWhere('examinerCouncil.semesterId = :semesterId', {
+        semesterId: pageOptionsDto.semesterId,
+      });
+    }
+
     queryBuilder
       .orderBy('examinerCouncil.createdAt', pageOptionsDto.order)
       .leftJoin('examinerCouncil.department', 'department')

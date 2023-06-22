@@ -57,6 +57,12 @@ export class ReviewerStaffService {
       });
     }
 
+    if (pageOptionsDto.semesterId) {
+      queryBuilder.andWhere('reviewerStaff.semesterId = :semesterId', {
+        semesterId: pageOptionsDto.semesterId,
+      });
+    }
+
     queryBuilder
       .orderBy('reviewerStaff.createdAt', pageOptionsDto.order)
       .leftJoin('reviewerStaff.department', 'department')
